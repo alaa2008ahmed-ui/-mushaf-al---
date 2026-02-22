@@ -26,7 +26,7 @@ const BookmarksModal: React.FC<BookmarksModalProps> = ({ bookmarks, quranData, o
                             return (
                                 <div key={b.id} className="flex items-center justify-between p-3 rounded-lg border mb-2 transition theme-card-bg">
                                     <div className="flex-grow cursor-pointer" onClick={() => { onSelect(b.s, b.a); onClose(); }}>
-                                        <div className="font-bold text-lg" style={{ fontFamily: 'var(--font-amiri-quran)' }}>
+                                        <div className="font-bold text-lg" style={{ fontFamily: 'var(--font-amiri)' }}>
                                             {surahName} - آية {toArabic(b.a)}
                                         </div>
                                         <div className="text-xs mt-1 font-bold opacity-70">{b.date} | {b.time}</div>

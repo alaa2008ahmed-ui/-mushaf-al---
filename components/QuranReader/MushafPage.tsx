@@ -52,9 +52,11 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                             {showHeader && ( 
                                 <> 
                                     <div className="surah-header">
+                                        <span className="surah-number-left">{toArabic(ayah.sNum)}</span>
                                         <span className="surah-info-right">{SURAH_INFO[ayah.sNum]?.type}</span>
-                                        <span className="surah-name" style={headerStyle}>{ayah.sName.replace('سورة', '').trim()}</span>
+                                        <span className="surah-name">{ayah.sName.replace('سورة', '').trim()}</span>
                                         <span className="surah-info-left">آياتها {toArabic(SURAH_INFO[ayah.sNum]?.ayahs || 0)}</span>
+                                        <span className="surah-number-right">{toArabic(ayah.sNum)}</span>
                                     </div> 
                                     {ayah.sNum !== 1 && ayah.sNum !== 9 && (
                                         <div className="bismillah" style={headerStyle}>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>

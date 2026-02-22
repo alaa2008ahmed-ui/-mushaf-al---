@@ -26,7 +26,7 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
                             >
                                 <span>
                                     <span className="text-emerald-600 dark:text-emerald-400">{toArabic(s.number)}.</span> 
-                                    <span> {s.name.replace('سورة', '').trim()}</span>
+                                    <span style={{ fontFamily: 'var(--font-amiri)' }}> {s.name.replace('سورة', '').trim()}</span>
                                 </span>
                                 <span className="text-xs font-normal opacity-80">
                                     {s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'} - {toArabic(s.ayahs.length)} آية
@@ -41,8 +41,8 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
                                 className="p-3 rounded-lg transition font-bold border-2 flex flex-col items-center justify-center text-center theme-btn-bg"
                             >
                                 <span className="text-lg mb-1 text-emerald-600 dark:text-emerald-400">الجزء {toArabic(j.j)}</span>
-                                <span className="text-xs font-normal opacity-80">
-                                    {quranData?.surahs[j.s-1]?.name.replace('سورة','').trim()} آية {toArabic(j.a)}
+                                <span className="text-xs font-normal opacity-80" style={{ fontFamily: 'var(--font-amiri)' }}>
+                                    {quranData?.surahs[j.s-1]?.name.replace('سورة','').trim()} آية {toArabic(j.a)} - صفحة {toArabic(quranData?.surahs[j.s-1]?.ayahs[j.a-1]?.page || '')}
                                 </span>
                             </button>
                         ))

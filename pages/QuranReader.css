@@ -130,38 +130,79 @@
 .dark .verse-num-inner { color: #f87171; }
 
 .surah-header { 
-    margin: 1rem 0 0.5rem; 
+    margin: 1.5rem auto 1rem; 
     display: flex; 
-    justify-content: space-between; 
+    justify-content: center; 
     align-items: center;
-    border-bottom: 1px solid #10b981;
-    border-top: 1px solid #10b981;
-    padding: 12px 10px;
+    border: none !important;
+    padding: 15px 60px;
+    position: relative;
+    max-width: 95%;
+    min-height: 80px;
+    gap: 65px;
+}
+.surah-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 100' preserveAspectRatio='none'%3E%3Cpath d='M60 50 L90 20 L510 20 L540 50 L510 80 L90 80 Z' fill='none' stroke='%2310b981' stroke-width='2'/%3E%3Cpath d='M10 50 L35 20 L60 50 L35 80 Z' fill='%2310b981'/%3E%3Cpath d='M590 50 L565 20 L540 50 L565 80 Z' fill='%2310b981'/%3E%3Ccircle cx='300' cy='15' r='3' fill='%2310b981'/%3E%3Ccircle cx='300' cy='85' r='3' fill='%2310b981'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    z-index: 0;
+}
+.surah-name, .surah-info-right, .surah-info-left, .surah-number-left, .surah-number-right {
+    position: relative;
+    z-index: 1;
+}
+.surah-number-left, .surah-number-right {
+    position: absolute;
+    top: 50%;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    width: 40px;
+    text-align: center;
+    font-family: var(--font-ui);
+    z-index: 1;
+}
+.surah-number-left { 
+    left: 5.83%; 
+    transform: translate(-50%, -50%); 
+}
+.surah-number-right { 
+    left: 94.17%; 
+    transform: translate(-50%, -50%); 
 }
 .surah-name { 
-    font-size: 1.8rem; 
+    font-size: 1.9rem; 
     color: #059669; 
     font-weight: bold; 
     margin: 0; 
     display: block; 
-    font-family: var(--font-hafs) !important; 
-    flex-grow: 1; 
+    font-family: var(--font-amiri) !important; 
     text-align: center; 
     line-height: 1.2; 
+    letter-spacing: 0 !important;
+    white-space: nowrap;
+    font-feature-settings: "liga" 1, "clig" 1;
+    text-rendering: optimizeLegibility;
 }
 .surah-info-right, .surah-info-left {
     font-size: 0.9rem;
     color: #4b5563;
     font-family: var(--font-ui);
-    min-width: 70px;
     font-weight: bold;
-    line-height: 1.2;
+    line-height: 1.6;
+    letter-spacing: 0 !important;
     flex-shrink: 0;
 }
 .surah-info-right { text-align: right; }
 .surah-info-left { text-align: left; }
+.dark .surah-header::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 100' preserveAspectRatio='none'%3E%3Cpath d='M60 50 L90 20 L510 20 L540 50 L510 80 L90 80 Z' fill='none' stroke='%2334d399' stroke-width='2'/%3E%3Cpath d='M10 50 L35 20 L60 50 L35 80 Z' fill='%2334d399'/%3E%3Cpath d='M590 50 L565 20 L540 50 L565 80 Z' fill='%2334d399'/%3E%3Ccircle cx='300' cy='15' r='3' fill='%2334d399'/%3E%3Ccircle cx='300' cy='85' r='3' fill='%2334d399'/%3E%3C/svg%3E");
+}
 .dark .surah-info-right, .dark .surah-info-left { color: #d1d5db; }
-.dark .surah-header { border-bottom-color: #34d399; border-top-color: #34d399; }
+.dark .surah-header { border: none !important; }
 .dark .surah-name { color: #34d399; }
 
 .bismillah { 
@@ -209,7 +250,7 @@
     padding-bottom: 0;
 }
 
-#surah-name-header, #juz-number-header { font-family: var(--font-hafs); }
+#surah-name-header, #juz-number-header { font-family: var(--font-amiri); }
 #header-page { font-family: var(--font-hafs); }
 
 #surah-name-header { background: #fff; color: #10b981; border-color: #10b981; flex: 1; min-width: 0; margin: 0 4px; font-size: 1rem; }
@@ -276,7 +317,7 @@
 .search-context-block { padding: 1rem; margin-bottom: 0.5rem; border-radius: 0.75rem; text-align: center; cursor: pointer; border: 2px solid transparent; transition: border-color 0.2s; }
 .search-context-block:hover { border-color: var(--search-result-border); }
 .search-context-ayah { font-family: var(--font-amiri-quran); font-size: 1.5rem; line-height: 2.2; margin-bottom: 10px; font-weight: bold; }
-.search-context-label { font-size: 0.8rem; opacity: 0.7; display: block; font-family: var(--font-ui); font-weight: bold; }
+.search-context-label { font-size: 0.8rem; opacity: 0.7; display: block; font-family: var(--font-amiri); font-weight: bold; }
 .dark .search-context-ayah, .dark .search-context-label { color: #e2e8f0 !important; }
 
 .theme-card { border: 2px solid transparent; transition: all 0.2s ease-in-out; display: flex; flex-direction: column; align-items: center; padding: 0.75rem; border-radius: 0.75rem; cursor: pointer; }
