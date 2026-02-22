@@ -132,14 +132,14 @@
 .surah-header { 
     margin: 1.5rem auto 1rem; 
     display: flex; 
-    justify-content: center; 
+    justify-content: space-between; 
     align-items: center;
     border: none !important;
-    padding: 15px 60px;
+    padding: 15px 12%;
     position: relative;
     max-width: 95%;
     min-height: 80px;
-    gap: 65px;
+    gap: 5px;
 }
 .surah-header::before {
     content: '';
@@ -157,7 +157,7 @@
 .surah-number-left, .surah-number-right {
     position: absolute;
     top: 50%;
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 4vw, 1.5rem);
     font-weight: bold;
     color: white;
     width: 40px;
@@ -174,7 +174,7 @@
     transform: translate(-50%, -50%); 
 }
 .surah-name { 
-    font-size: 1.9rem; 
+    font-size: clamp(1.2rem, 5vw, 1.9rem); 
     color: #059669; 
     font-weight: bold; 
     margin: 0; 
@@ -186,15 +186,16 @@
     white-space: nowrap;
     font-feature-settings: "liga" 1, "clig" 1;
     text-rendering: optimizeLegibility;
+    padding: 0 5px;
 }
 .surah-info-right, .surah-info-left {
-    font-size: 0.9rem;
+    font-size: clamp(0.7rem, 2.5vw, 0.9rem);
     color: #4b5563;
     font-family: var(--font-ui);
     font-weight: bold;
     line-height: 1.6;
     letter-spacing: 0 !important;
-    flex-shrink: 0;
+    flex: 1;
 }
 .surah-info-right { text-align: right; }
 .surah-info-left { text-align: left; }
