@@ -51,7 +51,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                         <React.Fragment key={id}>
                             {showHeader && ( 
                                 <> 
-                                    <div className="surah-header" style={headerStyle}>
+                                    <div className="surah-header">
                                         <span className="surah-info-right">{SURAH_INFO[ayah.sNum]?.type}</span>
                                         <span className="surah-name">{ayah.sName.replace('سورة', '').trim()}</span>
                                         <span className="surah-info-left">آياتها {toArabic(SURAH_INFO[ayah.sNum]?.ayahs || 0)}</span>
@@ -70,7 +70,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                                 data-surah={ayah.sName.replace('سورة','').trim()} 
                                 data-ayah={ayah.numberInSurah}
                             >
-                                {text}
+                                {text.replace(/[\s\u200B-\u200D\uFEFF]+/g, ' ').trim()}
                                 <span className="verse-container" onClick={(e) => onVerseClick(ayah.sNum, ayah.numberInSurah, e)}>
                                     <span className="verse-bracket">﴿</span>
                                     <span className="verse-num-inner">{toArabic(ayah.numberInSurah)}</span>

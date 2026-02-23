@@ -435,7 +435,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     }, [settings.reader, stopAudio, preloadAudioQueue, manageAudioCache, showToast]);
 
     const closeModal = useCallback((modalName: string) => setActiveModals(p => ({ ...p, [modalName]: false })), []);
-    const openModal = useCallback((modalName: string) => { setActiveModals(p => ({...p, [modalName]: true})); stopAudio(); }, [stopAudio]);
+    const openModal = useCallback((modalName: string) => { stopAudio(); setActiveModals(p => ({...p, [modalName]: true})); }, [stopAudio]);
     
     const handleVerseClick = useCallback((s: number, a: number, event: React.MouseEvent) => {
         event.stopPropagation();
@@ -628,13 +628,15 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 
         let initialDistance: number | null = null;
         let initialFontSize: number | null = null;
+        let currentFontSize: number | null = null;
 
         const handleTouchStart = (e: TouchEvent) => {
             if (e.touches.length === 2) {
                 const touch1 = e.touches[0];
                 const touch2 = e.touches[1];
-                initialDistance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+                initialDistance = Math.hypot(touch2.pageX - touch1.pageX, touch2.pageY - touch1.pageY);
                 initialFontSize = settingsRef.current.fontSize;
+                currentFontSize = initialFontSize;
             }
         };
 
@@ -643,22 +645,34 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 e.preventDefault();
                 const touch1 = e.touches[0];
                 const touch2 = e.touches[1];
-                const currentDistance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+                const currentDistance = Math.hypot(touch2.pageX - touch1.pageX, touch2.pageY - touch1.pageY);
                 
                 const scale = currentDistance / initialDistance;
                 let newFontSize = initialFontSize * scale;
                 
-                newFontSize = Math.max(1.0, Math.min(newFontSize, 5.0));
+                newFontSize = Math.max(0.5, Math.min(newFontSize, 4.5));
+                currentFontSize = parseFloat(newFontSize.toFixed(1));
                 
-                setSettings(prev => ({ ...prev, fontSize: newFontSize }));
+                // Direct DOM manipulation for smooth zooming without React re-renders
+                document.querySelectorAll('.page-content').forEach((el: any) => {
+                    el.style.fontSize = `${currentFontSize}rem`;
+                });
+                document.querySelectorAll('.surah-name, .bismillah').forEach((el: any) => {
+                    el.style.fontSize = `${currentFontSize * 0.94}rem`;
+                });
             }
         };
 
         const handleTouchEnd = (e: TouchEvent) => {
-             if (e.touches.length < 2 && initialDistance !== null) {
-                 localStorage.setItem('quran_settings', JSON.stringify(settingsRef.current));
+             if (e.touches.length < 2 && initialDistance !== null && currentFontSize !== null) {
+                 const newSettings = { ...settingsRef.current, fontSize: currentFontSize };
+                 setSettings(newSettings);
+                 localStorage.setItem('quran_settings', JSON.stringify(newSettings));
+                 window.dispatchEvent(new Event('settings-change'));
+                 
                  initialDistance = null;
                  initialFontSize = null;
+                 currentFontSize = null;
              }
         };
 
@@ -896,7 +910,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 <button id="btn-play" onClick={toggleAudio} className="top-bar-text-button" style={getToolbarStyle('audio', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}><span id="play-icon-svg">{renderPlayButtonIcon()}</span></button>
             </header>
             <ReadingTimer isVisible={autoScrollState.isPaused || (!autoScrollState.isActive && autoScrollState.elapsedTime > 0)} elapsedTime={autoScrollState.elapsedTime} />
-            <div id="mushaf-content" ref={mushafContentRef} onClick={pauseResumeAutoScroll} className="flex-grow overflow-y-auto w-full relative" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
+            <div id="mushaf-content" ref={mushafContentRef} onClick={pauseResumeAutoScroll} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
                 <div id="pages-container" className="full-mushaf-container">
                    {[...new Set(visiblePages)].sort((a: number, b: number) => a - b).map(pageNum => (<MushafPage key={pageNum} pageNum={pageNum} pageData={getPageData(pageNum)} highlightedAyahId={highlightedAyahId} onAyahClick={handleAyahClick} onVerseClick={handleVerseClick} settings={settings} />))}
                 </div>

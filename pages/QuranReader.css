@@ -90,10 +90,10 @@
 }
 
 .page-content {
-    text-align: justify;
+    text-align: center;
     line-height: 2.3;
     font-size: 1.7rem;
-    letter-spacing: 0.1px; /* Fix for Arabic justification bug in some renderers */
+    letter-spacing: 0px; 
 }
 
 .page-footer {
