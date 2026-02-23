@@ -645,74 +645,6 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         };
     }, [visiblePages, autoScrollState.isActive, handleSajdahVisible]);
 
-    // Pinch to zoom
-    useEffect(() => {
-        const contentEl = mushafContentRef.current;
-        if (!contentEl) return;
-
-        let initialDistance: number | null = null;
-        let initialFontSize: number | null = null;
-        let currentFontSize: number | null = null;
-
-        const handleTouchStart = (e: TouchEvent) => {
-            if (e.touches.length === 2) {
-                const touch1 = e.touches[0];
-                const touch2 = e.touches[1];
-                initialDistance = Math.hypot(touch2.pageX - touch1.pageX, touch2.pageY - touch1.pageY);
-                initialFontSize = settingsRef.current.fontSize;
-                currentFontSize = initialFontSize;
-            }
-        };
-
-        const handleTouchMove = (e: TouchEvent) => {
-            if (e.touches.length === 2 && initialDistance !== null && initialFontSize !== null) {
-                e.preventDefault();
-                const touch1 = e.touches[0];
-                const touch2 = e.touches[1];
-                const currentDistance = Math.hypot(touch2.pageX - touch1.pageX, touch2.pageY - touch1.pageY);
-                
-                const scale = currentDistance / initialDistance;
-                let newFontSize = initialFontSize * scale;
-                
-                newFontSize = Math.max(0.5, Math.min(newFontSize, 4.5));
-                currentFontSize = parseFloat(newFontSize.toFixed(1));
-                
-                // Direct DOM manipulation for smooth zooming without React re-renders
-                document.querySelectorAll('.page-content').forEach((el: any) => {
-                    el.style.fontSize = `${currentFontSize}rem`;
-                });
-                document.querySelectorAll('.surah-name, .bismillah').forEach((el: any) => {
-                    el.style.fontSize = `${currentFontSize * 0.94}rem`;
-                });
-            }
-        };
-
-        const handleTouchEnd = (e: TouchEvent) => {
-             if (e.touches.length < 2 && initialDistance !== null && currentFontSize !== null) {
-                 const newSettings = { ...settingsRef.current, fontSize: currentFontSize };
-                 setSettings(newSettings);
-                 localStorage.setItem('quran_settings', JSON.stringify(newSettings));
-                 window.dispatchEvent(new Event('settings-change'));
-                 
-                 initialDistance = null;
-                 initialFontSize = null;
-                 currentFontSize = null;
-             }
-        };
-
-        contentEl.addEventListener('touchstart', handleTouchStart, { passive: false });
-        contentEl.addEventListener('touchmove', handleTouchMove, { passive: false });
-        contentEl.addEventListener('touchend', handleTouchEnd);
-        contentEl.addEventListener('touchcancel', handleTouchEnd);
-
-        return () => {
-            contentEl.removeEventListener('touchstart', handleTouchStart);
-            contentEl.removeEventListener('touchmove', handleTouchMove);
-            contentEl.removeEventListener('touchend', handleTouchEnd);
-            contentEl.removeEventListener('touchcancel', handleTouchEnd);
-        };
-    }, []);
-
     const getPageData = useCallback((pageNum) => quranData ? quranData.surahs.flatMap((s:any) => s.ayahs.filter((a:any) => a.page === pageNum).map((a:any) => ({ ...a, sNum: s.number, sName: s.name }))) : [], [quranData]);
     
     const handleAyahClick = useCallback((s, a) => {
@@ -763,6 +695,29 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const saveBookmark = () => { if (!currentAyah) { showToast('اختر آية أولاً'); return; } const stored = JSON.parse(localStorage.getItem('quran_bookmarks_list') || '[]'); const date = new Date(); const newBookmark = { id: Date.now(), s: currentAyah.s, a: currentAyah.a, date: date.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }), time: date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) }; const newBookmarks = [newBookmark, ...stored]; localStorage.setItem('quran_bookmarks_list', JSON.stringify(newBookmarks)); setBookmarks(newBookmarks); showToast('تم حفظ الإشارة المرجعية'); };
     const deleteBookmark = (id:number) => { const newBookmarks = bookmarks.filter((b:any) => b.id !== id); localStorage.setItem('quran_bookmarks_list', JSON.stringify(newBookmarks)); setBookmarks(newBookmarks); };
+
+    const bookmarkButtonTimerRef = useRef<number | null>(null);
+    const handleBookmarkButtonPointerDown = () => {
+        bookmarkButtonTimerRef.current = window.setTimeout(() => {
+            bookmarkButtonTimerRef.current = null;
+            openModal('bookmarks-modal');
+        }, 500);
+    };
+
+    const handleBookmarkButtonPointerUp = () => {
+        if (bookmarkButtonTimerRef.current) {
+            clearTimeout(bookmarkButtonTimerRef.current);
+            bookmarkButtonTimerRef.current = null;
+            saveBookmark();
+        }
+    };
+
+    const handleBookmarkButtonPointerLeave = () => {
+        if (bookmarkButtonTimerRef.current) {
+            clearTimeout(bookmarkButtonTimerRef.current);
+            bookmarkButtonTimerRef.current = null;
+        }
+    };
 
     const PAGES_PER_JUZ = 20;
     const PAGE_HEIGHT_FALLBACK = 1300;
@@ -957,7 +912,17 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             </div>
             <footer id="bottom-bar" className="footer-default flex-none border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-10 flex justify-around items-center px-1 py-2 w-full" style={getToolbarStyle('bottom-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button ref={menuButtonRef} id="btn-menu" onClick={() => setIsFloatingMenuOpen(p => !p)} className="bottom-bar-button btn-purple flex-1 mx-1 h-10" style={getToolbarStyle('btn-menu', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><i className="fa-solid fa-bars"></i><span className="hidden sm:inline">القائمة</span></button>
-                <button id="btn-bookmark" onClick={saveBookmark} className="bottom-bar-button btn-green flex-1 mx-1 h-10" style={getToolbarStyle('btn-bookmark', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><i className="fa-solid fa-bookmark"></i><span className="hidden sm:inline">حفظ</span></button>
+                <button 
+                    id="btn-bookmark" 
+                    onPointerDown={handleBookmarkButtonPointerDown}
+                    onPointerUp={handleBookmarkButtonPointerUp}
+                    onPointerLeave={handleBookmarkButtonPointerLeave}
+                    className="bottom-bar-button btn-green flex-1 mx-1 h-10" 
+                    style={{...getToolbarStyle('btn-bookmark', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg), touchAction: 'none'}}
+                >
+                    <i className="fa-solid fa-bookmark"></i>
+                    <span className="hidden sm:inline">حفظ</span>
+                </button>
                 <button id="btn-autoscroll" onClick={toggleAutoScroll} className={`bottom-bar-button btn-purple flex-1 mx-1 h-10 ${autoScrollState.isActive ? 'btn-autoscroll-active' : ''}`} style={getToolbarStyle('btn-autoscroll', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}>
                     {autoScrollState.isActive ? <i className="fa-solid fa-pause"></i> : <i className="fa-solid fa-arrow-down"></i>}
                     <span className="hidden sm:inline">{autoScrollState.isActive ? "إيقاف" : "تمرير"}</span>
