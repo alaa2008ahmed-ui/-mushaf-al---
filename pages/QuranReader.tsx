@@ -231,8 +231,13 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     useEffect(() => { currentAyahRef.current = currentAyah; }, [currentAyah]);
 
     useEffect(() => {
+        // Clear audio cache when reader changes to prevent playing old reader's audio
+        audioCacheRef.current = {};
+
         if (isPlaying || isAudioLoading) {
-            playAudio(currentAyah.s, currentAyah.a);
+            // Restart with new reader from the currently playing ayah (if any), otherwise current selected
+            const target = playingAyah || currentAyah;
+            playAudio(target.s, target.a);
         }
     }, [settings.reader]);
     
@@ -573,9 +578,8 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             if (now - lastScrollUpdateTime.current < 100) return;
             lastScrollUpdateTime.current = now;
     
-            const topOffset = 80;
             const x = window.innerWidth / 2;
-            const y = contentEl.getBoundingClientRect().top + topOffset;
+            const y = contentEl.getBoundingClientRect().top + (contentEl.clientHeight / 2);
             
             const el = document.elementFromPoint(x, y);
             if (!el) return;
@@ -689,8 +693,12 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 handleAyahClick(s, a);
             }
         }, 100);
-        setActiveModals({});
-    }, [quranData, handleAyahClick, stopAudio]);
+        
+        // Only close modals if not typing page number
+        if (!isPageInputActive) {
+            setActiveModals({});
+        }
+    }, [quranData, handleAyahClick, stopAudio, isPageInputActive]);
 
     const jumpToPage = useCallback((pageNum: number, instant: boolean = true) => {
         if (!quranData || isNaN(pageNum) || pageNum < 1 || pageNum > 604) return;
@@ -717,7 +725,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const updateHeadersDuringAutoScroll = () => {
         const content = mushafContentRef.current;
         if (!content) return;
-        const el = document.elementFromPoint(window.innerWidth / 2, content.getBoundingClientRect().top + 80); 
+        const el = document.elementFromPoint(window.innerWidth / 2, content.getBoundingClientRect().top + (content.clientHeight / 2)); 
         if (!el) return;
         const ayahBlock = el.closest('.ayah-text-block');
         if (ayahBlock && ayahBlock.id) {
@@ -852,7 +860,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     };
 
     return (
-        <div className={`quran-reader-container ${autoScrollState.isActive && !autoScrollState.isPaused && hideUIOnScroll && !isPageInputActive ? 'fullscreen-active' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
+        <div className={`quran-reader-container ${autoScrollState.isActive && !autoScrollState.isPaused && hideUIOnScroll && !isPageInputActive ? 'fullscreen-active' : ''} ${isPageInputActive ? 'force-ui-visible' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
             <header id="header" className="header-default flex-none z-50 flex items-center px-4 justify-between border-b shadow-xl w-full gap-2" style={getToolbarStyle('top-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button id="surah-name-header" onClick={() => openModal('surah-modal')} className="top-bar-text-button" style={getToolbarStyle('surah', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}><span>{surahName} - آية {toArabic(currentAyah.a)}</span></button>
                 <button id="juz-number-header" onClick={() => openModal('juz-modal')} className="top-bar-text-button" style={getToolbarStyle('juz', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>الجزء {toArabic(juz)}</button>
