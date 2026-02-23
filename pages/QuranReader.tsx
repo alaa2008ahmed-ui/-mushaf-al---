@@ -258,6 +258,13 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         setIsAudioLoading(false);
         setPlayingAyah(null);
     }, []);
+
+    // Stop audio on unmount
+    useEffect(() => {
+        return () => {
+            stopAudio();
+        };
+    }, [stopAudio]);
     const showSajdahNotification = useCallback((surah, ayah) => {
         setSajdahInfo({ show: true, surah, ayah });
         const timeout = autoScrollStateRef.current.isActive ? 2000 : 4000;
