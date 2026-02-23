@@ -12,6 +12,7 @@ import BookmarksModal from '../components/QuranReader/BookmarksModal';
 import MushafPage from '../components/QuranReader/MushafPage';
 import Toast from '../components/QuranReader/Toast';
 import TafseerModal from '../components/QuranReader/TafseerModal';
+import ReciterSelectModal from '../components/QuranReader/ReciterSelectModal';
 
 declare var window: any;
 
@@ -474,6 +475,29 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         else showToast('الرجاء اختيار آية للبدء');
     }, [isPlaying, isAudioLoading, currentAyah, playAudio, stopAudio]);
 
+    const playButtonTimerRef = useRef<number | null>(null);
+    const handlePlayButtonPointerDown = () => {
+        playButtonTimerRef.current = window.setTimeout(() => {
+            playButtonTimerRef.current = null;
+            openModal('reciter-modal');
+        }, 500);
+    };
+
+    const handlePlayButtonPointerUp = () => {
+        if (playButtonTimerRef.current) {
+            clearTimeout(playButtonTimerRef.current);
+            playButtonTimerRef.current = null;
+            toggleAudio();
+        }
+    };
+
+    const handlePlayButtonPointerLeave = () => {
+        if (playButtonTimerRef.current) {
+            clearTimeout(playButtonTimerRef.current);
+            playButtonTimerRef.current = null;
+        }
+    };
+
     useEffect(() => {
         const handleThemeChange = () => {
             const themeId = localStorage.getItem('current_theme_id') || 'default';
@@ -907,7 +931,16 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                         ص {toArabic(page)}
                     </button>
                 )}
-                <button id="btn-play" onClick={toggleAudio} className="top-bar-text-button" style={getToolbarStyle('audio', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}><span id="play-icon-svg">{renderPlayButtonIcon()}</span></button>
+                <button 
+                    id="btn-play" 
+                    onPointerDown={handlePlayButtonPointerDown}
+                    onPointerUp={handlePlayButtonPointerUp}
+                    onPointerLeave={handlePlayButtonPointerLeave}
+                    className="top-bar-text-button" 
+                    style={{...getToolbarStyle('audio', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder), touchAction: 'none'}}
+                >
+                    <span id="play-icon-svg">{renderPlayButtonIcon()}</span>
+                </button>
             </header>
             <ReadingTimer isVisible={autoScrollState.isPaused || (!autoScrollState.isActive && autoScrollState.elapsedTime > 0)} elapsedTime={autoScrollState.elapsedTime} />
             <div id="mushaf-content" ref={mushafContentRef} onClick={pauseResumeAutoScroll} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
@@ -937,6 +970,13 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             {activeModals['search-modal'] && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a)} onClose={() => closeModal('search-modal')} />}
             {activeModals['themes-modal'] && <ThemesModal onClose={() => closeModal('themes-modal')} showToast={showToast} />}
             {activeModals['settings-modal'] && <SettingsModal onClose={() => closeModal('settings-modal')} onOpenModal={openModal} showToast={showToast} />}
+            {activeModals['reciter-modal'] && <ReciterSelectModal onClose={() => closeModal('reciter-modal')} currentReader={settings.reader} onSelect={(id) => {
+                const newSettings = { ...settings, reader: id };
+                setSettings(newSettings);
+                localStorage.setItem('quran_settings', JSON.stringify(newSettings));
+                window.dispatchEvent(new Event('settings-change'));
+                showToast('تم تغيير القارئ بنجاح');
+            }} />}
             {activeModals['toolbar-color-picker-modal'] && <ToolbarColorPickerModal onClose={() => closeModal('toolbar-color-picker-modal')} onOpenModal={openModal} showToast={showToast} currentTheme={currentTheme} toolbarColors={toolbarColors} />}
             {activeModals['quran-download-modal'] && <QuranDownloadModal onClose={() => closeModal('quran-download-modal')} quranData={quranData} showToast={showToast} />}
             {activeModals['tafsir-download-modal'] && <TafsirDownloadModal onClose={() => closeModal('tafsir-download-modal')} quranData={quranData} showToast={showToast} />}
