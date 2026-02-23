@@ -10,6 +10,7 @@ import PrayerTimes from '../pages/PrayerTimes';
 import Qibla from '../pages/Qibla';
 import AdkarSabahMasaa from '../pages/AdkarSabahMasaa';
 import Adia from '../pages/Adia';
+import Nawawi from '../pages/Nawawi';
 import QuranReader from '../pages/QuranReader';
 
 interface AppRouterProps {
@@ -43,6 +44,8 @@ const AppRouter: React.FC<AppRouterProps> = ({ page, onBack, onNavigate, onOpenT
         return <AdkarSabahMasaa onBack={onBack} />;
       case 'adia':
         return <Adia onBack={onBack} />;
+      case 'nawawi':
+        return <Nawawi onBack={onBack} />;
       case 'home':
       default:
         return <MainMenu onNavigate={onNavigate} onOpenThemes={onOpenThemes} />;

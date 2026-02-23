@@ -2,18 +2,25 @@
 export const RECITERS = [
     { id: 'https://server8.mp3quran.net/afs', name: 'مشاري راشد العفاسي' },
     { id: 'https://server7.mp3quran.net/sds', name: 'عبدالرحمن السديس' },
-    { id: 'https://server7.mp3quran.net/shur', name: 'سعود الشريم' },
     { id: 'https://server12.mp3quran.net/maher', name: 'ماهر المعيقلي' },
     { id: 'https://server13.mp3quran.net/yasser', name: 'ياسر الدوسري' },
     { id: 'https://server13.mp3quran.net/qtm', name: 'ناصر القطامي' },
     { id: 'https://server10.mp3quran.net/ajm', name: 'أحمد بن علي العجمي' },
-    { id: 'https://server8.mp3quran.net/basit', name: 'عبدالباسط عبدالصمد (مرتل)' },
-    { id: 'https://server10.mp3quran.net/minsh', name: 'محمد صديق المنشاوي (مرتل)' },
+    { id: 'https://server8.mp3quran.net/basit', name: 'عبدالباسط عبدالصمد' },
+    { id: 'https://server10.mp3quran.net/minsh', name: 'محمد صديق المنشاوي' },
     { id: 'https://server13.mp3quran.net/husr', name: 'محمود خليل الحصري' },
     { id: 'https://server8.mp3quran.net/frs_a', name: 'فارس عباد' },
-    { id: 'https://server8.mp3quran.net/ali_jbr', name: 'علي جابر' },
     { id: 'https://server9.mp3quran.net/abkr', name: 'إدريس أبكر' },
-    { id: 'https://server11.mp3quran.net/shatri', name: 'أبو بكر الشاطري' }
+    { id: 'https://server11.mp3quran.net/shatri', name: 'أبو بكر الشاطري' },
+    { id: 'https://server6.mp3quran.net/hani', name: 'هاني الرفاعي' },
+    { id: 'https://server11.mp3quran.net/jhn', name: 'عبدالله عواد الجهني' },
+    { id: 'https://server11.mp3quran.net/gmd', name: 'سعد الغامدي' },
+    { id: 'https://server9.mp3quran.net/jbrl', name: 'محمد جبريل' },
+    { id: 'https://server6.mp3quran.net/kurdi', name: 'رعد محمد الكردي' },
+    { id: 'https://server14.mp3quran.net/islam', name: 'إسلام صبحي' },
+    { id: 'https://server11.mp3quran.net/thubti', name: 'علي بن عبدالرحمن الحذيفي' },
+    { id: 'https://server12.mp3quran.net/tblawi', name: 'محمد محمود الطبلاوي' },
+    { id: 'https://server11.mp3quran.net/rifai', name: 'عبدالعزيز الأحمد' }
 ];
 
 export const SURAH_LIST = [

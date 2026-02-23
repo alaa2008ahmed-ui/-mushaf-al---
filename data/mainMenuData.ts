@@ -22,4 +22,5 @@ export const navItems = [
   { id: 'hisn-muslim', title: "حصن المسلم", icon: HisnMuslimIcon },
   { id: 'listen', title: "الاستماع للقرآن", icon: ListenIcon },
   { id: 'calendar', title: "التقويم", icon: CalendarIcon },
+  { id: 'nawawi', title: 'الأربعون النووية', icon: HisnMuslimIcon }
 ];

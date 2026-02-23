@@ -2,14 +2,12 @@
 import React, { useState } from 'react';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
-import { hesnDoors } from '../data/hisnAlmuslimData';
+import { HISN_ALMUSLIM_CATEGORIES, HISN_ALMUSLIM_DATA } from '../data/hisnAlmuslimData';
 
 function HisnAlmuslim({ onBack }) {
     const { theme } = useTheme();
-    const [currentDoorId, setCurrentDoorId] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const [zoomedItem, setZoomedItem] = useState(null);
-
-    const door = hesnDoors.find(d => d.id === currentDoorId);
 
     const openZoomModal = (item) => {
         setZoomedItem(item);
@@ -19,21 +17,20 @@ function HisnAlmuslim({ onBack }) {
         setZoomedItem(null);
     };
 
-    const DoorsScreen = () => (
+    const CategoriesScreen = () => (
         <div className="p-4 space-y-3">
-            {hesnDoors.map((door, index) => {
+            {HISN_ALMUSLIM_CATEGORIES.map((category, index) => {
                 const colorType = index % 2 === 0 ? 'primary' : 'secondary';
                 return (
-                    <div key={door.id} onClick={() => setCurrentDoorId(door.id)} 
+                    <div key={category.id} onClick={() => setSelectedCategory(category)}
                           className={`themed-card p-4 rounded-xl shadow-sm border-r-4 flex items-center justify-between cursor-pointer active:scale-95 transition`}
                           style={{ borderRightColor: colorType === 'primary' ? theme.palette[0] : theme.palette[1] }}>
                         <div className="flex items-center gap-4">
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center`} style={{backgroundColor: colorType === 'primary' ? theme.palette[0]+'20' : theme.palette[1]+'20', color: colorType === 'primary' ? theme.palette[0] : theme.palette[1]}}>
-                                <i className={`fa-solid ${door.icon} text-xl`}></i>
+                                <i className={`fa-solid ${category.icon} text-xl`}></i>
                             </div>
                             <div>
-                                <h2 className="font-bold text-base">{door.title}</h2>
-                                <p className="text-xs themed-text-muted">{door.description}</p>
+                                <h2 className="font-bold text-base">{category.title}</h2>
                             </div>
                         </div>
                         <i className="fa-solid fa-angle-left themed-text-muted"></i>
@@ -43,40 +40,30 @@ function HisnAlmuslim({ onBack }) {
         </div>
     );
 
-    const DoorDetailScreen = () => {
-        if (!door) return null;
+    const CategoryDetailScreen = () => {
+        if (!selectedCategory) return null;
+        const items = HISN_ALMUSLIM_DATA[selectedCategory.id] || [];
+
         return (
             <div className="space-y-4 fade-in">
-                {door.items.map((item, index) => {
-                    let itemTypeLabel = 'ذكر';
-                    if (item.type === 'ayah') itemTypeLabel = 'آية';
-                    else if (item.type === 'hadith') itemTypeLabel = 'حديث';
-                    else if (item.type === 'duaa') itemTypeLabel = 'دعاء';
-
-                    return (
-                        <div key={index} className="themed-card p-5 rounded-2xl border relative overflow-hidden group mb-4 transition-all duration-300">
-                            <div className="flex justify-between items-start mb-2">
-                                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-bold shadow-sm" style={{backgroundColor: theme.palette[1]+'30', color: theme.palette[1]}}>{itemTypeLabel}</span>
-                                {item.title && <span className="text-xs themed-text-muted font-bold">{item.title}</span>}
-                            </div>
-                            <p className="text-xl leading-relaxed text-center font-amiri select-none">{item.text}</p>
-                            {item.source && <p className="text-xs mt-2 text-center themed-text-muted opacity-80">المصدر: {item.source}</p>}
-                            <div className="flex justify-center mt-3">
-                                <button onClick={() => openZoomModal(item)} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                                    <i className="fa-solid fa-magnifying-glass-plus text-lg"></i>
-                                </button>
-                            </div>
+                {items.map((item, index) => (
+                    <div key={index} className="themed-card p-5 rounded-2xl border relative overflow-hidden group mb-4 transition-all duration-300">
+                        <p className="text-xl leading-relaxed text-center font-amiri select-none">{item.text}</p>
+                        {item.source && <p className="text-xs mt-2 text-center themed-text-muted opacity-80">المصدر: {item.source}</p>}
+                        <div className="flex justify-center mt-3">
+                            <button onClick={() => openZoomModal(item)} className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                                <i className="fa-solid fa-magnifying-glass-plus text-lg"></i>
+                            </button>
                         </div>
-                    );
-                })}
+                    </div>
+                ))}
             </div>
         );
     };
 
-
     const handleHomeClick = () => {
-        if (currentDoorId) {
-            setCurrentDoorId(null);
+        if (selectedCategory) {
+            setSelectedCategory(null);
         } else {
             onBack();
         }
@@ -87,19 +74,18 @@ function HisnAlmuslim({ onBack }) {
             <header className="app-top-bar">
                 <div className="app-top-bar__inner">
                     <div className="relative flex items-center justify-center">
-
                         <h1 className="app-top-bar__title text-xl sm:text-2xl font-kufi flex items-center gap-2 justify-center">
-                             {door ? door.title : 'حصن المسلم'}
+                            {selectedCategory ? selectedCategory.title : 'حصن المسلم'}
                         </h1>
                     </div>
                     <p className="app-top-bar__subtitle">
-                        {door ? door.description : 'استعرض أبواب وأذكار حصن المسلم بسهولة.'}
+                        {selectedCategory ? `أذكار ${selectedCategory.title}` : 'استعرض أبواب وأذكار حصن المسلم بسهولة.'}
                     </p>
                 </div>
             </header>
-            
+
             <main className="flex-1 overflow-y-auto hide-scrollbar relative max-w-md mx-auto w-full p-4 pb-24">
-                {currentDoorId ? <DoorDetailScreen /> : <DoorsScreen />}
+                {selectedCategory ? <CategoryDetailScreen /> : <CategoriesScreen />}
             </main>
 
             <BottomBar onHomeClick={handleHomeClick} onThemesClick={() => {}} showThemes={false} />

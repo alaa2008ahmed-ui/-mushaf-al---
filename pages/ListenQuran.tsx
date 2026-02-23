@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 import { RECITERS, SURAH_LIST } from '../data/listenQuranData';
@@ -43,8 +43,8 @@ function ListenQuran({ onBack }) {
         }
     }, []);
 
-    const handleNextSurah = () => setSurahNumber(s => s === 114 ? 1 : s + 1);
-    const handlePrevSurah = () => setSurahNumber(s => s === 1 ? 114 : s - 1);
+    const handleNextSurah = useCallback(() => setSurahNumber(s => s === 114 ? 1 : s + 1), []);
+    const handlePrevSurah = useCallback(() => setSurahNumber(s => s === 1 ? 114 : s - 1), []);
 
     useEffect(() => {
         audioRef.current = new Audio();
@@ -54,15 +54,6 @@ function ListenQuran({ onBack }) {
         const handleDurationChange = () => setDuration(audio.duration);
         const handlePlay = () => setIsPlaying(true);
         const handlePause = () => setIsPlaying(false);
-        const handleEnded = () => {
-             if (isContinuousPlay) {
-                autoPlayNextRef.current = true;
-                handleNextSurah();
-             } else {
-                setIsPlaying(false);
-                setCurrentTime(0);
-             }
-        };
         const handleWaiting = () => setIsLoading(true);
         const handlePlaying = () => setIsLoading(false);
         const handleError = () => {
@@ -75,23 +66,42 @@ function ListenQuran({ onBack }) {
         audio.addEventListener('durationchange', handleDurationChange);
         audio.addEventListener('play', handlePlay);
         audio.addEventListener('pause', handlePause);
-        audio.addEventListener('ended', handleEnded);
         audio.addEventListener('error', handleError);
         audio.addEventListener('waiting', handleWaiting);
         audio.addEventListener('playing', handlePlaying);
 
         return () => {
             audio.pause();
+            audio.src = '';
             audio.removeEventListener('timeupdate', handleTimeUpdate);
             audio.removeEventListener('durationchange', handleDurationChange);
             audio.removeEventListener('play', handlePlay);
             audio.removeEventListener('pause', handlePause);
-            audio.removeEventListener('ended', handleEnded);
             audio.removeEventListener('error', handleError);
             audio.removeEventListener('waiting', handleWaiting);
             audio.removeEventListener('playing', handlePlaying);
         };
-    }, [isContinuousPlay]); // Re-attach ended listener if continuous play setting changes
+    }, []);
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const handleEnded = () => {
+             if (isContinuousPlay) {
+                autoPlayNextRef.current = true;
+                handleNextSurah();
+             } else {
+                setIsPlaying(false);
+                setCurrentTime(0);
+             }
+        };
+
+        audio.addEventListener('ended', handleEnded);
+        return () => {
+            audio.removeEventListener('ended', handleEnded);
+        };
+    }, [isContinuousPlay, handleNextSurah]);
 
     useEffect(() => {
         if (!reciterId || !surahNumber) return;
@@ -179,10 +189,10 @@ function ListenQuran({ onBack }) {
 
                 <div className="space-y-3 flex-shrink-0 py-4">
                     <select id="reciter-select" value={reciterId} onChange={(e) => setReciterId(e.target.value)} className="w-full p-3 text-center rounded-xl border font-bold appearance-none themed-card">
-                        {RECITERS.map(r => <option key={r.id} value={r.id} className="bg-slate-800">{r.name}</option>)}
+                        {RECITERS.map(r => <option key={r.id} value={r.id} className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">{r.name}</option>)}
                     </select>
                     <select id="surah-select" value={surahNumber} onChange={(e) => setSurahNumber(Number(e.target.value))} className="w-full p-3 text-center rounded-xl border font-bold appearance-none themed-card">
-                        {SURAH_LIST.map(s => <option key={s.number} value={s.number} className="bg-slate-800">{s.number} - {s.name}</option>)}
+                        {SURAH_LIST.map(s => <option key={s.number} value={s.number} className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white">{s.number} - {s.name}</option>)}
                     </select>
                 </div>
 
