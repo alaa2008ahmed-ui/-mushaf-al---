@@ -54,11 +54,14 @@ function MainMenu({ onNavigate, onOpenThemes }) {
 
               <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto flex-grow content-center">
                   <NavButton label="📖 القرآن الكريم" onClick={() => onNavigate('quran')} className="col-span-2 h-12" color={theme.palette[0]} />
-                  <NavButton label="🎧 الاستماع للقرآن" onClick={() => onNavigate('listen')} className="col-span-2 h-11" color={theme.palette[0]} />
-                  <NavButton label="🕌 أذكار الصلاة" onClick={() => onNavigate('salah-adhkar')} className="col-span-2 h-11" color={theme.palette[0]} />
+                  <NavButton label="🎧 الاستماع للقرآن" onClick={() => onNavigate('listen')} className="h-10" color={theme.palette[1]} />
+                  <NavButton label="🕌 أذكار الصلاة" onClick={() => onNavigate('salah-adhkar')} className="h-10" color={theme.palette[1]} />
                   <NavButton label="🤲 الأدعية" onClick={() => onNavigate('adia')} className="h-10" color={theme.palette[1]} />
                   <NavButton label="☀️ الأذكار" onClick={() => onNavigate('sabah-masaa')} className="h-10" color={theme.palette[1]} />
                   <NavButton label="📿 السبحة" onClick={() => onNavigate('tasbeeh')} className="h-10" color={theme.palette[1]} />
+                  <NavButton label="✨ أسماء الله الحسنى" onClick={() => onNavigate('asmaul-husna')} className="h-10" color={theme.palette[1]} />
+                  <NavButton label="📻 إذاعة القرآن" onClick={() => onNavigate('radio')} className="h-10" color={theme.palette[1]} />
+                  <NavButton label="🧮 حاسبات إسلامية" onClick={() => onNavigate('calculators')} className="h-10" color={theme.palette[1]} />
                   <NavButton label="🛡️ حصن المسلم" onClick={() => onNavigate('hisn-muslim')} className="h-10" color={theme.palette[1]} />
                   <NavButton label="📅 التقويم" onClick={() => onNavigate('calendar')} className="h-10" color={theme.palette[1]} />
                   <NavButton label="🕋 الحج والعمرة" onClick={() => onNavigate('hajj-umrah')} className="h-10" color={theme.palette[1]} />

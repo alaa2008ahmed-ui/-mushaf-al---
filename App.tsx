@@ -37,7 +37,7 @@ function App() {
     const validPages = [
         'quran', 'salah-adhkar', 'calendar', 'listen', 'tasbeeh', 
         'hajj-umrah', 'hisn-muslim', 'prayer-times', 'qibla', 
-        'sabah-masaa', 'adia', 'nawawi'
+        'sabah-masaa', 'adia', 'nawawi', 'asmaul-husna', 'radio', 'calculators'
     ];
 
     if (validPages.includes(pageId)) {
