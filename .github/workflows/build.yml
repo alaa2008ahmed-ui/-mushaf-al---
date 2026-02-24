@@ -10,7 +10,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm' # يسرع عملية التحميل في المرات القادمة
+          cache: 'npm'
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -22,8 +22,11 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-          # نثبت الـ CLI محلياً لضمان وجود أمر "cap"
           npm install @capacitor/cli @capacitor/core @capacitor/android
+
+      # --- السطر المضاف لحل المشكلة ---
+      - name: Fix Vite Permissions
+        run: chmod +x node_modules/.bin/vite
 
       - name: Build web project
         run: npm run build
@@ -39,11 +42,10 @@ jobs:
 
       - name: Rename APK File
         run: |
-          # نستخدم علامات الاقتباس للتعامل مع المسافات والحروف العربية
           mv android/app/build/outputs/apk/debug/app-debug.apk "android/app/build/outputs/apk/debug/مصحف أحمد وليلى.apk"
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Mushaf-App-Package
-          path: "android/app/build/outputs/apk/debug/*.apk" # سيقوم برفع أي ملف APK في المجلد بالاسم الجديد
+          path: "android/app/build/outputs/apk/debug/*.apk"
