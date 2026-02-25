@@ -15,7 +15,6 @@ const DEFAULT_MENU_ITEMS = [
     { id: 'adia', label: "🤲 الأدعية", className: "h-10", colorIndex: 1 },
     { id: 'sabah-masaa', label: "☀️ الأذكار", className: "h-10", colorIndex: 1 },
     { id: 'tasbeeh', label: "📿 السبحة", className: "h-10", colorIndex: 1 },
-    { id: 'radio', label: "📻 إذاعة القرآن", className: "h-10", colorIndex: 1 },
     { id: 'calculators', label: "🧮 حاسبات إسلامية", className: "h-10", colorIndex: 1 },
     { id: 'hisn-muslim', label: "🛡️ حصن المسلم", className: "h-10", colorIndex: 1 },
     { id: 'calendar', label: "📅 التقويم", className: "h-10", colorIndex: 1 },
