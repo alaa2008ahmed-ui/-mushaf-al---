@@ -5,13 +5,27 @@ import { useTheme } from '../context/ThemeContext';
 
 const HadithModal = ({ hadith, onClose }) => {
     const { theme } = useTheme();
+    const [fontSize, setFontSize] = useState(20);
+
+    const increaseFontSize = () => {
+        setFontSize(prev => (prev >= 36 ? 20 : prev + 4));
+    };
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose}>
             <div className="themed-card rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-                <div className="p-4 border-b" style={{ borderColor: theme.cardBorder }}>
-                    <h3 className="text-xl font-bold font-kufi text-center" style={{ color: theme.palette[0] }}>{hadith.title}</h3>
+                <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: theme.cardBorder }}>
+                    <div className="w-10"></div> {/* Spacer for centering */}
+                    <h3 className="text-xl font-bold font-kufi text-center flex-1" style={{ color: theme.palette[0] }}>{hadith.title}</h3>
+                    <button 
+                        onClick={increaseFontSize}
+                        className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center transition hover:bg-gray-200 dark:hover:bg-gray-600"
+                        title="تكبير النص"
+                    >
+                        <i className="fas fa-search-plus text-lg" style={{ color: theme.palette[0] }}></i>
+                    </button>
                 </div>
-                <div className="p-6 overflow-y-auto text-lg leading-loose text-right font-amiri">
+                <div className="p-6 overflow-y-auto leading-loose text-right font-amiri" style={{ fontSize: `${fontSize}px` }}>
                     <p>{hadith.hadith}</p>
                 </div>
                 <div className="p-3 border-t" style={{ borderColor: theme.cardBorder }}>

@@ -11,29 +11,7 @@ export const RECITERS = [
     { id: 'https://server6.mp3quran.net/kurdi', name: 'رعد محمد الكردي' },
     { id: 'https://server12.mp3quran.net/tblawi', name: 'محمد محمود الطبلاوي' },
     { id: 'https://server8.mp3quran.net/bna', name: 'محمود علي البنا' },
-    { id: 'https://server12.mp3quran.net/kyat', name: 'عبدالله خياط' },
-    // New Unique Reciters
-    { id: 'https://server8.mp3quran.net/bandar_balila', name: 'بندر بليلة' },
-    { id: 'https://server10.mp3quran.net/khalifa_tunaiji', name: 'خليفة الطنيجي' },
-    { id: 'https://server10.mp3quran.net/salah_budair', name: 'صلاح البدير' },
-    { id: 'https://server10.mp3quran.net/ahmed_hawashy', name: 'أحمد الحواشي' },
-    { id: 'https://server10.mp3quran.net/abdul_wali_arkani', name: 'عبدالولي الأركاني' },
-    { id: 'https://server10.mp3quran.net/wadi_yamani', name: 'وديع اليمني' },
-    { id: 'https://server10.mp3quran.net/zaki_daghistani', name: 'زكي داغستاني' },
-    { id: 'https://server10.mp3quran.net/abdul_kareem_hazmi', name: 'عبدالكريم الحازمي' },
-    { id: 'https://server10.mp3quran.net/abdul_aziz_zahrani', name: 'عبدالعزيز الزهراني' },
-    { id: 'https://server10.mp3quran.net/abdul_bari_thubaity', name: 'عبدالباري الثبيتي' },
-    // New Egyptian Reciters
-    { id: 'https://server10.mp3quran.net/tarooty', name: 'عبدالفتاح الطاروطي' },
-    { id: 'https://server10.mp3quran.net/bahitimi', name: 'كامل يوسف البهتيمي' },
-    { id: 'https://server10.mp3quran.net/laithi', name: 'محمد الليثي' },
-    { id: 'https://server10.mp3quran.net/nainaa', name: 'أحمد نعينع' },
-    { id: 'https://server10.mp3quran.net/shahat', name: 'الشحات محمد أنور' },
-    { id: 'https://server10.mp3quran.net/harbi', name: 'عبدالعزيز حربي' },
-    { id: 'https://server10.mp3quran.net/tariq', name: 'طارق عبدالخالق' },
-    { id: 'https://server10.mp3quran.net/selkawi', name: 'محمد حامد السلكاوي' },
-    { id: 'https://server10.mp3quran.net/sayed', name: 'السيد متولي عبدالعال' },
-    { id: 'https://server10.mp3quran.net/kamel', name: 'عبدالله كامل' }
+    { id: 'https://server12.mp3quran.net/kyat', name: 'عبدالله خياط' }
 ];
 
 export const SURAH_LIST = [

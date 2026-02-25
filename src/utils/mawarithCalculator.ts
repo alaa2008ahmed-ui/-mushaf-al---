@@ -1,4 +1,4 @@
-interface HeirResult {
+export interface HeirResult {
     name: string;
     share: number; // Fractional share (e.g., 1/2, 1/4)
     amount: number;

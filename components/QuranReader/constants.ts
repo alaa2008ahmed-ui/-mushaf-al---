@@ -43,28 +43,27 @@ export const READERS = [
     { id: 'Ali_Jaber_64kbps', name: 'علي جابر' },
     { id: 'Mustafa_Ismail_48kbps', name: 'مصطفى إسماعيل' },
     { id: 'Abdullah_Matroud_128kbps', name: 'عبدالله مطرود' },
-    // New Unique Readers
-    { id: 'Bandar_Balila_128kbps', name: 'بندر بليلة' },
-    { id: 'Khalifa_Al_Tunaiji_128kbps', name: 'خليفة الطنيجي' },
+    // Updated Working Reciters
+    { id: 'Khalifa_Taniji_128kbps', name: 'خليفة الطنيجي' },
+    { id: 'Abdullaah_3awwaad_Al-Juhaynee_128kbps', name: 'عبدالله الجهني' },
     { id: 'Salah_Al_Budair_128kbps', name: 'صلاح البدير' },
-    { id: 'Ahmed_Al_Hawashy_128kbps', name: 'أحمد الحواشي' },
-    { id: 'Abdul_Wali_Al_Arkani_128kbps', name: 'عبدالولي الأركاني' },
-    { id: 'Wadi_Al_Yamani_128kbps', name: 'وديع اليمني' },
-    { id: 'Zaki_Daghistani_128kbps', name: 'زكي داغستاني' },
-    { id: 'Abdul_Kareem_Al_Hazmi_128kbps', name: 'عبدالكريم الحازمي' },
-    { id: 'Abdul_Aziz_Az_Zahrani_128kbps', name: 'عبدالعزيز الزهراني' },
-    { id: 'Abdul_Bari_Ath_Thubaity_128kbps', name: 'عبدالباري الثبيتي' },
-    // New Egyptian Readers
-    { id: 'Tarooty_128kbps', name: 'عبدالفتاح الطاروطي' },
-    { id: 'Bahitimi_128kbps', name: 'كامل يوسف البهتيمي' },
-    { id: 'Laithi_128kbps', name: 'محمد الليثي' },
-    { id: 'Nainaa_128kbps', name: 'أحمد نعينع' },
-    { id: 'Shahat_128kbps', name: 'الشحات محمد أنور' },
-    { id: 'Harbi_128kbps', name: 'عبدالعزيز حربي' },
-    { id: 'Tariq_128kbps', name: 'طارق عبدالخالق' },
-    { id: 'Selkawi_128kbps', name: 'محمد حامد السلكاوي' },
-    { id: 'Sayed_128kbps', name: 'السيد متولي عبدالعال' },
-    { id: 'Kamel_128kbps', name: 'عبدالله كامل' }
+    { id: 'Ahmed_Neana_128kbps', name: 'أحمد نعينع' },
+    { id: 'Ayman_Sowaid_64kbps', name: 'أيمن سويد' },
+    { id: 'Ali_Hajjaj_AlSuesy_128kbps', name: 'علي حجاج السويسي' },
+    { id: 'Sahl_Yassin_128kbps', name: 'سهل ياسين' },
+    { id: 'Salaah_AbdulRahman_Bukhatir_128kbps', name: 'صلاح بو خاطر' },
+    { id: 'Muhsin_Al_Qasim_192kbps', name: 'محسن القاسم' },
+    { id: 'Ibrahim_Akhdar_32kbps', name: 'إبراهيم الأخضر' },
+    { id: 'Karim_Mansoori_40kbps', name: 'كريم منصوري' },
+    { id: 'Husary_Mujawwad_64kbps', name: 'الحصري (مجود)' },
+    { id: 'Minshawy_Teacher_128kbps', name: 'المنشاوي (معلم)' },
+    { id: 'Mahmoud_Ali_Al_Banna_32kbps', name: 'محمود علي البنا' },
+    { id: 'Mohammad_al_Tablaway_128kbps', name: 'محمد الطبلاوي' },
+    { id: 'Abdul_Basit_Murattal_192kbps', name: 'عبدالباسط (مرتل عالي الجودة)' },
+    { id: 'Yasser_Ad-Dussary_128kbps', name: 'ياسر الدوسري' },
+    { id: 'Nasser_Alqatami_128kbps', name: 'ناصر القطامي' },
+    { id: 'Hani_Rifai_192kbps', name: 'هاني الرفاعي' },
+    { id: 'Khaalid_al-Qahtaanee_128kbps', name: 'خالد القحطاني' }
 ];
 export const TAFSEERS = [{ id: 'ar.muyassar', name: 'التفسير الميسر' }, { id: 'ar.baghawi', name: 'تفسير البغوي' }, { id: 'ar.qurtubi', name: 'تفسير القرطبي' }, { id: 'ar.jalalayn', name: 'تفسير الجلالين' }, { id: 'ar.waseet', name: 'التفسير الوسيط' }];
 

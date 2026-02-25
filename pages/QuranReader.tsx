@@ -797,6 +797,41 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const PAGES_PER_JUZ = 20;
     const PAGE_HEIGHT_FALLBACK = 1300;
 
+    const initialPinchDistanceRef = useRef<number | null>(null);
+    const initialPinchFontSizeRef = useRef<number | null>(null);
+
+    const handleTouchStart = (e: React.TouchEvent) => {
+        if (e.touches.length === 2) {
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const distance = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+            initialPinchDistanceRef.current = distance;
+            initialPinchFontSizeRef.current = settings.fontSize;
+        }
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (e.touches.length === 2 && initialPinchDistanceRef.current !== null && initialPinchFontSizeRef.current !== null) {
+            const touch1 = e.touches[0];
+            const touch2 = e.touches[1];
+            const distance = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+            
+            const scaleFactor = distance / initialPinchDistanceRef.current;
+            const newFontSize = Math.min(Math.max(initialPinchFontSizeRef.current * scaleFactor, 1.0), 5.0);
+            
+            setSettings(prev => ({ ...prev, fontSize: newFontSize }));
+        }
+    };
+
+    const handleTouchEnd = () => {
+        if (initialPinchDistanceRef.current !== null) {
+             localStorage.setItem('quran_settings', JSON.stringify(settingsRef.current));
+             window.dispatchEvent(new Event('settings-change'));
+        }
+        initialPinchDistanceRef.current = null;
+        initialPinchFontSizeRef.current = null;
+    };
+
     const updateHeadersDuringAutoScroll = () => {
         const content = mushafContentRef.current;
         if (!content) return;
@@ -979,7 +1014,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 </button>
             </header>
             <ReadingTimer isVisible={autoScrollState.isPaused || (!autoScrollState.isActive && autoScrollState.elapsedTime > 0)} elapsedTime={autoScrollState.elapsedTime} />
-            <div id="mushaf-content" ref={mushafContentRef} onClick={pauseResumeAutoScroll} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
+            <div id="mushaf-content" ref={mushafContentRef} onClick={pauseResumeAutoScroll} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
                 <div id="pages-container" className="full-mushaf-container">
                    {[...new Set(visiblePages)].sort((a: number, b: number) => a - b).map(pageNum => (<MushafPage key={pageNum} pageNum={pageNum} pageData={getPageData(pageNum)} highlightedAyahId={highlightedAyahId} onAyahClick={handleAyahClick} onVerseClick={handleVerseClick} onVerseLongPress={handleVerseLongPress} settings={settings} />))}
                 </div>
