@@ -24,7 +24,7 @@ const SajdahCardModal: FC<{
 
     return (
         <div className="fixed inset-0 z-[250] bg-black/70 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl flex flex-col max-h-[90vh] bg-white dark:bg-gray-800" onClick={e => e.stopPropagation()}>
+            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 theme-header-bg rounded-t-2xl text-center">
                     <h3 className="font-bold text-lg">أحكام سجود التلاوة</h3>
                     <p className="text-xs opacity-80 mt-1">
@@ -35,13 +35,13 @@ const SajdahCardModal: FC<{
                     <div>
                         <p><b>1. تعريف سجود التلاوة</b></p>
                         <p className="mt-1">هو سجود يؤديه القارئ أو المستمع عند قراءة آية من آيات السجود في القرآن الكريم، تعظيماً لله تعالى وإظهاراً للعبودية. وقد ثبت في صحيح مسلم عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:</p>
-                        <blockquote className="mt-2 p-2 border-r-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-sm italic">"إذَا قَرَأَ ابنُ آدَمَ السَّجْدَةَ فَسَجَدَ، اعْتَزَلَ الشَّيْطَانُ يَبْكِي، يقولُ: يا وَيْلَهُ، أُمِرَ ابنُ آدَمَ بالسُّجُودِ فَسَجَدَ فَلَهُ الجَنَّةُ، وأُمِرْتُ بالسُّجُودِ فأبَيْتُ فَلِيَ النَّارُ".</blockquote>
+                        <blockquote className="mt-2 p-2 border-r-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-sm italic themed-card-bg">"إذَا قَرَأَ ابنُ آدَمَ السَّجْدَةَ فَسَجَدَ، اعْتَزَلَ الشَّيْطَانُ يَبْكِي، يقولُ: يا وَيْلَهُ، أُمِرَ ابنُ آدَمَ بالسُّجُودِ فَسَجَدَ فَلَهُ الجَنَّةُ، وأُمِرْتُ بالسُّجُودِ فأبَيْتُ فَلِيَ النَّارُ".</blockquote>
                     </div>
 
                     <div>
                         <p><b>2. عدد آيات السجدة ومواضعها</b></p>
                         <p className="mt-1 mb-2">اتفق جمهور العلماء على وجود آيات السجود في القرآن، وأشهر الآراء أنها 15 سجدة، وهي موزعة كالآتي:</p>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg">
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs p-3 rounded-lg themed-card-bg">
                             <div className="text-right">الأعراف: <b>{toArabic(206)}</b></div>
                             <div className="text-right">النمل: <b>{toArabic(25)}</b></div>
                             <div className="text-right">الرعد: <b>{toArabic(15)}</b></div>
@@ -79,8 +79,8 @@ const SajdahCardModal: FC<{
                                     <li><b>السجود:</b> سجدة واحدة كسجدة الصلاة.</li>
                                     <li>
                                         <b>الدعاء:</b> يُشرع فيها ما يقال في سجود الصلاة "سبحان ربي الأعلى"، ويُستحب الدعاء المأثور:
-                                        <blockquote className="mt-2 p-2 border-r-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-sm italic">"سَجَدَ وَجْهِي لِلَّذِي خَلَقَهُ، وَشَقَّ سَمْعَهُ وَبَصَرَهُ، بِحَوْلِهِ وَقُوَّتِهِ".</blockquote>
-                                        <blockquote className="mt-2 p-2 border-r-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-sm italic">"اللَّهُمَّ اكْتُبْ لِي بِهَا عِنْدَكَ أَجْرًا، وَضَعْ عَنِّي بِهَا وِزْرًا، وَاجْعَلْهَا لِي عِنْدَكَ ذُخْرًا، وَتَقَبَّلْهَا مِنِّي كَمَا تَقَبَّلْتَهَا مِنْ عَبْدِكَ دَاوُدَ".</blockquote>
+                                        <blockquote className="mt-2 p-2 border-r-2 border-emerald-500 text-sm italic themed-card-bg">"سَجَدَ وَجْهِي لِلَّذِي خَلَقَهُ، وَشَقَّ سَمْعَهُ وَبَصَرَهُ، بِحَوْلِهِ وَقُوَّتِهِ".</blockquote>
+                                        <blockquote className="mt-2 p-2 border-r-2 border-emerald-500 text-sm italic themed-card-bg">"اللَّهُمَّ اكْتُبْ لِي بِهَا عِنْدَكَ أَجْرًا، وَضَعْ عَنِّي بِهَا وِزْرًا، وَاجْعَلْهَا لِي عِنْدَكَ ذُخْرًا، وَتَقَبَّلْهَا مِنِّي كَمَا تَقَبَّلْتَهَا مِنْ عَبْدِكَ دَاوُدَ".</blockquote>
                                     </li>
                                 </ul>
                             </div>
@@ -96,10 +96,40 @@ const SajdahCardModal: FC<{
                         </ul>
                     </div>
                 </div>
-                <div className="p-3 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 rounded-b-2xl">
+                <div className="p-3 border-t themed-card-bg rounded-b-2xl">
                     <button onClick={onClose} className="w-full theme-accent-btn py-2.5 rounded-xl font-bold transition">
                         إغلاق
                     </button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+const TafseerSelectionModal: FC<{
+    isOpen: boolean,
+    onClose: () => void,
+    onSelect: (tafseerId: string) => void,
+    currentTafseerId: string
+}> = ({ isOpen, onClose, onSelect, currentTafseerId }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-[300] bg-black/70 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+            <div className="modal-skinned w-full max-w-sm rounded-2xl shadow-2xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+                <div className="p-4 theme-header-bg rounded-t-2xl text-center">
+                    <h3 className="font-bold text-lg">اختر التفسير</h3>
+                </div>
+                <div className="p-2 overflow-y-auto space-y-2">
+                    {TAFSEERS.map(t => (
+                        <button key={t.id} onClick={() => onSelect(t.id)} className={`w-full p-3 rounded-xl text-right font-bold transition flex justify-between items-center ${currentTafseerId === t.id ? 'theme-accent-btn' : 'hover:opacity-80'}`} style={currentTafseerId !== t.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', border: '1px solid var(--qr-card-border)' } : {}}>
+                            <span>{t.name}</span>
+                            {currentTafseerId === t.id && <i className="fa-solid fa-check"></i>}
+                        </button>
+                    ))}
+                </div>
+                <div className="p-3 border-t themed-card-bg rounded-b-2xl">
+                    <button onClick={onClose} className="w-full py-2 rounded-xl font-bold theme-btn-bg">إلغاء</button>
                 </div>
             </div>
         </div>
@@ -138,6 +168,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const [playingAyah, setPlayingAyah] = useState<{s: number; a: number} | null>(null);
     
     const [tafseerInfo, setTafseerInfo] = useState({ isOpen: false, s: 0, a: 0, text: '', surahName: '' });
+    const [tafseerSelectionInfo, setTafseerSelectionInfo] = useState({ isOpen: false, s: 0, a: 0 });
     const [isTafseerLoading, setIsTafseerLoading] = useState(false);
     const tafseerCache = useRef<any>({});
     
@@ -375,13 +406,28 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         }
     }, [settings.reader, quranData]);
 
+    const scrollToAyah = useCallback((s: number, a: number, instant: boolean = false) => {
+        const el = document.getElementById(`ayah-${s}-${a}`);
+        if (el) {
+            const container = mushafContentRef.current;
+            if (container) {
+                const containerRect = container.getBoundingClientRect();
+                const elRect = el.getBoundingClientRect();
+                const scrollTop = container.scrollTop + elRect.top - containerRect.top - (containerRect.height / 2) + (elRect.height / 2);
+                container.scrollTo({ top: scrollTop, behavior: instant ? 'auto' : 'smooth' });
+            } else {
+                el.scrollIntoView({ block: 'center', behavior: instant ? 'auto' : 'smooth' });
+            }
+        }
+    }, []);
+
     const playAudio = useCallback(async (s: number, a: number) => {
         stopAudio();
         setIsAudioLoading(true);
         setPlayingAyah({ s, a });
         setCurrentAyah({ s, a });
         setHighlightedAyahId(`ayah-${s}-${a}`);
-        document.getElementById(`ayah-${s}-${a}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        scrollToAyah(s, a, false);
     
         const cacheKey = `${s}:${a}`;
         let audio: HTMLAudioElement;
@@ -433,7 +479,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             stopAudio();
             delete audioCacheRef.current[cacheKey];
         }
-    }, [settings.reader, stopAudio, preloadAudioQueue, manageAudioCache, showToast]);
+    }, [settings.reader, stopAudio, preloadAudioQueue, manageAudioCache, showToast, scrollToAyah]);
 
     const closeModal = useCallback((modalName: string) => setActiveModals(p => ({ ...p, [modalName]: false })), []);
     const openModal = useCallback((modalName: string) => { stopAudio(); setActiveModals(p => ({...p, [modalName]: true})); }, [stopAudio]);
@@ -447,6 +493,19 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             setTafseerInfo({ isOpen: true, s, a, text: '', surahName: surah.name });
         }
     }, [quranData]);
+
+    const handleVerseLongPress = useCallback((s: number, a: number) => {
+        setTafseerSelectionInfo({ isOpen: true, s, a });
+    }, []);
+
+    const handleTafseerSelect = useCallback((tafseerId: string) => {
+        setTafseerSelectionInfo(prev => ({ ...prev, isOpen: false }));
+        
+        const newSettings = { ...settings, tafseer: tafseerId };
+        setSettings(newSettings);
+        localStorage.setItem('quran_settings', JSON.stringify(newSettings));
+        window.dispatchEvent(new Event('settings-change'));
+    }, [settings]);
     
     useEffect(() => {
         const fetchTafseer = async () => {
@@ -533,13 +592,34 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 
     useEffect(() => {
         const root = document.documentElement;
-        root.style.setProperty('--color-sajdah', currentTheme.sajdah);
-        root.style.setProperty('--search-result-bg', currentTheme.cardBg);
-        root.style.setProperty('--search-result-border', currentTheme.accent);
-        root.style.setProperty('--search-result-text', currentTheme.cardText);
+        const t = currentTheme;
+        
+        // Set Theme CSS Variables
+        root.style.setProperty('--qr-bg', t.bg);
+        root.style.setProperty('--qr-text', t.text);
+        root.style.setProperty('--qr-bar-bg', t.barBg);
+        root.style.setProperty('--qr-bar-text', t.barText);
+        root.style.setProperty('--qr-bar-border', t.barBorder);
+        root.style.setProperty('--qr-btn-bg', t.btnBg);
+        root.style.setProperty('--qr-btn-text', t.btnText);
+        root.style.setProperty('--qr-accent', t.accent);
+        root.style.setProperty('--qr-accent-text', t.accentText);
+        root.style.setProperty('--qr-modal-bg', t.modalBg);
+        root.style.setProperty('--qr-modal-text', t.modalText);
+        root.style.setProperty('--qr-header-bg', t.headerBg);
+        root.style.setProperty('--qr-header-text', t.headerText);
+        root.style.setProperty('--qr-card-bg', t.cardBg);
+        root.style.setProperty('--qr-card-text', t.cardText);
+        root.style.setProperty('--qr-card-border', t.cardBorder);
+        root.style.setProperty('--qr-sajdah', t.sajdah);
+
+        root.style.setProperty('--color-sajdah', t.sajdah);
+        root.style.setProperty('--search-result-bg', t.cardBg);
+        root.style.setProperty('--search-result-border', t.accent);
+        root.style.setProperty('--search-result-text', t.cardText);
         
         const darkBgs = ['#000000', '#2c241b', '#101010', '#0f172a', '#2e1065'];
-        const isDark = currentTheme.bg && darkBgs.includes(currentTheme.bg.toLowerCase());
+        const isDark = t.bg && darkBgs.includes(t.bg.toLowerCase());
         if (isDark) document.documentElement.classList.add('dark');
         else document.documentElement.classList.remove('dark');
     }, [currentTheme]);
@@ -662,20 +742,15 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         const p = Number(ayah.page);
         setVisiblePages([...new Set([p, p + 1, p + 2, p - 1, p - 2])].filter(n => n > 0 && n <= 604).sort((a: number, b: number) => a - b));
         setTimeout(() => {
-            const el = document.getElementById(`ayah-${s}-${a}`);
-            if (el) {
-                el.scrollIntoView({ block: 'center', behavior: instant ? 'auto' : 'smooth' });
-                handleAyahClick(s, a);
-            } else {
-                handleAyahClick(s, a);
-            }
+            scrollToAyah(s, a, instant);
+            handleAyahClick(s, a);
         }, 100);
         
         // Only close modals if not typing page number
         if (!isPageInputActive) {
             setActiveModals({});
         }
-    }, [quranData, handleAyahClick, stopAudio, isPageInputActive]);
+    }, [quranData, handleAyahClick, stopAudio, isPageInputActive, scrollToAyah]);
 
     const jumpToPage = useCallback((pageNum: number, instant: boolean = true) => {
         if (!quranData || isNaN(pageNum) || pageNum < 1 || pageNum > 604) return;
@@ -814,18 +889,23 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 3);
         setPageInput(value);
-    
-        if (value) {
-            const pageNum = parseInt(value, 10);
+    };
+
+    const handlePageInputBlur = () => {
+        if (pageInput) {
+            const pageNum = parseInt(pageInput, 10);
             if (pageNum >= 1 && pageNum <= 604) {
                 jumpToPage(pageNum, true);
             }
         }
-    };
-
-    const handlePageInputBlur = () => {
         setIsPageInputActive(false);
         setPageInput(''); 
+    };
+
+    const handlePageInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            handlePageInputBlur();
+        }
     };
 
     const handlePageButtonClick = () => {
@@ -872,6 +952,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                         value={pageInput}
                         onChange={handlePageInputChange}
                         onBlur={handlePageInputBlur}
+                        onKeyDown={handlePageInputKeyDown}
                         className="top-bar-text-button"
                         style={getToolbarStyle('page', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}
                         placeholder={`ص ${toArabic(page)}`}
@@ -900,7 +981,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             <ReadingTimer isVisible={autoScrollState.isPaused || (!autoScrollState.isActive && autoScrollState.elapsedTime > 0)} elapsedTime={autoScrollState.elapsedTime} />
             <div id="mushaf-content" ref={mushafContentRef} onClick={pauseResumeAutoScroll} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
                 <div id="pages-container" className="full-mushaf-container">
-                   {[...new Set(visiblePages)].sort((a: number, b: number) => a - b).map(pageNum => (<MushafPage key={pageNum} pageNum={pageNum} pageData={getPageData(pageNum)} highlightedAyahId={highlightedAyahId} onAyahClick={handleAyahClick} onVerseClick={handleVerseClick} settings={settings} />))}
+                   {[...new Set(visiblePages)].sort((a: number, b: number) => a - b).map(pageNum => (<MushafPage key={pageNum} pageNum={pageNum} pageData={getPageData(pageNum)} highlightedAyahId={highlightedAyahId} onAyahClick={handleAyahClick} onVerseClick={handleVerseClick} onVerseLongPress={handleVerseLongPress} settings={settings} />))}
                 </div>
             </div>
             <SajdahNotification isVisible={sajdahInfo.show} surah={sajdahInfo.surah} ayah={sajdahInfo.ayah} />
@@ -930,9 +1011,9 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 <button id="btn-home" onClick={onBack} className="bottom-bar-button btn-green flex-1 mx-1 h-10" style={getToolbarStyle('btn-home', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><i className="fa-solid fa-home"></i><span className="hidden sm:inline">الرئيسية</span></button>
             </footer>
             {activeModals['surah-modal'] && <SurahJuzModal type="surah" quranData={quranData} onSelect={(s, a) => { closeModal('surah-modal'); setTimeout(() => jumpToAyah(s, a, true), 0); }} onClose={() => closeModal('surah-modal')} />}
-            {activeModals['juz-modal'] && <SurahJuzModal type="juz" quranData={quranData} onSelect={(j: number) => { closeModal('juz-modal'); setTimeout(() => jumpToAyah(JUZ_MAP[j - 1].s, JUZ_MAP[j - 1].a), 0); }} onClose={() => closeModal('juz-modal')} />}
-            {activeModals['bookmarks-modal'] && <BookmarksModal bookmarks={bookmarks} quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a)} onDelete={deleteBookmark} onClose={() => closeModal('bookmarks-modal')} />}
-            {activeModals['search-modal'] && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a)} onClose={() => closeModal('search-modal')} />}
+            {activeModals['juz-modal'] && <SurahJuzModal type="juz" quranData={quranData} onSelect={(j: number) => { closeModal('juz-modal'); setTimeout(() => jumpToAyah(JUZ_MAP[j - 1].s, JUZ_MAP[j - 1].a, true), 0); }} onClose={() => closeModal('juz-modal')} />}
+            {activeModals['bookmarks-modal'] && <BookmarksModal bookmarks={bookmarks} quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onDelete={deleteBookmark} onClose={() => closeModal('bookmarks-modal')} />}
+            {activeModals['search-modal'] && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onClose={() => closeModal('search-modal')} />}
             {activeModals['themes-modal'] && <ThemesModal onClose={() => closeModal('themes-modal')} showToast={showToast} />}
             {activeModals['settings-modal'] && <SettingsModal onClose={() => closeModal('settings-modal')} onOpenModal={openModal} showToast={showToast} />}
             {activeModals['reciter-modal'] && <ReciterSelectModal onClose={() => closeModal('reciter-modal')} currentReader={settings.reader} onSelect={(id) => {
@@ -946,6 +1027,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             {activeModals['quran-download-modal'] && <QuranDownloadModal onClose={() => closeModal('quran-download-modal')} quranData={quranData} showToast={showToast} />}
             {activeModals['tafsir-download-modal'] && <TafsirDownloadModal onClose={() => closeModal('tafsir-download-modal')} quranData={quranData} showToast={showToast} />}
             <TafseerModal isOpen={tafseerInfo.isOpen} isLoading={isTafseerLoading} title={`${tafseerName} - ${tafseerInfo.surahName.replace('سورة','').trim()} - آية ${toArabic(tafseerInfo.a)}`} text={tafseerInfo.text} onClose={() => setTafseerInfo(p => ({ ...p, isOpen: false }))} />
+            <TafseerSelectionModal isOpen={tafseerSelectionInfo.isOpen} onClose={() => setTafseerSelectionInfo(p => ({ ...p, isOpen: false }))} onSelect={handleTafseerSelect} currentTafseerId={settings.tafseer} />
             <SajdahCardModal info={sajdahCardInfo} onClose={handleCloseSajdahCard} />
             <Toast message={toast.message} show={toast.show} onClose={handleToastClose} />
         </div>
@@ -955,15 +1037,15 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 const ReadingTimer: FC<{isVisible: boolean, elapsedTime: number}> = ({isVisible, elapsedTime}) => {
     const minutes = Math.floor(Number(elapsedTime) / 60).toString().padStart(2, '0');
     const seconds = (Number(elapsedTime) % 60).toString().padStart(2, '0');
-    return (<div className={`reading-timer ${isVisible ? 'show' : ''}`}>{toArabic(`${minutes}:${seconds}`)}</div>);
+    return (<div className={`reading-timer ${isVisible ? 'show' : ''}`} style={{ backgroundColor: 'var(--qr-modal-bg)', color: 'var(--qr-modal-text)', border: '1px solid var(--qr-card-border)' }}>{toArabic(`${minutes}:${seconds}`)}</div>);
 };
 
 const SajdahNotification: FC<{isVisible: boolean, surah?: string, ayah?: number}> = ({isVisible, surah, ayah}) => (
-    <div className={`sajdah-notification ${isVisible ? 'show' : ''}`}>
-        <div className="p-2 rounded-full"><i className="fa-solid fa-mosque"></i></div>
+    <div className={`sajdah-notification ${isVisible ? 'show' : ''}`} style={{ backgroundColor: 'var(--qr-modal-bg)', color: 'var(--qr-modal-text)', border: '2px solid var(--qr-card-border)' }}>
+        <div className="p-2 rounded-full theme-header-bg"><i className="fa-solid fa-mosque"></i></div>
         <div>
             <div className="font-bold text-sm">سجدة تلاوة</div>
-            <div className="text-xs mt-0.5">سورة {surah} - آية {toArabic(ayah || '')}</div>
+            <div className="text-xs mt-0.5 opacity-80">سورة {surah} - آية {toArabic(ayah || '')}</div>
         </div>
     </div>
 );

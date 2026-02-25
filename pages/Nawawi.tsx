@@ -37,7 +37,7 @@ const Nawawi = ({ onBack }) => {
                 </div>
             </header>
 
-            <main className="flex-1 overflow-y-auto p-4 space-y-3">
+            <main className="flex-1 overflow-y-auto p-4 pb-24 space-y-3">
                 {NAWAWI_DATA.map(hadith => (
                     <div key={hadith.id} onClick={() => setSelectedHadith(hadith)} className="themed-card p-4 rounded-xl shadow-md cursor-pointer transition-transform transform hover:scale-105">
                         <p className="font-bold text-lg" style={{ color: theme.palette[0] }}>{hadith.title}</p>

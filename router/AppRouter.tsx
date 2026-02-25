@@ -12,7 +12,6 @@ import AdkarSabahMasaa from '../pages/AdkarSabahMasaa';
 import Adia from '../pages/Adia';
 import Nawawi from '../pages/Nawawi';
 import QuranReader from '../pages/QuranReader';
-import AsmaulHusna from '../pages/AsmaulHusna';
 import QuranRadio from '../pages/QuranRadio';
 import Calculators from '../pages/Calculators';
 
@@ -49,8 +48,6 @@ const AppRouter: React.FC<AppRouterProps> = ({ page, onBack, onNavigate, onOpenT
         return <Adia onBack={onBack} />;
       case 'nawawi':
         return <Nawawi onBack={onBack} />;
-      case 'asmaul-husna':
-        return <AsmaulHusna onBack={onBack} />;
       case 'radio':
         return <QuranRadio onBack={onBack} />;
       case 'calculators':

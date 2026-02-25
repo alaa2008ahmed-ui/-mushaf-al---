@@ -16,7 +16,7 @@ function BottomBar({ onHomeClick, onThemesClick, showHome = true, showThemes = t
                     <button 
                         onClick={onHomeClick} 
                         className={homeButtonClass}
-                        style={{ background: theme.palette[0], color: theme.textColor, fontFamily: theme.font }}
+                        style={{ background: theme.palette[0], color: theme.textColor, fontFamily: theme.font, border: theme.btnBorder || 'none' }}
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                         {!isSingleButton && <span>الرئيسية</span>}
@@ -26,7 +26,7 @@ function BottomBar({ onHomeClick, onThemesClick, showHome = true, showThemes = t
                     <button 
                         onClick={onThemesClick} 
                         className={themesButtonClass}
-                        style={{ background: theme.palette[1], color: theme.textColor, fontFamily: theme.font }}
+                        style={{ background: theme.palette[1], color: theme.textColor, fontFamily: theme.font, border: theme.btnBorder || 'none' }}
                         data-id="theme-toggle-button"
                     >
                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"></path></svg>

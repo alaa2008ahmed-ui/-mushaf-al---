@@ -81,7 +81,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
 
     return (
         <div className={`fixed inset-0 bg-gray-900 bg-opacity-75 z-[150] flex items-center justify-center p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`} onClick={handleClose}>
-            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] bg-white dark:bg-gray-800 text-gray-800 dark:text-white ${isClosing ? 'animate-modal-exit' : 'animate-modal-enter'}`} onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] ${isClosing ? 'animate-modal-exit' : 'animate-modal-enter'}`} onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">إعدادات العرض</h2>
                     <button onClick={handleClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
@@ -96,7 +96,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
                         <div className="flex items-center justify-between mt-3">
                             <label className="text-sm font-bold opacity-80">حجم الخط</label>
-                            <span className="text-xs px-2 rounded bg-gray-100 dark:bg-gray-700">{settings.fontSize}</span>
+                            <span className="text-xs px-2 rounded themed-card-bg">{settings.fontSize}</span>
                         </div>
                         <input type="range" min="0.5" max="4.5" step="0.1" value={settings.fontSize} onChange={(e) => updateSetting('fontSize', parseFloat(e.target.value))} className="w-full h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
                     </div>
@@ -120,7 +120,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                         <label className="text-xs font-bold block opacity-80">نوع الخط</label>
                         <div className="mt-1">
                             <div className="custom-select-wrapper mt-0.5">
-                                <div className="custom-select-display text-xs h-7">{getFontName(settings.fontFamily)}</div>
+                                <div className="custom-select-display text-xs h-7 themed-card-bg">{getFontName(settings.fontFamily)}</div>
                                 <select value={settings.fontFamily} onChange={(e) => updateSetting('fontFamily', e.target.value)} className="custom-select-design">
                                     <option value="var(--font-amiri-quran)">حفص</option>
                                     <option value="var(--font-amiri)">نسخ</option>
@@ -151,7 +151,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">القارئ</label>
                         <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-xs h-7">{getReaderName(settings.reader)}</div>
+                            <div className="custom-select-display text-xs h-7 themed-card-bg">{getReaderName(settings.reader)}</div>
                             <select value={settings.reader} onChange={(e) => updateSetting('reader', e.target.value)} className="custom-select-design">
                                 {READERS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                             </select>
@@ -161,7 +161,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">التفسير</label>
                         <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-xs h-7">{getTafseerName(settings.tafseer)}</div>
+                            <div className="custom-select-display text-xs h-7 themed-card-bg">{getTafseerName(settings.tafseer)}</div>
                             <select value={settings.tafseer} onChange={(e) => updateSetting('tafseer', e.target.value)} className="custom-select-design">
                                 {TAFSEERS.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                             </select>
@@ -173,7 +173,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                             <label className="text-sm font-bold opacity-80">سرعة التمرير (وقت الجزء)</label>
                         </div>
                         <div className="custom-select-wrapper mt-1">
-                             <div className="custom-select-display text-xs h-7">{settings.scrollMinutes} دقيقة</div>
+                             <div className="custom-select-display text-xs h-7 themed-card-bg">{settings.scrollMinutes} دقيقة</div>
                              <select value={settings.scrollMinutes} onChange={(e) => updateSetting('scrollMinutes', parseInt(e.target.value))} className="custom-select-design">
                                 {Array.from({length: 56}, (_, i) => i + 5).map(i => <option key={i} value={i}>{i} دقيقة</option>)}
                              </select>
@@ -201,7 +201,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
 
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <div className="custom-select-wrapper">
-                            <button onClick={() => onOpenModal('toolbar-color-picker-modal')} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between">
+                            <button onClick={() => onOpenModal('toolbar-color-picker-modal')} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between themed-card-bg">
                                 <span>تخصيص الواجهة</span>
                                 <i className="fa-solid fa-chevron-left text-gray-500 text-xs"></i>
                             </button>
@@ -210,7 +210,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <div className="custom-select-wrapper">
-                            <button onClick={() => { onClose(); onOpenModal('quran-download-modal'); }} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between">
+                            <button onClick={() => { onClose(); onOpenModal('quran-download-modal'); }} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between themed-card-bg">
                                 <span>تحميل القرآن الكريم</span>
                                 <i className="fa-solid fa-chevron-left text-gray-500 text-xs"></i>
                             </button>
@@ -219,15 +219,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <div className="custom-select-wrapper">
-                            <button onClick={() => { onClose(); onOpenModal('tafsir-download-modal'); }} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between">
+                            <button onClick={() => { onClose(); onOpenModal('tafsir-download-modal'); }} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between themed-card-bg">
                                 <span>تحميل التفسير</span>
                                 <i className="fa-solid fa-chevron-left text-gray-500 text-xs"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-                <div className="bg-gray-100 dark:bg-gray-700 p-3 text-center flex-none">
-                    <button onClick={handleClose} className="theme-accent-btn bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-8 rounded-lg shadow text-sm w-full">حفظ وإغلاق</button>
+                <div className="p-3 text-center flex-none themed-card-bg">
+                    <button onClick={handleClose} className="theme-accent-btn font-bold py-2 px-8 rounded-lg shadow text-sm w-full">حفظ وإغلاق</button>
                 </div>
             </div>
         </div>

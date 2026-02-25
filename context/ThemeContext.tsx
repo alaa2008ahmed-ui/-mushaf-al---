@@ -34,13 +34,13 @@ export const ThemeProvider = ({ children }: { children?: ReactNode }) => {
     const [settings, setSettings] = useState<ThemeSettings>(() => {
         try {
             const saved = localStorage.getItem(THEME_SETTINGS_KEY);
-            return saved ? JSON.parse(saved) : { themeKey: 'daylight' };
+            return saved ? JSON.parse(saved) : { themeKey: 'default' };
         } catch (e) {
-            return { themeKey: 'daylight' };
+            return { themeKey: 'default' };
         }
     });
 
-    const theme = useMemo(() => presetThemes[settings.themeKey] || presetThemes.daylight, [settings.themeKey]);
+    const theme = useMemo(() => presetThemes[settings.themeKey] || presetThemes.default, [settings.themeKey]);
 
     const saveSettings = (newSettings: ThemeSettings) => {
         setSettings(newSettings);

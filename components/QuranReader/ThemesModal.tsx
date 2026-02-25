@@ -84,7 +84,7 @@ const ThemesModal: React.FC<ThemesModalProps> = ({ onClose, showToast }) => {
 
     return (
         <div className="fixed inset-0 z-[190] bg-gray-900/90 flex justify-center items-center px-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl flex flex-col max-h-[85vh] shadow-2xl bg-white dark:bg-gray-800" onClick={e => e.stopPropagation()}>
+            <div className="modal-skinned w-full max-w-md rounded-2xl flex flex-col max-h-[85vh] shadow-2xl" onClick={e => e.stopPropagation()}>
                 <div className="p-4 rounded-t-2xl flex justify-between items-center shadow-md theme-header-bg">
                     <h3 className="font-bold text-lg">اختر الثيم</h3>
                     <button onClick={onClose} className="text-2xl hover:opacity-80 transition">&times;</button>
@@ -95,7 +95,7 @@ const ThemesModal: React.FC<ThemesModalProps> = ({ onClose, showToast }) => {
                             key={key} 
                             onClick={() => applyTheme(key)} 
                             className={`theme-card text-center ${currentThemeId === key ? 'selected' : ''}`}
-                            style={{ backgroundColor: activeTheme.cardBg, color: activeTheme.cardText }}
+                            style={{ backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' }}
                         >
                             <div className="font-bold mb-2 text-sm">{t.name}</div>
                             <div className="w-full h-20 rounded-lg p-2 shadow-inner flex flex-col justify-between" style={{ backgroundColor: t.bg }}>

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { calculateMawarith, HeirResult } from '@/utils/mawarithCalculator';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 
@@ -29,6 +30,14 @@ const Calculators: React.FC<CalculatorsProps> = ({ onBack }) => {
     const [wivesCount, setWivesCount] = useState(1);
     const [sonsCount, setSonsCount] = useState(0);
     const [daughtersCount, setDaughtersCount] = useState(0);
+    const [hasPaternalGrandfather, setHasPaternalGrandfather] = useState(false);
+    const [hasMaternalGrandmother, setHasMaternalGrandmother] = useState(false);
+    const [brothersCount, setBrothersCount] = useState(0);
+    const [sistersCount, setSistersCount] = useState(0);
+    const [paternalUnclesCount, setPaternalUnclesCount] = useState(0);
+    const [paternalAuntsCount, setPaternalAuntsCount] = useState(0);
+    const [maternalUnclesCount, setMaternalUnclesCount] = useState(0);
+    const [maternalAuntsCount, setMaternalAuntsCount] = useState(0);
 
     // --- Kaffarat State ---
     const [missedFastingDays, setMissedFastingDays] = useState('');
@@ -82,83 +91,32 @@ const Calculators: React.FC<CalculatorsProps> = ({ onBack }) => {
         5. الأم: تأخذ السدس لوجود فرع وارث، والثلث إذا لم يوجد.
         6. الأبناء والبنات: يأخذون الباقي (التعصيب) للذكر مثل حظ الأنثيين.
            إذا كان هناك بنات فقط: البنت الواحدة تأخذ النصف، والبنتان فأكثر يأخذن الثلثين.
-        ملاحظة: هذه حاسبة مبسطة جداً للحالات الأساسية ولا تغطي الحجب والعول والرد والإخوة والأجداد.
+        ملاحظة: هذه الحاسبة استرشادية للحالات الأساسية فقط، ولا تشمل حالات الحجب المعقدة والعول والرد. يُفضل مراجعة أهل العلم والمحاكم الشرعية في المسائل المعقدة لضمان التوزيع الشرعي الدقيق.
     */
-    const calculateMawarith = () => {
-        const total = parseFloat(estateValue) || 0;
-        if (total <= 0) return [];
 
-        let remaining = total;
-        const results: { name: string; share: number; amount: number }[] = [];
-        const hasChildren = sonsCount > 0 || daughtersCount > 0;
 
-        // Spouse
-        if (spouseType === 'husband') {
-            const share = hasChildren ? 1/4 : 1/2;
-            const amount = total * share;
-            results.push({ name: 'الزوج', share, amount });
-            remaining -= amount;
-        } else if (spouseType === 'wife' && wivesCount > 0) {
-            const share = hasChildren ? 1/8 : 1/4;
-            const amount = total * share;
-            results.push({ name: wivesCount > 1 ? `الزوجات (${wivesCount})` : 'الزوجة', share, amount });
-            remaining -= amount;
-        }
 
-        // Parents
-        if (hasFather) {
-            const share = hasChildren ? 1/6 : 0; // Simplified: if no children, father gets remainder later
-            if (share > 0) {
-                const amount = total * share;
-                results.push({ name: 'الأب', share, amount });
-                remaining -= amount;
-            }
-        }
-
-        if (hasMother) {
-            const share = hasChildren ? 1/6 : 1/3; // Simplified
-            const amount = total * share;
-            results.push({ name: 'الأم', share, amount });
-            remaining -= amount;
-        }
-
-        // Children & Father's remainder
-        if (sonsCount > 0 || daughtersCount > 0) {
-            if (sonsCount === 0 && daughtersCount > 0) {
-                // Only daughters
-                const share = daughtersCount === 1 ? 1/2 : 2/3;
-                const amount = Math.min(total * share, remaining); // Cannot exceed remaining
-                results.push({ name: daughtersCount === 1 ? 'البنت' : `البنات (${daughtersCount})`, share, amount });
-                remaining -= amount;
-                
-                // If father exists, he gets the rest
-                if (hasFather && remaining > 0) {
-                    results.push({ name: 'الأب (تعصيباً)', share: remaining/total, amount: remaining });
-                    remaining = 0;
-                }
-            } else {
-                // Sons and daughters (or only sons)
-                const totalParts = (sonsCount * 2) + daughtersCount;
-                const partValue = remaining / totalParts;
-                
-                if (sonsCount > 0) {
-                    results.push({ name: sonsCount === 1 ? 'الابن' : `الأبناء (${sonsCount})`, share: (partValue * 2 * sonsCount)/total, amount: partValue * 2 * sonsCount });
-                }
-                if (daughtersCount > 0) {
-                    results.push({ name: daughtersCount === 1 ? 'البنت' : `البنات (${daughtersCount})`, share: (partValue * daughtersCount)/total, amount: partValue * daughtersCount });
-                }
-                remaining = 0;
-            }
-        } else if (hasFather && remaining > 0) {
-            // Father gets remainder if no children
-            results.push({ name: 'الأب (تعصيباً)', share: remaining/total, amount: remaining });
-            remaining = 0;
-        }
-
-        return results;
-    };
-
-    const mawarithResults = calculateMawarith();
+    const mawarithResults: HeirResult[] = useMemo(() => calculateMawarith({
+        estateValue,
+        hasFather,
+        hasMother,
+        spouseType,
+        wivesCount,
+        sonsCount,
+        daughtersCount,
+        hasPaternalGrandfather,
+        hasMaternalGrandmother,
+        brothersCount,
+        sistersCount,
+        paternalUnclesCount,
+        paternalAuntsCount,
+        maternalUnclesCount,
+        maternalAuntsCount,
+    }), [
+        estateValue, hasFather, hasMother, spouseType, wivesCount, sonsCount,
+        daughtersCount, hasPaternalGrandfather, hasMaternalGrandmother, brothersCount,
+        sistersCount, paternalUnclesCount, paternalAuntsCount, maternalUnclesCount, maternalAuntsCount,
+    ]);
 
     return (
         <div className="h-screen flex flex-col bg-transparent">
@@ -270,6 +228,14 @@ const Calculators: React.FC<CalculatorsProps> = ({ onBack }) => {
                                     <input type="checkbox" checked={hasMother} onChange={e => setHasMother(e.target.checked)} className="w-5 h-5 accent-primary" />
                                     <span style={{ color: theme.textColor }}>الأم</span>
                                 </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" checked={hasPaternalGrandfather} onChange={e => setHasPaternalGrandfather(e.target.checked)} className="w-5 h-5 accent-primary" />
+                                    <span style={{ color: theme.textColor }}>الجد لأب</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" checked={hasMaternalGrandmother} onChange={e => setHasMaternalGrandmother(e.target.checked)} className="w-5 h-5 accent-primary" />
+                                    <span style={{ color: theme.textColor }}>الجدة لأم</span>
+                                </label>
                             </div>
 
                             <div className="flex items-center gap-4 mt-2">
@@ -297,11 +263,44 @@ const Calculators: React.FC<CalculatorsProps> = ({ onBack }) => {
                             <div className="grid grid-cols-2 gap-4 mt-4">
                                 <div>
                                     <label className="block text-sm font-bold mb-1 opacity-80" style={{ color: theme.textColor }}>عدد الأبناء (ذكور)</label>
-                                    <input type="number" min="0" value={sonsCount} onChange={e => setSonsCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
+                                    <input type="text" inputMode="numeric" pattern="[0-9]*" min="0" value={sonsCount} onChange={e => setSonsCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold mb-1 opacity-80" style={{ color: theme.textColor }}>عدد البنات (إناث)</label>
-                                    <input type="number" min="0" value={daughtersCount} onChange={e => setDaughtersCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
+                                    <input type="text" inputMode="numeric" pattern="[0-9]*" min="0" value={daughtersCount} onChange={e => setDaughtersCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label className="block text-sm font-bold mb-1 opacity-80" style={{ color: theme.textColor }}>عدد الإخوة</label>
+                                    <input type="text" inputMode="numeric" pattern="[0-9]*" min="0" value={brothersCount} onChange={e => setBrothersCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1 opacity-80" style={{ color: theme.textColor }}>عدد الأخوات</label>
+                                    <input type="text" inputMode="numeric" pattern="[0-9]*" min="0" value={sistersCount} onChange={e => setSistersCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label className="block text-sm font-bold mb-1 opacity-80" style={{ color: theme.textColor }}>عدد الأعمام</label>
+                                    <input type="text" inputMode="numeric" pattern="[0-9]*" min="0" value={paternalUnclesCount} onChange={e => setPaternalUnclesCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1 opacity-80" style={{ color: theme.textColor }}>عدد العمات</label>
+                                    <input type="text" inputMode="numeric" pattern="[0-9]*" min="0" value={paternalAuntsCount} onChange={e => setPaternalAuntsCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <label className="block text-sm font-bold mb-1 opacity-80" style={{ color: theme.textColor }}>عدد الأخوال</label>
+                                    <input type="text" inputMode="numeric" pattern="[0-9]*" min="0" value={maternalUnclesCount} onChange={e => setMaternalUnclesCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold mb-1 opacity-80" style={{ color: theme.textColor }}>عدد الخالات</label>
+                                    <input type="text" inputMode="numeric" pattern="[0-9]*" min="0" value={maternalAuntsCount} onChange={e => setMaternalAuntsCount(parseInt(e.target.value) || 0)} className="w-full p-3 rounded-lg border focus:ring-2 focus:outline-none" style={inputStyle} />
                                 </div>
                             </div>
                         </div>

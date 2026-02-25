@@ -7,6 +7,7 @@ interface MushafPageProps {
     highlightedAyahId: string | null;
     onAyahClick: (surah: number, ayah: number) => void;
     onVerseClick: (surah: number, ayah: number, event: React.MouseEvent) => void;
+    onVerseLongPress?: (surah: number, ayah: number) => void;
     settings?: {
         fontSize: number;
         fontFamily: string;
@@ -15,8 +16,35 @@ interface MushafPageProps {
     };
 }
 
-const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, highlightedAyahId, onAyahClick, onVerseClick, settings }) => {
+const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, highlightedAyahId, onAyahClick, onVerseClick, onVerseLongPress, settings }) => {
     const pageRef = useRef<HTMLDivElement | null>(null);
+    const longPressTimer = useRef<number | null>(null);
+    const isLongPressTriggered = useRef(false);
+
+    const handlePointerDown = (s: number, a: number) => {
+        isLongPressTriggered.current = false;
+        longPressTimer.current = window.setTimeout(() => {
+            if (onVerseLongPress) {
+                onVerseLongPress(s, a);
+                isLongPressTriggered.current = true;
+            }
+            longPressTimer.current = null;
+        }, 600);
+    };
+
+    const handlePointerUp = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+    };
+
+    const handlePointerLeave = () => {
+        if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+        }
+    };
 
     if (!pageData || !pageData.length) return <div className="mushaf-page" style={{height: '1000px'}}></div>; // Placeholder for height calculation
     
@@ -71,7 +99,17 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                                 data-ayah={ayah.numberInSurah}
                             >
                                 {text.replace(/[\s\u200B-\u200D\uFEFF]+/g, ' ').trim()}
-                                <span className="verse-container" onClick={(e) => onVerseClick(ayah.sNum, ayah.numberInSurah, e)}>
+                                <span className="verse-container" 
+                                    onClick={(e) => {
+                                        if (!isLongPressTriggered.current) {
+                                            onVerseClick(ayah.sNum, ayah.numberInSurah, e);
+                                        }
+                                    }}
+                                    onPointerDown={() => handlePointerDown(ayah.sNum, ayah.numberInSurah)}
+                                    onPointerUp={handlePointerUp}
+                                    onPointerLeave={handlePointerLeave}
+                                    onContextMenu={(e) => e.preventDefault()}
+                                >
                                     <span className="verse-bracket">﴿</span>
                                     <span className="verse-num-inner">{toArabic(ayah.numberInSurah)}</span>
                                     <span className="verse-bracket">﴾</span>

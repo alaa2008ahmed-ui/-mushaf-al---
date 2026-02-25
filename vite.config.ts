@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
         alias: {
           // FIX: Replaced `__dirname` with `.` to resolve from the current working directory,
           // as `__dirname` is not available in ES modules by default and causes a TypeScript error.
-          '@': path.resolve('.'),
+          '@': path.resolve(__dirname, 'src'),
         }
       }
     };

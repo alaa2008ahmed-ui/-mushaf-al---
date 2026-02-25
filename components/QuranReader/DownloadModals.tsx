@@ -241,7 +241,7 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 z-[155] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] bg-white dark:bg-gray-800 text-gray-800 dark:text-white" onClick={e => e.stopPropagation()}>
+            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">تحميل القرآن الكريم</h2>
                     <button onClick={onClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
@@ -249,7 +249,7 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
                 <div className="p-3 space-y-2 overflow-y-auto text-center">
                     <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
                         <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-sm h-8">{READERS.find(r => r.id === selectedReader)?.name || "اختر القارئ"}</div>
+                            <div className="custom-select-display text-sm h-8 themed-card-bg">{READERS.find(r => r.id === selectedReader)?.name || "اختر القارئ"}</div>
                             <select value={selectedReader} onChange={(e) => setSelectedReader(e.target.value)} className="custom-select-design">
                                 <option value="">اختر القارئ</option>
                                 {READERS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
@@ -257,7 +257,7 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
                         </div>
                         
                         <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-sm h-8">
+                            <div className="custom-select-display text-sm h-8 themed-card-bg">
                                 {selectedSurah === 'all' ? "تحميل المصحف كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
                             </div>
                             <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
@@ -270,20 +270,20 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
                         </div>
                         
                         {!isDownloading ? (
-                            <button onClick={downloadSurahAudio} className="w-full theme-btn-bg bg-emerald-500 text-white py-2.5 rounded-lg shadow hover:bg-emerald-600 font-bold text-sm">تحميل</button>
+                            <button onClick={downloadSurahAudio} className="w-full theme-btn-bg py-2.5 rounded-lg shadow font-bold text-sm">تحميل</button>
                         ) : (
                             <div className="mt-2">
                                 <div className="text-xs font-bold mb-1">{status}</div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-emerald-600 h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
                                 </div>
-                                <button onClick={stopDownload} className="w-full mt-2 theme-btn-bg bg-red-500 text-white py-1.5 rounded-lg shadow hover:bg-red-600 font-bold text-sm">إيقاف التحميل</button>
+                                <button onClick={stopDownload} className="w-full mt-2 bg-red-500 text-white py-1.5 rounded-lg shadow hover:bg-red-600 font-bold text-sm">إيقاف التحميل</button>
                             </div>
                         )}
                     </div>
                 </div>
-                <div className="bg-gray-100 dark:bg-gray-700 p-3 text-center flex-none">
-                    <button onClick={onClose} className="theme-accent-btn bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-8 rounded-lg shadow text-sm w-full">إغلاق</button>
+                <div className="p-3 text-center flex-none themed-card-bg">
+                    <button onClick={onClose} className="theme-accent-btn font-bold py-2 px-8 rounded-lg shadow text-sm w-full">إغلاق</button>
                 </div>
             </div>
         </div>
@@ -379,7 +379,7 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 z-[156] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] bg-white dark:bg-gray-800 text-gray-800 dark:text-white" onClick={e => e.stopPropagation()}>
+            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">تحميل التفسير</h2>
                     <button onClick={onClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
@@ -387,7 +387,7 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
                 <div className="p-3 space-y-2 overflow-y-auto text-center">
                     <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
                         <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-sm h-8">{TAFSEERS.find(t => t.id === selectedTafsir)?.name || "اختر التفسير"}</div>
+                            <div className="custom-select-display text-sm h-8 themed-card-bg">{TAFSEERS.find(t => t.id === selectedTafsir)?.name || "اختر التفسير"}</div>
                             <select value={selectedTafsir} onChange={(e) => setSelectedTafsir(e.target.value)} className="custom-select-design">
                                 <option value="">اختر التفسير</option>
                                 {TAFSEERS.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -395,7 +395,7 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
                         </div>
                         
                         <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-sm h-8">
+                            <div className="custom-select-display text-sm h-8 themed-card-bg">
                                 {selectedSurah === 'all' ? "تحميل التفاسير كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
                             </div>
                             <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
@@ -408,20 +408,20 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
                         </div>
                         
                         {!isDownloading ? (
-                            <button onClick={downloadTafsir} className="w-full theme-btn-bg bg-emerald-500 text-white py-2.5 rounded-lg shadow hover:bg-emerald-600 font-bold text-sm">تحميل</button>
+                            <button onClick={downloadTafsir} className="w-full theme-btn-bg py-2.5 rounded-lg shadow font-bold text-sm">تحميل</button>
                         ) : (
                             <div className="mt-2">
                                 <div className="text-xs font-bold mb-1">{status}</div>
                                 <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div className="bg-purple-600 h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
                                 </div>
-                                <button onClick={stopDownload} className="w-full mt-2 theme-btn-bg bg-red-500 text-white py-1.5 rounded-lg shadow hover:bg-red-600 font-bold text-sm">إيقاف التحميل</button>
+                                <button onClick={stopDownload} className="w-full mt-2 bg-red-500 text-white py-1.5 rounded-lg shadow hover:bg-red-600 font-bold text-sm">إيقاف التحميل</button>
                             </div>
                         )}
                     </div>
                 </div>
-                <div className="bg-gray-100 dark:bg-gray-700 p-3 text-center flex-none">
-                    <button onClick={onClose} className="theme-accent-btn bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-8 rounded-lg shadow text-sm w-full">إغلاق</button>
+                <div className="p-3 text-center flex-none themed-card-bg">
+                    <button onClick={onClose} className="theme-accent-btn font-bold py-2 px-8 rounded-lg shadow text-sm w-full">إغلاق</button>
                 </div>
             </div>
         </div>

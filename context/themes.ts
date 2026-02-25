@@ -8,32 +8,198 @@ export interface Theme {
     palette: string[];
     barBg?: string;
     barBorder?: string;
+    btnBorder?: string;
 }
 
 export const presetThemes: { [key: string]: Theme } = {
-    daylight: { name: "افتراضي", bgColor: "#F3F4F6", textColor: "#111827", font: "'Cairo', sans-serif", palette: ["#3b82f6", "#10b981", "#9333ea"] },
-    royal_indigo: { name: "ملكي", bgColor: "#191D3A", textColor: "#EAEAEA", font: "'Cairo', sans-serif", palette: ["#46C3B8", "#F4B860", "#a78bfa"], barBg: "#2A3045", barBorder: "1px solid #4A5568" },
-    glassy_dark: { name: "زجاجي داكن", bgColor: "#0c0a09", textColor: "#e7e5e4", font: "'Cairo', sans-serif", palette: ["#a78bfa", "#34d399", "#f472b6"], barBg: "rgba(28, 25, 23, 0.7)", barBorder: "1px solid rgba(255, 255, 255, 0.1)" },
-    glassy_light: { name: "زجاجي فاتح", bgColor: "#f5f5f4", textColor: "#1c1917", font: "'Cairo', sans-serif", palette: ["#2563eb", "#ea580c", "#16a34a"], barBg: "rgba(255, 255, 255, 0.7)", barBorder: "1px solid rgba(0, 0, 0, 0.07)" },
-    pure_black: { name: "أسود فاحم", bgColor: "#000000", palette: ["#444444", "#666666", "#888888"], textColor: "#ffffff", font: "'Cairo', sans-serif", barBg: "#111111", barBorder: "1px solid #444" },
-    kaaba: { name: "الكعبة", bgColor: "#000000", palette: ["#1a1a1a", "#d4af37", "#2d2d2d"], textColor: "#f5e6d3", font: "'Amiri', serif", barBg: "#1a1a1a", barBorder: "1px solid #d4af37" },
-    masjid: { name: "النبوي", bgColor: "#064e3b", palette: ["#047857", "#059669", "#10b981"], textColor: "#ecfdf5", font: "'Scheherazade New', serif", barBg: "#047857", barBorder: "1px solid #10b981" },
-    quran_classic: { name: "المصحف", bgColor: "#fffbeb", palette: ["#92400e", "#b45309", "#d97706"], textColor: "#451a03", font: "'Amiri', serif", barBg: "#f5f0e7", barBorder: "1px solid #d97706" },
-    ramadan: { name: "رمضان", bgColor: "#4c1d95", palette: ["#6d28d9", "#7c3aed", "#d97706"], textColor: "#faf5ff", font: "'Amiri', serif", barBg: "#6d28d9", barBorder: "1px solid #d97706" },
-    fajr: { name: "الفجر", bgColor: "#bae6fd", palette: ["#7dd3fc", "#38bdf8", "#0ea5e9"], textColor: "#0c4a6e", font: "'Cairo', sans-serif", barBg: "#e0f2fe", barBorder: "1px solid #38bdf8" },
-    dhuhr: { name: "الظهر", bgColor: "#fef3c7", palette: ["#fbbf24", "#f59e0b", "#d97706"], textColor: "#78350f", font: "'Amiri', serif", barBg: "#fef3c7", barBorder: "1px solid #f59e0b" },
-    asr: { name: "العصر", bgColor: "#fed7aa", palette: ["#fb923c", "#f97316", "#ea580c"], textColor: "#7c2d12", font: "'Scheherazade New', serif", barBg: "#fed7aa", barBorder: "1px solid #f97316" },
-    maghrib: { name: "المغرب", bgColor: "#7c2d12", palette: ["#ea580c", "#dc2626", "#9333ea"], textColor: "#fef2f2", font: "'Scheherazade New', serif", barBg: "#ea580c", barBorder: "1px solid #9333ea" },
-    isha: { name: "العشاء", bgColor: "#1e40af", palette: ["#1e40af", "#2563eb", "#3b82f6"], textColor: "#dbeafe", font: "'Amiri', serif", barBg: "#1e40af", barBorder: "1px solid #3b82f6" },
-    night_prayer: { name: "القيام", bgColor: "#1e1b4b", palette: ["#312e81", "#4c1d95", "#5b21b6"], textColor: "#e9d5ff", font: "'Amiri', serif", barBg: "#312e81", barBorder: "1px solid #5b21b6" },
-    medina: { name: "المدينة", bgColor: "#0f766e", palette: ["#14b8a6", "#2dd4bf", "#5eead4"], textColor: "#f0fdfa", font: "'Cairo', sans-serif", barBg: "#14b8a6", barBorder: "1px solid #5eead4" },
-    mecca: { name: "مكة", bgColor: "#1c1917", palette: ["#78350f", "#92400e", "#b45309"], textColor: "#fef3c7", font: "'Amiri', serif", barBg: "#78350f", barBorder: "1px solid #b45309" },
-    alaqsa: { name: "الأقصى", bgColor: "#155e75", palette: ["#0891b2", "#06b6d4", "#22d3ee"], textColor: "#ecfeff", font: "'Scheherazade New', serif", barBg: "#0891b2", barBorder: "1px solid #22d3ee" },
-    islamic_gold: { name: "ذهبي", bgColor: "#d97706", palette: ["#f59e0b", "#fbbf24", "#fcd34d"], textColor: "#451a03", font: "'Amiri', serif", barBg: "#fbbf24", barBorder: "1px solid #fcd34d" },
-    islamic_green: { name: "أخضر", bgColor: "#047857", palette: ["#059669", "#10b981", "#34d399"], textColor: "#f0fdf4", font: "'Amiri', serif", barBg: "#10b981", barBorder: "1px solid #34d399" },
-    tasbih: { name: "تسبيح", bgColor: "#581c87", palette: ["#7c3aed", "#8b5cf6", "#a78bfa"], textColor: "#f3e8ff", font: "'Amiri', serif", barBg: "#7c3aed", barBorder: "1px solid #a78bfa" },
-    dua: { name: "دعاء", bgColor: "#1e40af", palette: ["#1e40af", "#2563eb", "#3b82f6"], textColor: "#dbeafe", font: "'Scheherazade New', serif", barBg: "#2563eb", barBorder: "1px solid #3b82f6" },
-    midnight: { name: "ليل", bgColor: "#0b0f19", palette: ["#6366f1", "#8b5cf6", "#d946ef"], textColor: "#c7d2fe", font: "'Cairo', sans-serif", barBg: "#312e81", barBorder: "1px solid #8b5cf6" },
-    wood: { name: "خشب", bgColor: "#3e2723", palette: ["#5d4037", "#4e342e", "#795548"], textColor: "#d7ccc8", font: "'Amiri', serif", barBg: "#5d4037", barBorder: "1px solid #795548" },
-    sunset: { name: "غروب", bgColor: "#450a0a", palette: ["#dc2626", "#ea580c", "#c026d3"], textColor: "#fef2f2", font: "'Amiri', serif", barBg: "#dc2626", barBorder: "1px solid #c026d3" },
+    default: {
+        name: "الافتراضي",
+        bgColor: "#F3F4F6",
+        textColor: "#1F2937",
+        font: "'Cairo', sans-serif",
+        palette: ["#10B981", "#8B5CF6", "#F3F4F6"],
+        barBg: "#FFFFFF",
+        barBorder: "1px solid #E5E7EB"
+    },
+    black_and_white: {
+        name: "أبيض وأسود",
+        bgColor: "#000000",
+        textColor: "#FFFFFF",
+        font: "'Cairo', sans-serif",
+        palette: ["#000000", "#000000", "#FFFFFF"],
+        barBg: "#000000",
+        barBorder: "1px solid #FFFFFF",
+        btnBorder: "1px solid #FFFFFF"
+    },
+    fajr_light: {
+        name: "نور الفجر",
+        bgColor: "#F0F9FF",
+        textColor: "#0C4A6E",
+        font: "'Cairo', sans-serif",
+        palette: ["#0EA5E9", "#38BDF8", "#7DD3FC"],
+        barBg: "#E0F2FE",
+        barBorder: "1px solid #BAE6FD"
+    },
+    golden_sand: {
+        name: "الرمال الذهبية",
+        bgColor: "#FFFBEB",
+        textColor: "#451A03",
+        font: "'Amiri', serif",
+        palette: ["#D97706", "#F59E0B", "#FCD34D"],
+        barBg: "#FEF3C7",
+        barBorder: "1px solid #FDE68A"
+    },
+    midnight_prayer: {
+        name: "قيام الليل",
+        bgColor: "#0F172A",
+        textColor: "#F1F5F9",
+        font: "'Amiri', serif",
+        palette: ["#3B82F6", "#60A5FA", "#94A3B8"],
+        barBg: "#1E293B",
+        barBorder: "1px solid #334155"
+    },
+    olive_grove: {
+        name: "الزيتون المبارك",
+        bgColor: "#F7FEE7",
+        textColor: "#1A2E05",
+        font: "'Scheherazade New', serif",
+        palette: ["#65A30D", "#84CC16", "#BEF264"],
+        barBg: "#ECFCCB",
+        barBorder: "1px solid #D9F99D"
+    },
+    kaaba_kiswa: {
+        name: "كسوة الكعبة",
+        bgColor: "#000000",
+        textColor: "#FCD34D",
+        font: "'Amiri', serif",
+        palette: ["#F59E0B", "#D97706", "#FFFFFF"],
+        barBg: "#111111",
+        barBorder: "1px solid #F59E0B"
+    },
+    madinah_rose: {
+        name: "ورد المدينة",
+        bgColor: "#FFF1F2",
+        textColor: "#881337",
+        font: "'Cairo', sans-serif",
+        palette: ["#F43F5E", "#FB7185", "#FDA4AF"],
+        barBg: "#FFE4E6",
+        barBorder: "1px solid #FECDD3"
+    },
+    andalusian_garden: {
+        name: "حدائق الأندلس",
+        bgColor: "#F0FDF4",
+        textColor: "#14532D",
+        font: "'Scheherazade New', serif",
+        palette: ["#15803D", "#B45309", "#16A34A"],
+        barBg: "#DCFCE7",
+        barBorder: "1px solid #86EFAC"
+    },
+    blue_mosque: {
+        name: "المسجد الأزرق",
+        bgColor: "#ECFEFF",
+        textColor: "#164E63",
+        font: "'Amiri', serif",
+        palette: ["#0891B2", "#06B6D4", "#22D3EE"],
+        barBg: "#CFFAFE",
+        barBorder: "1px solid #A5F3FC"
+    },
+    clay_earth: {
+        name: "الطين والأرض",
+        bgColor: "#FAFAF9",
+        textColor: "#44403C",
+        font: "'Cairo', sans-serif",
+        palette: ["#78716C", "#A8A29E", "#D6D3D1"],
+        barBg: "#E7E5E4",
+        barBorder: "1px solid #D6D3D1"
+    },
+    slate_stone: {
+        name: "الحجر والرخام",
+        bgColor: "#F8FAFC",
+        textColor: "#334155",
+        font: "'Cairo', sans-serif",
+        palette: ["#475569", "#64748B", "#94A3B8"],
+        barBg: "#E2E8F0",
+        barBorder: "1px solid #CBD5E1"
+    },
+    sunset_dua: {
+        name: "دعاء الغروب",
+        bgColor: "#450A0A",
+        textColor: "#FEF2F2",
+        font: "'Amiri', serif",
+        palette: ["#DC2626", "#EA580C", "#C026D3"],
+        barBg: "#7F1D1D",
+        barBorder: "1px solid #B91C1C"
+    },
+    emerald_islam: {
+        name: "زمرد إسلامي",
+        bgColor: "#064E3B",
+        textColor: "#ECFDF5",
+        font: "'Cairo', sans-serif",
+        palette: ["#10B981", "#34D399", "#6EE7B7"],
+        barBg: "#065F46",
+        barBorder: "1px solid #10B981"
+    },
+    royal_purple: {
+        name: "أرجواني ملكي",
+        bgColor: "#2E1065",
+        textColor: "#F3E8FF",
+        font: "'Amiri', serif",
+        palette: ["#7C3AED", "#8B5CF6", "#A78BFA"],
+        barBg: "#4C1D95",
+        barBorder: "1px solid #7C3AED"
+    },
+    desert_night: {
+        name: "ليل الصحراء",
+        bgColor: "#0B0F19",
+        textColor: "#C7D2FE",
+        font: "'Cairo', sans-serif",
+        palette: ["#6366F1", "#8B5CF6", "#D946EF"],
+        barBg: "#1E1B4B",
+        barBorder: "1px solid #4F46E5"
+    },
+    ocean_peace: {
+        name: "سلام المحيط",
+        bgColor: "#0F172A",
+        textColor: "#E2E8F0",
+        font: "'Cairo', sans-serif",
+        palette: ["#0EA5E9", "#0284C7", "#0369A1"],
+        barBg: "#1E293B",
+        barBorder: "1px solid #0EA5E9"
+    },
+    vintage_paper: {
+        name: "ورق عتيق",
+        bgColor: "#FEFBF1",
+        textColor: "#3D3328",
+        font: "'Amiri', serif",
+        palette: ["#8C7B65", "#A69177", "#C2B092"],
+        barBg: "#EDE6D3",
+        barBorder: "1px solid #D4C5A9"
+    },
+    turquoise_gem: {
+        name: "فيروزي",
+        bgColor: "#F0FDFA",
+        textColor: "#134E4A",
+        font: "'Cairo', sans-serif",
+        palette: ["#0D9488", "#14B8A6", "#2DD4BF"],
+        barBg: "#CCFBF1",
+        barBorder: "1px solid #99F6E4"
+    },
+    deep_forest: {
+        name: "غابة عميقة",
+        bgColor: "#022C22",
+        textColor: "#D1FAE5",
+        font: "'Amiri', serif",
+        palette: ["#059669", "#10B981", "#34D399"],
+        barBg: "#064E3B",
+        barBorder: "1px solid #059669"
+    },
+    lavender_mist: {
+        name: "ضباب الخزامى",
+        bgColor: "#FAF5FF",
+        textColor: "#581C87",
+        font: "'Cairo', sans-serif",
+        palette: ["#A855F7", "#C084FC", "#D8B4FE"],
+        barBg: "#F3E8FF",
+        barBorder: "1px solid #E9D5FF"
+    }
 };

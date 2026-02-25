@@ -78,6 +78,53 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--qr-modal-bg, #ffffff);
+    color: var(--qr-modal-text, #000000);
+}
+
+.theme-header-bg {
+    background-color: var(--qr-header-bg, #10b981) !important;
+    color: var(--qr-header-text, #ffffff) !important;
+}
+
+.theme-btn-bg {
+    background-color: var(--qr-btn-bg, #10b981) !important;
+    color: var(--qr-btn-text, #ffffff) !important;
+    border-color: var(--qr-btn-bg, #10b981) !important;
+}
+
+.theme-accent-btn {
+    background-color: var(--qr-accent, #10b981) !important;
+    color: var(--qr-accent-text, #ffffff) !important;
+}
+
+.themed-card-bg {
+    background-color: var(--qr-card-bg, #ffffff) !important;
+    color: var(--qr-card-text, #000000) !important;
+    border-color: var(--qr-card-border, #10b981) !important;
+}
+
+.themed-text {
+    color: var(--qr-text, #000000) !important;
+}
+
+.themed-bg {
+    background-color: var(--qr-bg, #f3f4f6) !important;
+}
+
+.themed-border {
+    border-color: var(--qr-card-border, #10b981) !important;
+}
+
+.themed-input {
+    background-color: var(--qr-card-bg, #ffffff) !important;
+    color: var(--qr-card-text, #000000) !important;
+    border-color: var(--qr-card-border, #10b981) !important;
+}
+
+.themed-input::placeholder {
+    color: var(--qr-card-text, #000000) !important;
+    opacity: 0.6;
 }
 
 .full-mushaf-container { 

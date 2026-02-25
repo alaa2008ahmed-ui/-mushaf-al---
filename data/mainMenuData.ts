@@ -1,7 +1,7 @@
 
 import {
     QuranIcon, SalahAdhkarIcon, ListenIcon, TasbeehIcon, CalendarIcon, QiblaIcon,
-    HajjIcon, HisnMuslimIcon, PrayerTimesIcon, AdiaIcon, SabahMasaaIcon, AsmaulHusnaIcon, RadioIcon, CalculatorIcon
+    HajjIcon, HisnMuslimIcon, PrayerTimesIcon, AdiaIcon, SabahMasaaIcon, RadioIcon, CalculatorIcon
 } from '../components/Icons';
 
 export const verses = [
@@ -20,7 +20,6 @@ export const navItems = [
   { id: 'sabah-masaa', title: "أذكار الصباح والمساء", icon: SabahMasaaIcon },
   { id: 'adia', title: "أدعية", icon: AdiaIcon },
   { id: 'tasbeeh', title: "التسبيح", icon: TasbeehIcon },
-  { id: 'asmaul-husna', title: "أسماء الله الحسنى", icon: AsmaulHusnaIcon },
   { id: 'radio', title: "إذاعة القرآن", icon: RadioIcon },
   { id: 'calculators', title: "حاسبات إسلامية", icon: CalculatorIcon },
   { id: 'salah-adhkar', title: "أذكار الصلاة", icon: SalahAdhkarIcon },
