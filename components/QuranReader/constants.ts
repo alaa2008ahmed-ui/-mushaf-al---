@@ -56,13 +56,7 @@ export const READERS = [
     { id: 'Karim_Mansoori_40kbps', name: 'كريم منصوري' },
     { id: 'Husary_Mujawwad_64kbps', name: 'الحصري (مجود)' },
     { id: 'Minshawy_Teacher_128kbps', name: 'المنشاوي (معلم)' },
-    { id: 'Mahmoud_Ali_Al_Banna_32kbps', name: 'محمود علي البنا' },
-    // New Egyptian Reciters
-    { id: 'Hatem_Farid_Alwaer_128kbps', name: 'حاتم فريد الواعر' },
-    { id: 'Yasser_Salama_128kbps', name: 'ياسر سلامة' },
-    { id: 'Saber_Abdul_Hakam_128kbps', name: 'صابر عبد الحكم' },
-    { id: 'Akram_Al_Alaqmi_128kbps', name: 'أكرم العلاقمي' },
-    { id: 'Hassan_Saleh_128kbps', name: 'حسن صالح' }
+    { id: 'Mahmoud_Ali_Al_Banna_32kbps', name: 'محمود علي البنا' }
 ];
 export const TAFSEERS = [{ id: 'ar.muyassar', name: 'التفسير الميسر' }, { id: 'ar.baghawi', name: 'تفسير البغوي' }, { id: 'ar.qurtubi', name: 'تفسير القرطبي' }, { id: 'ar.jalalayn', name: 'تفسير الجلالين' }, { id: 'ar.waseet', name: 'التفسير الوسيط' }];
 
