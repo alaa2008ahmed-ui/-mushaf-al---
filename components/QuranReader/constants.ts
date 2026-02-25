@@ -22,7 +22,7 @@ export const READERS = [
     { id: 'Alafasy_128kbps', name: 'مشاري العفاسي' },
     { id: 'Minshawy_Murattal_128kbps', name: 'محمد صديق المنشاوي (مرتل)' },
     { id: 'Minshawy_Mujawwad_64kbps', name: 'محمد صديق المنشاوي (مجود)' },
-    { id: 'Abdul_Basit_Murattal_64kbps', name: 'عبدالباسط عبدالصمد (مرتل)' },
+    { id: 'Abdul_Basit_Murattal_192kbps', name: 'عبدالباسط عبدالصمد (مرتل)' },
     { id: 'Abdul_Basit_Mujawwad_128kbps', name: 'عبدالباسط عبدالصمد (مجود)' },
     { id: 'Abdurrahmaan_As-Sudais_192kbps', name: 'عبدالرحمن السديس' },
     { id: 'Saood_ash-Shuraym_128kbps', name: 'سعود الشريم' },
@@ -43,7 +43,6 @@ export const READERS = [
     { id: 'Ali_Jaber_64kbps', name: 'علي جابر' },
     { id: 'Mustafa_Ismail_48kbps', name: 'مصطفى إسماعيل' },
     { id: 'Abdullah_Matroud_128kbps', name: 'عبدالله مطرود' },
-    // Updated Working Reciters
     { id: 'Khalifa_Taniji_128kbps', name: 'خليفة الطنيجي' },
     { id: 'Abdullaah_3awwaad_Al-Juhaynee_128kbps', name: 'عبدالله الجهني' },
     { id: 'Salah_Al_Budair_128kbps', name: 'صلاح البدير' },
@@ -58,12 +57,12 @@ export const READERS = [
     { id: 'Husary_Mujawwad_64kbps', name: 'الحصري (مجود)' },
     { id: 'Minshawy_Teacher_128kbps', name: 'المنشاوي (معلم)' },
     { id: 'Mahmoud_Ali_Al_Banna_32kbps', name: 'محمود علي البنا' },
-    { id: 'Mohammad_al_Tablaway_128kbps', name: 'محمد الطبلاوي' },
-    { id: 'Abdul_Basit_Murattal_192kbps', name: 'عبدالباسط (مرتل عالي الجودة)' },
-    { id: 'Yasser_Ad-Dussary_128kbps', name: 'ياسر الدوسري' },
-    { id: 'Nasser_Alqatami_128kbps', name: 'ناصر القطامي' },
-    { id: 'Hani_Rifai_192kbps', name: 'هاني الرفاعي' },
-    { id: 'Khaalid_al-Qahtaanee_128kbps', name: 'خالد القحطاني' }
+    // New Egyptian Reciters
+    { id: 'Hatem_Farid_Alwaer_128kbps', name: 'حاتم فريد الواعر' },
+    { id: 'Yasser_Salama_128kbps', name: 'ياسر سلامة' },
+    { id: 'Saber_Abdul_Hakam_128kbps', name: 'صابر عبد الحكم' },
+    { id: 'Akram_Al_Alaqmi_128kbps', name: 'أكرم العلاقمي' },
+    { id: 'Hassan_Saleh_128kbps', name: 'حسن صالح' }
 ];
 export const TAFSEERS = [{ id: 'ar.muyassar', name: 'التفسير الميسر' }, { id: 'ar.baghawi', name: 'تفسير البغوي' }, { id: 'ar.qurtubi', name: 'تفسير القرطبي' }, { id: 'ar.jalalayn', name: 'تفسير الجلالين' }, { id: 'ar.waseet', name: 'التفسير الوسيط' }];
 
