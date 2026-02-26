@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, FC } from 'react';
 import './QuranReader.css'; 
-import { JUZ_MAP, toArabic, THEMES, TAFSEERS } from '../components/QuranReader/constants';
+import { JUZ_MAP, toArabic, THEMES, TAFSEERS, READERS } from '../components/QuranReader/constants';
 import SearchModal from '../components/QuranReader/SearchModal';
 import ThemesModal from '../components/QuranReader/ThemesModal';
 import SettingsModal from '../components/QuranReader/SettingsModal';
@@ -151,6 +151,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
     
     const [toast, setToast] = useState({ show: false, message: '' });
+    const [reciterToast, setReciterToast] = useState({ show: false, name: '' });
     const [bookmarks, setBookmarks] = useState([]);
 
     const [sajdahInfo, setSajdahInfo] = useState<{ show: boolean; surah?: string; ayah?: number }>({ show: false });
@@ -530,9 +531,14 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const toggleAudio = useCallback(() => {
         if (isPlaying || isAudioLoading) stopAudio();
-        else if (currentAyah) playAudio(currentAyah.s, currentAyah.a);
+        else if (currentAyah) {
+            playAudio(currentAyah.s, currentAyah.a);
+            const reciterName = READERS.find(r => r.id === settings.reader)?.name || 'القارئ';
+            setReciterToast({ show: true, name: reciterName });
+            setTimeout(() => setReciterToast(prev => ({ ...prev, show: false })), 2000);
+        }
         else showToast('الرجاء اختيار آية للبدء');
-    }, [isPlaying, isAudioLoading, currentAyah, playAudio, stopAudio]);
+    }, [isPlaying, isAudioLoading, currentAyah, playAudio, stopAudio, settings.reader]);
 
     const playButtonTimerRef = useRef<number | null>(null);
     const handlePlayButtonPointerDown = () => {
@@ -1002,16 +1008,24 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                         ص {toArabic(page)}
                     </button>
                 )}
-                <button 
-                    id="btn-play" 
-                    onPointerDown={handlePlayButtonPointerDown}
-                    onPointerUp={handlePlayButtonPointerUp}
-                    onPointerLeave={handlePlayButtonPointerLeave}
-                    className="top-bar-text-button" 
-                    style={{...getToolbarStyle('audio', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder), touchAction: 'none'}}
-                >
-                    <span id="play-icon-svg">{renderPlayButtonIcon()}</span>
-                </button>
+                <div className="relative flex-shrink-0">
+                    <button 
+                        id="btn-play" 
+                        onPointerDown={handlePlayButtonPointerDown}
+                        onPointerUp={handlePlayButtonPointerUp}
+                        onPointerLeave={handlePlayButtonPointerLeave}
+                        className="top-bar-text-button" 
+                        style={{...getToolbarStyle('audio', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder), touchAction: 'none'}}
+                    >
+                        <span id="play-icon-svg">{renderPlayButtonIcon()}</span>
+                    </button>
+                    {reciterToast.show && (
+                        <div className="absolute top-full left-0 mt-2 px-3 py-1 text-xs rounded-lg shadow-lg whitespace-nowrap z-[100] animate-fadeIn font-bold pointer-events-none"
+                             style={{ backgroundColor: currentTheme.cardBg, color: currentTheme.cardText, border: `1px solid ${currentTheme.cardBorder}` }}>
+                            {reciterToast.name}
+                        </div>
+                    )}
+                </div>
             </header>
             <ReadingTimer isVisible={autoScrollState.isPaused || (!autoScrollState.isActive && autoScrollState.elapsedTime > 0)} elapsedTime={autoScrollState.elapsedTime} />
             <div id="mushaf-content" ref={mushafContentRef} onClick={pauseResumeAutoScroll} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>

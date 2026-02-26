@@ -98,6 +98,24 @@ function MainMenu({ onNavigate, onOpenThemes }) {
       if (navigator.vibrate) navigator.vibrate(50);
   };
 
+  const handleResetLayout = () => {
+      setMenuItems(DEFAULT_MENU_ITEMS);
+      localStorage.removeItem('menuLayout');
+      setIsEditMode(false);
+      if (navigator.vibrate) navigator.vibrate(50);
+  };
+
+  const handleCancelEdit = () => {
+      const savedLayout = localStorage.getItem('menuLayout');
+      if (savedLayout) {
+          setMenuItems(JSON.parse(savedLayout));
+      } else {
+          setMenuItems(DEFAULT_MENU_ITEMS);
+      }
+      setIsEditMode(false);
+      if (navigator.vibrate) navigator.vibrate(50);
+  };
+
   const handleResize = (id: string, e: React.MouseEvent) => {
       e.stopPropagation();
       setMenuItems(prev => prev.map(item => {
@@ -268,12 +286,26 @@ function MainMenu({ onNavigate, onOpenThemes }) {
               {/* Footer/Save Button */}
               <div className="themed-card p-2.5 rounded-2xl text-center w-full max-w-sm mx-auto mt-4 mb-4 relative">
                   {isEditMode ? (
-                      <button 
-                          onClick={handleSaveLayout}
-                          className="bg-green-600 text-white px-8 py-2 rounded-xl font-bold shadow-lg animate-bounce"
-                      >
-                          حفظ الترتيب
-                      </button>
+                      <div className="flex justify-center gap-2">
+                          <button 
+                              onClick={handleSaveLayout}
+                              className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm"
+                          >
+                              حفظ
+                          </button>
+                          <button 
+                              onClick={handleResetLayout}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm"
+                          >
+                              الافتراضي
+                          </button>
+                          <button 
+                              onClick={handleCancelEdit}
+                              className="bg-red-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm"
+                          >
+                              إلغاء
+                          </button>
+                      </div>
                   ) : (
                       <p className="text-[14px] font-bold" style={{ color: theme.textColor }}>
                           اللهم ارحمهما واغفر لهما واجعل مثواهما الجنة

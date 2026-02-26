@@ -101,7 +101,11 @@ const playNotificationSound = (source) => {
 
 // Main Component
 function PrayerTimes({ onBack }) {
-    const { theme } = useTheme();
+    const { theme, themeKey } = useTheme();
+    const isBlackAndWhite = themeKey === 'black_and_white';
+    const primaryColor = isBlackAndWhite ? '#FFFFFF' : theme.palette[0];
+    const secondaryColor = isBlackAndWhite ? '#FFFFFF' : theme.palette[1];
+
     const [config, setConfig] = useState(() => {
         try {
             const saved = localStorage.getItem('prayerFinal_v33');
@@ -493,33 +497,33 @@ function PrayerTimes({ onBack }) {
 
         return (
             <div>
-                <label className="block text-[10px] font-black themed-text-muted mb-2 uppercase tracking-widest">نغمة التنبيه</label>
+                <label className="block text-[10px] font-black mb-2 uppercase tracking-widest" style={{ color: secondaryColor }}>نغمة التنبيه</label>
                 <div className="relative">
-                    <select value={selectValue} onChange={handleToneSelection} className="w-full appearance-none themed-bg-alt border themed-card-border rounded-xl py-3 px-4 text-xs font-bold themed-text">
+                    <select value={selectValue} onChange={handleToneSelection} className="w-full appearance-none themed-bg-alt border themed-card-border rounded-xl py-3 px-4 text-xs font-bold" style={{ color: primaryColor }}>
                         <option value="none">بدون تنبيه</option>
                         {defaultTones.map(tone => <option key={tone.path} value={tone.path}>{tone.name}</option>)}
                         <option value="custom">نغمة مخصصة...</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3">
-                         <i className="fa-solid fa-chevron-down text-xs" style={{color: theme.palette[1]}}></i>
+                         <i className="fa-solid fa-chevron-down text-xs" style={{color: secondaryColor}}></i>
                     </div>
                 </div>
                 <input type="file" id="sound-file-input" accept="audio/*" className="hidden" onChange={handleToneUpload}/>
-                {selectValue === 'custom' && currentTone && <p className="text-center text-[10px] themed-text-muted mt-1 truncate">الملف الحالي: {currentTone.name}</p>}
+                {selectValue === 'custom' && currentTone && <p className="text-center text-[10px] mt-1 truncate" style={{ color: secondaryColor }}>الملف الحالي: {currentTone.name}</p>}
             </div>
         );
     };
 
     return (
-        <div className="h-screen w-screen flex flex-col">
+        <div className="h-screen w-screen flex flex-col" style={{ backgroundColor: theme.bg, color: theme.textColor }}>
             <header className="app-top-bar">
                 <div className="app-top-bar__inner">
                     <div className="flex items-center justify-center gap-2">
-                        <i onClick={refreshLocation} className="text-xl cursor-pointer active:rotate-180 duration-700 fa-solid fa-location-crosshairs"></i>
-                        <h1 className="app-top-bar__title text-xl sm:text-2xl font-kufi truncate">{config.location.cityGov}</h1>
+                        <i onClick={refreshLocation} className="text-xl cursor-pointer active:rotate-180 duration-700 fa-solid fa-location-crosshairs" style={{ color: primaryColor }}></i>
+                        <h1 className="app-top-bar__title text-xl sm:text-2xl font-kufi truncate" style={{ color: primaryColor }}>{config.location.cityGov}</h1>
                     </div>
                      <div className="flex items-center justify-center gap-2" dir="rtl">
-                        <p className="text-xs font-bold">{config.location.fullCountry}</p>
+                        <p className="text-xs font-bold" style={{ color: primaryColor }}>{config.location.fullCountry}</p>
                         <span className="text-xs font-black text-white bg-black/20 px-2 py-0.5 rounded-md border border-white/20" dir="ltr">{config.location.combinedCode}</span>
                     </div>
                 </div>
@@ -529,28 +533,28 @@ function PrayerTimes({ onBack }) {
                 <div className="max-w-md mx-auto">
                     <div className="themed-card rounded-2xl p-2.5 flex items-center justify-between shadow-sm mb-5">
                         <div className="flex-1 text-center border-l themed-text-muted/20">
-                            <p className="text-[9px] themed-text-muted font-bold uppercase mb-0.5">التاريخ الهجري</p>
-                            <p className="text-xs font-bold" style={{color: theme.palette[1]}}>{dates.hijri}</p>
+                            <p className="text-[9px] font-bold uppercase mb-0.5" style={{ color: secondaryColor }}>التاريخ الهجري</p>
+                            <p className="text-xs font-bold" style={{color: secondaryColor}}>{dates.hijri}</p>
                         </div>
                         <div className="flex-1 text-center">
-                            <p className="text-[9px] themed-text-muted font-bold uppercase mb-0.5">التاريخ الميلادي</p>
-                            <p className="text-xs font-bold" style={{color: theme.palette[0]}}>{dates.gregorian}</p>
+                            <p className="text-[9px] font-bold uppercase mb-0.5" style={{ color: primaryColor }}>التاريخ الميلادي</p>
+                            <p className="text-xs font-bold" style={{color: primaryColor}}>{dates.gregorian}</p>
                         </div>
                     </div>
 
                      <div className="flex items-center justify-center gap-3 mb-5 px-1">
-                        <button onClick={manualSearch} className="themed-card text-sm font-black px-3 py-1.5 rounded-lg shadow-sm active:scale-95">بحث</button>
+                        <button onClick={manualSearch} className="themed-card text-sm font-black px-3 py-1.5 rounded-lg shadow-sm active:scale-95" style={{ color: primaryColor }}>بحث</button>
                         <div className="flex-1 relative themed-card rounded-xl overflow-hidden shadow-sm">
                             <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && manualSearch()} placeholder="عن مدينة أو محافظة..." 
-                                className="w-full bg-transparent py-2.5 px-4 pr-10 text-xs outline-none transition-all themed-text"/>
-                            <button onClick={manualSearch} className="absolute right-3 top-2.5" style={{color: theme.palette[1]}}>
+                                className="w-full bg-transparent py-2.5 px-4 pr-10 text-xs outline-none transition-all" style={{ color: primaryColor }}/>
+                            <button onClick={manualSearch} className="absolute right-3 top-2.5" style={{color: secondaryColor}}>
                                 <i ref={searchIconRef} className="fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
                     </div>
                     
                      {nextPrayer && times[nextPrayer.key] && (
-                        <div className="rounded-2xl p-3 text-white mb-5 relative overflow-hidden" style={{background: `linear-gradient(135deg, ${theme.palette[1]}, ${theme.palette[0]})`}}>
+                        <div className="rounded-2xl p-3 text-white mb-5 relative overflow-hidden" style={{background: isBlackAndWhite ? `linear-gradient(135deg, #333, #000)` : `linear-gradient(135deg, ${theme.palette[1]}, ${theme.palette[0]})`}}>
                             <div className="flex justify-between items-center relative z-10">
                                 <div className="text-right">
                                     <p className="text-[10px] font-bold opacity-90">المتبقي على صلاة <span className="underline decoration-white/40">{nextPrayer.name}</span></p>
@@ -572,26 +576,26 @@ function PrayerTimes({ onBack }) {
                              const isMuted = config.mutedPrayers[key];
                              
                             return (
-                                <div key={key} className="prayer-card rounded-2xl px-4 flex items-center justify-between mb-3 themed-card" style={{borderColor: nextPrayer?.key === key ? theme.palette[0] : 'var(--card-border)', borderWidth: nextPrayer?.key === key ? '2px' : '1px'}}>
+                                <div key={key} className="prayer-card rounded-2xl px-4 flex items-center justify-between mb-3 themed-card" style={{borderColor: nextPrayer?.key === key ? primaryColor : 'var(--card-border)', borderWidth: nextPrayer?.key === key ? '2px' : '1px'}}>
                                     <div className="flex items-center gap-3">
                                         {key !== 'Sunrise' ? (
                                             <div className="flex flex-col items-center gap-2">
-                                                <div onClick={() => togglePrayerSound(key)} className={`toggle-dot ${isMuted ? 'bg-red-500' : 'bg-green-500'}`} style={{borderColor: 'var(--text-color)'}}></div>
-                                                <button onClick={() => openSettings(key)} className="settings-btn shadow-sm"><i className="fa-solid fa-sliders"></i></button>
+                                                <div onClick={() => togglePrayerSound(key)} className={`toggle-dot ${isMuted ? 'bg-red-500' : 'bg-green-500'}`} style={{borderColor: primaryColor}}></div>
+                                                <button onClick={() => openSettings(key)} className="settings-btn shadow-sm" style={{ color: primaryColor }}><i className="fa-solid fa-sliders"></i></button>
                                             </div>
                                         ) : <div className="w-12"></div>}
-                                        <div className="w-10 h-10 rounded-2xl themed-bg-alt flex items-center justify-center border" style={{color: idx % 2 === 0 ? theme.palette[0] : theme.palette[1], borderColor: 'var(--card-border)'}}>
+                                        <div className="w-10 h-10 rounded-2xl themed-bg-alt flex items-center justify-center border" style={{color: idx % 2 === 0 ? primaryColor : secondaryColor, borderColor: 'var(--card-border)'}}>
                                              <i className={`fa-regular ${key === 'Sunrise' ? 'fa-sun' : 'fa-moon'} text-xl`}></i>
                                         </div>
-                                        <div className="flex flex-col">
-                                            <h3 className="font-bold text-sm leading-none mb-1.5 themed-text">{prayerNamesAr[key]}</h3>
+                                         <div className="flex flex-col">
+                                            <h3 className="font-bold text-sm leading-none mb-1.5" style={{ color: primaryColor }}>{prayerNamesAr[key]}</h3>
                                             {key !== 'Sunrise' && iqamaTime && !iqamaTime.includes('--') && (
-                                                <span className="text-[9px] font-black px-2 py-0.5 rounded-full border" style={{color: theme.palette[1], backgroundColor: theme.palette[1] + '1A', borderColor: theme.palette[1] + '33'}}>إقامة {formatTime12_clean(iqamaTime)}</span>
+                                                <span className="text-[9px] font-black px-2 py-0.5 rounded-full border" style={{color: secondaryColor, backgroundColor: isBlackAndWhite ? '#333' : theme.palette[1] + '1A', borderColor: isBlackAndWhite ? '#FFF' : theme.palette[1] + '33'}}>إقامة {formatTime12_clean(iqamaTime)}</span>
                                             )}
                                         </div>
                                     </div>
                                     <div className="text-left flex flex-col items-end">
-                                        <span className="themed-text" dangerouslySetInnerHTML={{ __html: formatTime12(displayTimeStr) }}></span>
+                                        <span style={{ color: primaryColor }} dangerouslySetInnerHTML={{ __html: formatTime12(displayTimeStr) }}></span>
                                     </div>
                                 </div>
                             )
@@ -603,36 +607,36 @@ function PrayerTimes({ onBack }) {
              {isModalOpen && currentEditingKey && (
                  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-6 scale-in">
                     <div className="themed-card rounded-[2.5rem] w-full max-w-xs p-6 shadow-2xl">
-                        <div className="flex justify-between items-center mb-6 pb-2 border-b themed-text-muted/20">
-                            <h3 className="font-black text-sm themed-text">إعدادات صلاة {prayerNamesAr[currentEditingKey]}</h3>
-                            <button onClick={() => setIsModalOpen(false)} className="themed-text-muted hover:text-red-500"><i className="fa-solid fa-circle-xmark text-2xl"></i></button>
+                         <div className="flex justify-between items-center mb-6 pb-2 border-b themed-text-muted/20">
+                            <h3 className="font-black text-sm" style={{ color: primaryColor }}>إعدادات صلاة {prayerNamesAr[currentEditingKey]}</h3>
+                            <button onClick={() => setIsModalOpen(false)} className="hover:text-red-500" style={{ color: secondaryColor }}><i className="fa-solid fa-circle-xmark text-2xl"></i></button>
                         </div>
                         <div className="space-y-6">
                              <div>
-                                <label className="block text-[10px] font-black themed-text-muted mb-3 uppercase tracking-widest text-center">تعديل وقت الأذان (بالدقائق)</label>
+                                <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-center" style={{ color: secondaryColor }}>تعديل وقت الأذان (بالدقائق)</label>
                                 <div className="flex items-center justify-between themed-bg-alt p-2 rounded-2xl border themed-card-border shadow-inner">
                                     <button onClick={() => setTempOffset(p => p - 1)} className="control-btn text-red-500 shadow-sm"><i className="fa-solid fa-minus"></i></button>
                                     <div className="text-center">
-                                        <div className="text-lg font-black themed-text en-digits">{formatTime12_EN(applyOffset(times[currentEditingKey], tempOffset))}</div>
-                                        <div className="text-[10px] font-bold mt-0.5 en-digits" style={{color: theme.palette[1]}}>{tempOffset > 0 ? "+" : ""}{tempOffset} min</div>
+                                        <div className="text-lg font-black en-digits" style={{ color: primaryColor }}>{formatTime12_EN(applyOffset(times[currentEditingKey], tempOffset))}</div>
+                                        <div className="text-[10px] font-bold mt-0.5 en-digits" style={{color: secondaryColor}}>{tempOffset > 0 ? "+" : ""}{tempOffset} min</div>
                                     </div>
-                                    <button onClick={() => setTempOffset(p => p + 1)} className="control-btn shadow-sm" style={{color: theme.palette[0]}}><i className="fa-solid fa-plus"></i></button>
+                                    <button onClick={() => setTempOffset(p => p + 1)} className="control-btn shadow-sm" style={{color: primaryColor}}><i className="fa-solid fa-plus"></i></button>
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-[10px] font-black themed-text-muted mb-3 uppercase tracking-widest text-center">تنبيه الإقامة (بالدقائق)</label>
+                                <label className="block text-[10px] font-black mb-3 uppercase tracking-widest text-center" style={{ color: secondaryColor }}>تنبيه الإقامة (بالدقائق)</label>
                                 <div className="flex items-center justify-between themed-bg-alt p-2 rounded-2xl border themed-card-border shadow-inner">
                                     <button onClick={() => setTempIqama(p => Math.max(0, p - 1))} className="control-btn text-red-500 shadow-sm"><i className="fa-solid fa-minus"></i></button>
                                     <div className="text-center">
-                                        <div className="text-lg font-black themed-text en-digits">{tempIqama}</div>
-                                        <div className="text-[10px] font-bold mt-0.5 uppercase tracking-tighter" style={{color: theme.palette[1]}}>min</div>
+                                        <div className="text-lg font-black en-digits" style={{ color: primaryColor }}>{tempIqama}</div>
+                                        <div className="text-[10px] font-bold mt-0.5 uppercase tracking-tighter" style={{color: secondaryColor}}>min</div>
                                     </div>
-                                    <button onClick={() => setTempIqama(p => p + 1)} className="control-btn shadow-sm" style={{color: theme.palette[0]}}><i className="fa-solid fa-plus"></i></button>
+                                    <button onClick={() => setTempIqama(p => p + 1)} className="control-btn shadow-sm" style={{color: primaryColor}}><i className="fa-solid fa-plus"></i></button>
                                 </div>
                             </div>
                             {renderToneSelector()}
                         </div>
-                        <button onClick={saveUserConfig} className="w-full mt-8 text-white py-4 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition-all" style={{backgroundColor: theme.palette[0]}}>حفظ التغييرات</button>
+                        <button onClick={saveUserConfig} className="w-full mt-8 text-white py-4 rounded-2xl font-black text-sm shadow-lg active:scale-95 transition-all" style={{backgroundColor: primaryColor, color: isBlackAndWhite ? '#000' : '#FFF'}}>حفظ التغييرات</button>
                     </div>
                 </div>
             )}

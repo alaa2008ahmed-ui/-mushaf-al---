@@ -71,7 +71,11 @@ function hijriToGregorian(hy, hm, hd) {
 
 // --- Component ---
 function HijriCalendar({ onBack }) {
-    const { theme } = useTheme();
+    const { theme, themeKey } = useTheme();
+    
+    const isBlackAndWhite = themeKey === 'black_and_white';
+    const primaryColor = isBlackAndWhite ? '#FFFFFF' : theme.palette[0];
+    const secondaryColor = isBlackAndWhite ? '#FFFFFF' : theme.palette[1];
     
     const [activeTab, setActiveTab] = useState('hijriToGregorian');
     const [result, setResult] = useState('');
@@ -324,18 +328,18 @@ function HijriCalendar({ onBack }) {
             <main className="flex-1 overflow-y-auto px-4 py-2 flex flex-col items-center pb-24">
                  <div className={`w-full max-w-lg p-3 sm:p-4 rounded-2xl themed-card text-center mb-4 shrink-0`}>
                     <p className={`text-xs themed-text-muted mb-1`}>تاريخ اليوم:</p>
-                    <p className={`text-base sm:text-lg font-extrabold mb-1`} style={{color: theme.palette[0]}}>
+                    <p className={`text-base sm:text-lg font-extrabold mb-1`} style={{color: primaryColor}}>
                         {currentDates.gregorian.dayOfWeek}، {toArabicNumerals(currentDates.gregorian.day)} {currentDates.gregorian.month} {toArabicNumerals(currentDates.gregorian.year)}
                     </p>
                     <div className="border-t themed-text-muted/30 my-2"></div>
-                    <p className={`text-xl sm:text-2xl font-extrabold`} style={{color: theme.palette[1]}}>
+                    <p className={`text-xl sm:text-2xl font-extrabold`} style={{color: secondaryColor}}>
                         {toArabicNumerals(currentDates.hijri.day)} {currentDates.hijri.month} {toArabicNumerals(currentDates.hijri.year)} هـ
                     </p>
                 </div>
                 
                 <div className={`w-full max-w-lg flex p-1 rounded-xl themed-bg-alt mb-4 text-sm shrink-0`}>
-                    <button onClick={() => handleTabChange('hijriToGregorian')} className={`flex-1 py-2 sm:py-3 px-1 text-center rounded-lg font-bold transition-all ${activeTab === 'hijriToGregorian' ? `shadow-md text-white` : `themed-text-muted`}`} style={activeTab === 'hijriToGregorian' ? {backgroundColor: theme.palette[1]} : {}}>هجري إلى ميلادي</button>
-                    <button onClick={() => handleTabChange('gregorianToHijri')} className={`flex-1 py-2 sm:py-3 px-1 text-center rounded-lg font-bold transition-all ${activeTab === 'gregorianToHijri' ? `shadow-md text-white` : `themed-text-muted`}`} style={activeTab === 'gregorianToHijri' ? {backgroundColor: theme.palette[1]} : {}}>ميلادي إلى هجري</button>
+                    <button onClick={() => handleTabChange('hijriToGregorian')} className={`flex-1 py-2 sm:py-3 px-1 text-center rounded-lg font-bold transition-all ${activeTab === 'hijriToGregorian' ? `shadow-md text-white` : `themed-text-muted`}`} style={activeTab === 'hijriToGregorian' ? {backgroundColor: secondaryColor, color: isBlackAndWhite ? '#000' : '#FFF'} : {}}>هجري إلى ميلادي</button>
+                    <button onClick={() => handleTabChange('gregorianToHijri')} className={`flex-1 py-2 sm:py-3 px-1 text-center rounded-lg font-bold transition-all ${activeTab === 'gregorianToHijri' ? `shadow-md text-white` : `themed-text-muted`}`} style={activeTab === 'gregorianToHijri' ? {backgroundColor: secondaryColor, color: isBlackAndWhite ? '#000' : '#FFF'} : {}}>ميلادي إلى هجري</button>
                 </div>
 
                 <div className="w-full max-w-lg flex flex-col justify-start">
@@ -354,25 +358,25 @@ function HijriCalendar({ onBack }) {
                             </div>
                         )}
                         <div className="pt-1">
-                            <button onClick={handleConversion} className="w-full rounded-full font-extrabold cursor-pointer transform active:translate-y-1 active:shadow-none focus:outline-none overflow-hidden py-3 px-4 text-lg" style={{ background: `linear-gradient(to top, ${theme.palette[0]} 0%, ${theme.palette[1]} 100%)`, color: '#FFF', boxShadow: `0 4px 0 0 ${theme.palette[0]}CC, 0 8px 15px rgba(0,0,0,0.3)`, borderBottom: `4px solid ${theme.palette[0]}CC` }}>
+                            <button onClick={handleConversion} className="w-full rounded-full font-extrabold cursor-pointer transform active:translate-y-1 active:shadow-none focus:outline-none overflow-hidden py-3 px-4 text-lg" style={{ background: isBlackAndWhite ? '#FFFFFF' : `linear-gradient(to top, ${theme.palette[0]} 0%, ${theme.palette[1]} 100%)`, color: isBlackAndWhite ? '#000000' : '#FFF', boxShadow: isBlackAndWhite ? 'none' : `0 4px 0 0 ${theme.palette[0]}CC, 0 8px 15px rgba(0,0,0,0.3)`, borderBottom: isBlackAndWhite ? 'none' : `4px solid ${theme.palette[0]}CC` }}>
                                 {activeTab === 'gregorianToHijri' ? "تحويل إلى هجري" : "تحويل إلى ميلادي"}
                             </button>
                         </div>
                         <div className={`w-full p-4 sm:p-6 rounded-xl text-center font-extrabold themed-card min-h-[90px] flex flex-col justify-center mb-6`}>
                             <p className={`text-xs themed-text-muted mb-1`}>{message}</p>
-                            <p className={`text-2xl sm:text-3xl leading-tight`} style={{color: theme.palette[0]}}>{result || '---'}</p>
+                            <p className={`text-2xl sm:text-3xl leading-tight`} style={{color: primaryColor}}>{result || '---'}</p>
                         </div>
 
                         {historicalEvent && (
-                            <div className="themed-card p-5 rounded-2xl border-r-4 shadow-lg fade-in mb-4" style={{ borderRightColor: theme.palette[1] }}>
+                            <div className="themed-card p-5 rounded-2xl border-r-4 shadow-lg fade-in mb-4" style={{ borderRightColor: secondaryColor }}>
                                 <div className="flex items-center gap-3 mb-3">
-                                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: theme.palette[1] + '20', color: theme.palette[1] }}>
+                                    <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ backgroundColor: isBlackAndWhite ? '#333' : theme.palette[1] + '20', color: secondaryColor }}>
                                         <i className="fa-solid fa-clock-rotate-left text-lg"></i>
                                     </div>
-                                    <h3 className="font-bold text-lg" style={{ color: theme.palette[1] }}>حدث تاريخي عظيم</h3>
+                                    <h3 className="font-bold text-lg" style={{ color: secondaryColor }}>حدث تاريخي عظيم</h3>
                                 </div>
                                 <div className="space-y-2">
-                                    <h4 className="text-xl font-extrabold" style={{ color: theme.palette[0] }}>{historicalEvent.title}</h4>
+                                    <h4 className="text-xl font-extrabold" style={{ color: primaryColor }}>{historicalEvent.title}</h4>
                                     <div className="flex gap-4 text-sm font-bold themed-text-muted">
                                         <span><i className="fa-solid fa-calendar-check ml-1"></i> {historicalEvent.hijriYear}</span>
                                         <span><i className="fa-solid fa-calendar-day ml-1"></i> {historicalEvent.gregorianYear}</span>

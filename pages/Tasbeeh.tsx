@@ -74,7 +74,11 @@ const ModalWrapper = ({ children, onClose, isOpen }: { children?: React.ReactNod
 
 // --- Main Component ---
 function Tasbeeh({ onBack }) {
-    const { theme } = useTheme();
+    const { theme, themeKey } = useTheme();
+    const isBlackAndWhite = themeKey === 'black_and_white';
+    const primaryTextColor = isBlackAndWhite ? '#FFFFFF' : theme.palette[0];
+    const secondaryTextColor = isBlackAndWhite ? '#FFFFFF' : theme.palette[1];
+
     const [phrases, setPhrases] = useState<{id: number, text: string}[]>([]);
     const [count, setCount] = useState(0);
     const [target, setTarget] = useState(33);
@@ -138,10 +142,7 @@ function Tasbeeh({ onBack }) {
     };
 
     const handleIncrement = () => {
-        if (isCountingStopped) {
-            handleReset();
-            return;
-        }
+        if (isCountingStopped) return;
         playSound();
         vibrate(30);
         const newCount = count + 1;
@@ -244,23 +245,23 @@ function Tasbeeh({ onBack }) {
                  <div className="w-full max-w-lg mt-2 space-y-3 mb-2">
                     <div className="rounded-xl themed-card p-2">
                         <button onClick={() => setModals(p => ({...p, phrase: true}))} className="w-full py-3 px-4 rounded-xl flex justify-between items-center text-lg font-bold transition themed-bg-alt hover:opacity-80">
-                            <span className="text-sm flex-shrink-0 ml-2" style={{color: theme.palette[1]}}>الذكر الحالي:</span>
-                            <span className="flex-grow text-xl font-extrabold text-center font-amiri truncate">{activePhrase}</span>
-                            <svg className="h-5 w-5 mr-2 flex-shrink-0" style={{color: theme.palette[1]}} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
+                            <span className="text-sm flex-shrink-0 ml-2" style={{color: secondaryTextColor}}>الذكر الحالي:</span>
+                            <span className="flex-grow text-xl font-extrabold text-center font-amiri truncate" style={{color: isBlackAndWhite ? '#FFFFFF' : undefined}}>{activePhrase}</span>
+                            <svg className="h-5 w-5 mr-2 flex-shrink-0" style={{color: secondaryTextColor}} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg>
                         </button>
                     </div>
                     {/* FIX: Changed grid to 3 columns and added a button to open the color picker modal. */}
                     <div className="grid grid-cols-3 gap-3">
-                         <button onClick={() => setModals(p => ({...p, add: true}))} className="py-2.5 px-2 font-bold rounded-full text-white text-xs sm:text-sm" style={{backgroundColor: theme.palette[0]}}>إضافة ذكر</button>
-                         <button onClick={() => setModals(p => ({...p, delete: true}))} className="py-2.5 px-2 font-bold rounded-full themed-card text-xs sm:text-sm">حذف ذكر</button>
-                         <button onClick={() => setModals(p => ({...p, color: true}))} className="py-2.5 px-2 font-bold rounded-full text-white text-xs sm:text-sm" style={{backgroundColor: theme.palette[1] || theme.palette[0]}}>لون العداد</button>
+                         <button onClick={() => setModals(p => ({...p, add: true}))} className="py-2.5 px-2 font-bold rounded-full text-white text-xs sm:text-sm" style={{backgroundColor: isBlackAndWhite ? '#333' : theme.palette[0], color: '#FFF', border: isBlackAndWhite ? '1px solid #FFF' : 'none'}}>إضافة ذكر</button>
+                         <button onClick={() => setModals(p => ({...p, delete: true}))} className="py-2.5 px-2 font-bold rounded-full themed-card text-xs sm:text-sm" style={{color: isBlackAndWhite ? '#FFF' : undefined, border: isBlackAndWhite ? '1px solid #FFF' : 'none'}}>حذف ذكر</button>
+                         <button onClick={() => setModals(p => ({...p, color: true}))} className="py-2.5 px-2 font-bold rounded-full text-white text-xs sm:text-sm" style={{backgroundColor: isBlackAndWhite ? '#333' : (theme.palette[1] || theme.palette[0]), color: '#FFF', border: isBlackAndWhite ? '1px solid #FFF' : 'none'}}>لون العداد</button>
                     </div>
                  </div>
 
                  <div className="flex-grow flex flex-col items-center justify-center w-full max-w-lg space-y-4 py-2">
                     <div className="text-center px-6 py-3 rounded-2xl themed-card w-full max-w-xs">
-                        <span className="block text-sm font-bold mb-1" style={{color: theme.palette[1]}}>{isCountingStopped && target > 0 ? 'تم الوصول للهدف! 🎉' : 'الهدف:'}</span>
-                        <span className="text-3xl font-extrabold font-amiri" style={{color: theme.palette[0]}}>{toArabicNumerals(target > 0 ? target : 'مفتوح')}</span>
+                        <span className="block text-sm font-bold mb-1" style={{color: secondaryTextColor}}>{isCountingStopped && target > 0 ? 'تم الوصول للهدف! 🎉' : 'الهدف:'}</span>
+                        <span className="text-3xl font-extrabold font-amiri" style={{color: primaryTextColor}}>{toArabicNumerals(target > 0 ? target : 'مفتوح')}</span>
                     </div>
                     {/* FIX: Applied the selected background color to the counter button and set text color to white for contrast. */}
                     <button onClick={handleIncrement} className={`tasbeeh-counter w-64 h-64 rounded-full flex flex-col items-center justify-center transition-all duration-200 ease-out cursor-pointer select-none relative z-10`} style={{ backgroundColor: counterColor }}>
@@ -268,15 +269,19 @@ function Tasbeeh({ onBack }) {
                             {toArabicNumerals(count)}
                         </span>
                         <span className="text-lg font-bold mt-2" style={{color: 'white', opacity: 0.8}}>
-                            {isCountingStopped ? 'اضغط للتصفير' : 'اضغط للعد'}
+                            {isCountingStopped ? 'تم الوصول للهدف' : 'اضغط للعد'}
                         </span>
                     </button>
                 </div>
                 
                 <div className="w-full max-w-lg px-4 mt-auto mb-2">
                     <div className="grid grid-cols-2 gap-3">
-                        <ThreeDButton label="تصفير" onClick={handleReset} color={theme.palette[1]} padding="py-2.5 text-base" theme={theme}/>
-                        <ThreeDButton label="تعديل الهدف" onClick={() => setModals(p => ({...p, target: true}))} color={theme.palette[0]} padding="py-2.5 text-base" theme={theme} />
+                        <ThreeDButton label="تصفير" onClick={handleReset} color={isBlackAndWhite ? '#333' : theme.palette[1]} padding="py-2.5 text-base" theme={theme}>
+                            {/* No children */}
+                        </ThreeDButton>
+                        <ThreeDButton label="تعديل الهدف" onClick={() => setModals(p => ({...p, target: true}))} color={isBlackAndWhite ? '#000' : theme.palette[0]} padding="py-2.5 text-base" theme={theme}>
+                             {/* No children */}
+                        </ThreeDButton>
                     </div>
                 </div>
             </main>
