@@ -142,7 +142,10 @@ function Tasbeeh({ onBack }) {
     };
 
     const handleIncrement = () => {
-        if (isCountingStopped) return;
+        if (isCountingStopped) {
+            handleReset();
+            return;
+        }
         playSound();
         vibrate(30);
         const newCount = count + 1;
@@ -269,7 +272,7 @@ function Tasbeeh({ onBack }) {
                             {toArabicNumerals(count)}
                         </span>
                         <span className="text-lg font-bold mt-2" style={{color: 'white', opacity: 0.8}}>
-                            {isCountingStopped ? 'تم الوصول للهدف' : 'اضغط للعد'}
+                            {isCountingStopped ? 'اضغط للتصفير' : 'اضغط للعد'}
                         </span>
                     </button>
                 </div>

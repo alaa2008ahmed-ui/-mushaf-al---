@@ -13,6 +13,7 @@ import MushafPage from '../components/QuranReader/MushafPage';
 import Toast from '../components/QuranReader/Toast';
 import TafseerModal from '../components/QuranReader/TafseerModal';
 import ReciterSelectModal from '../components/QuranReader/ReciterSelectModal';
+import quranDataJson from '../data/quran-uthmani.json';
 
 declare var window: any;
 
@@ -138,10 +139,10 @@ const TafseerSelectionModal: FC<{
 
 
 const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
-    const [quranData, setQuranData] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [loadingStatus, setLoadingStatus] = useState('جاري الاتصال...');
-    const [loadingProgress, setLoadingProgress] = useState(0);
+    const [quranData, setQuranData] = useState<any>(quranDataJson.data);
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingStatus, setLoadingStatus] = useState('');
+    const [loadingProgress, setLoadingProgress] = useState(100);
 
     const [visiblePages, setVisiblePages] = useState<number[]>([1, 2, 3]);
     const [currentAyah, setCurrentAyah] = useState<{ s: number; a: number }>({ s: 1, a: 1 });
@@ -631,36 +632,6 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     }, [currentTheme]);
 
     useEffect(() => {
-        (async () => {
-            try {
-                const local = localStorage.getItem('quran_data');
-                if (local) setQuranData(JSON.parse(local));
-                else {
-                    setLoadingProgress(30); setLoadingStatus('جاري تحميل بيانات القرآن...');
-                    const res = await fetch('https://api.alquran.cloud/v1/quran/quran-uthmani');
-                    setLoadingProgress(70);
-                    const data = await res.json();
-                    if (data.code === 200) {
-                        setQuranData(data.data);
-                        localStorage.setItem('quran_data', JSON.stringify(data.data));
-                    }
-                }
-            } catch (e) { setLoadingStatus('فشل التحميل. يرجى التحقق من اتصالك.'); }
-        })();
-    }, []);
-    
-    useEffect(() => {
-        if(quranData) {
-            setLoadingProgress(100);
-            setTimeout(() => {
-                setIsLoading(false);
-                const lastPos = JSON.parse(localStorage.getItem('last_pos') || '{}');
-                jumpToAyah(lastPos.s || 1, lastPos.a || 1, true);
-            }, 300);
-        }
-    }, [quranData]);
-    
-    useEffect(() => {
         if (activeModals['bookmarks-modal']) {
             setBookmarks(JSON.parse(localStorage.getItem('quran_bookmarks_list') || '[]'));
         }
@@ -757,6 +728,13 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             setActiveModals({});
         }
     }, [quranData, handleAyahClick, stopAudio, isPageInputActive, scrollToAyah]);
+
+    useEffect(() => {
+        const lastPos = JSON.parse(localStorage.getItem('last_pos') || '{}');
+        setTimeout(() => {
+            jumpToAyah(lastPos.s || 1, lastPos.a || 1, true);
+        }, 100);
+    }, [jumpToAyah]);
 
     const jumpToPage = useCallback((pageNum: number, instant: boolean = true) => {
         if (!quranData || isNaN(pageNum) || pageNum < 1 || pageNum > 604) return;
