@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { JUZ_MAP, toArabic } from './constants';
 
 interface SurahJuzModalProps {
@@ -9,30 +9,79 @@ interface SurahJuzModalProps {
 }
 
 const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect, onClose }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const removeDiacritics = (text: string) => {
+        if (!text) return "";
+        return text
+            .replace(/[\u064B-\u0652\u0670\u0653-\u065F\u0640]/g, "") // Remove all diacritics and small characters
+            .replace(/[أإآٱ]/g, "ا") // Normalize all types of Alef
+            .replace(/ة/g, "ه")
+            .replace(/ى/g, "ي")
+            .replace(/\s+/g, " ") // Normalize spaces
+            .trim();
+    };
+
+    const normalizedSearch = removeDiacritics(searchTerm)
+        .replace(/^صوره/, "سوره") // Handle common typo 'صورة' instead of 'سورة'
+        .replace(/\sصوره/, " سوره");
+
+    const filteredSurahs = quranData?.surahs.filter((s: any) => {
+        const name = s.name;
+        const nameWithoutSurah = s.name.replace('سورة', '').trim();
+        
+        const normalizedName = removeDiacritics(name);
+        const normalizedNameWithoutSurah = removeDiacritics(nameWithoutSurah);
+        
+        return normalizedName.includes(normalizedSearch) || 
+               normalizedNameWithoutSurah.includes(normalizedSearch) ||
+               normalizedSearch.includes(normalizedNameWithoutSurah); // Handle searching for "سورة الفاتحة" when name is just "الفاتحة"
+    });
+
     return (
         <div className="fixed inset-0 z-[100] bg-gray-900/90 flex justify-center pt-10 px-4 animate-fadeIn" onClick={onClose}>
             <div className="modal-skinned w-full max-w-4xl rounded-t-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-                <div className="p-4 theme-header-bg rounded-t-2xl flex justify-between items-center">
-                    <h3 className="font-bold text-lg">{type === 'surah' ? 'اختر السورة' : 'اختر الجزء'}</h3>
-                    <button onClick={onClose} className="text-2xl">&times;</button>
+                <div className="p-4 theme-header-bg rounded-t-2xl flex flex-col gap-3">
+                    <div className="flex justify-between items-center">
+                        <h3 className="font-bold text-lg">{type === 'surah' ? 'اختر السورة' : 'اختر الجزء'}</h3>
+                        <button onClick={onClose} className="text-2xl">&times;</button>
+                    </div>
+                    
+                    {type === 'surah' && (
+                        <div className="relative">
+                            <input
+                                type="text"
+                                placeholder="ابحث عن سورة..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full p-2 pr-10 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm"
+                                autoFocus
+                            />
+                            <i className="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 opacity-50"></i>
+                        </div>
+                    )}
                 </div>
                 <div className="overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     {type === 'surah' ? (
-                        quranData?.surahs.map((s: any) => (
-                            <button 
-                                key={s.number} 
-                                onClick={() => onSelect(s.number, 1)} 
-                                className="p-3 rounded-lg transition text-right font-bold border-2 flex justify-between items-center group theme-btn-bg"
-                            >
-                                <span>
-                                    <span className="opacity-80">{toArabic(s.number)}.</span> 
-                                    <span style={{ fontFamily: 'var(--font-amiri)' }}> {s.name.replace('سورة', '').trim()}</span>
-                                </span>
-                                <span className="text-xs font-normal opacity-80">
-                                    {s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'} - {toArabic(s.ayahs.length)} آية
-                                </span>
-                            </button>
-                        ))
+                        filteredSurahs?.length > 0 ? (
+                            filteredSurahs.map((s: any) => (
+                                <button 
+                                    key={s.number} 
+                                    onClick={() => onSelect(s.number, 1)} 
+                                    className="p-3 rounded-lg transition text-right font-bold border-2 flex justify-between items-center group theme-btn-bg"
+                                >
+                                    <span>
+                                        <span className="opacity-80">{toArabic(s.number)}.</span> 
+                                        <span style={{ fontFamily: 'var(--font-amiri)' }}> {s.name.replace('سورة', '').trim()}</span>
+                                    </span>
+                                    <span className="text-xs font-normal opacity-80">
+                                        {s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'} - {toArabic(s.ayahs.length)} آية
+                                    </span>
+                                </button>
+                            ))
+                        ) : (
+                            <div className="col-span-full text-center py-10 opacity-60">لا توجد نتائج للبحث</div>
+                        )
                     ) : (
                         JUZ_MAP.map((j: any) => (
                             <button 

@@ -44,13 +44,13 @@ const SajdahCardModal: FC<{
                         <p className="mt-1 mb-2">اتفق جمهور العلماء على وجود آيات السجود في القرآن، وأشهر الآراء أنها 15 سجدة، وهي موزعة كالآتي:</p>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs p-3 rounded-lg themed-card-bg">
                             <div className="text-right">الأعراف: <b>{toArabic(206)}</b></div>
-                            <div className="text-right">النمل: <b>{toArabic(25)}</b></div>
+                            <div className="text-right">النمل: <b>{toArabic(26)}</b></div>
                             <div className="text-right">الرعد: <b>{toArabic(15)}</b></div>
                             <div className="text-right">السجدة: <b>{toArabic(15)}</b></div>
-                            <div className="text-right">النحل: <b>{toArabic(49)}</b></div>
+                            <div className="text-right">النحل: <b>{toArabic(50)}</b></div>
                             <div className="text-right">ص: <b>{toArabic(24)}</b></div>
-                            <div className="text-right">الإسراء: <b>{toArabic(107)}</b></div>
-                            <div className="text-right">فصلت: <b>{toArabic(37)}</b></div>
+                            <div className="text-right">الإسراء: <b>{toArabic(109)}</b></div>
+                            <div className="text-right">فصلت: <b>{toArabic(38)}</b></div>
                             <div className="text-right">مريم: <b>{toArabic(58)}</b></div>
                             <div className="text-right">النجم: <b>{toArabic(62)}</b></div>
                             <div className="text-right">الحج (سجدتان): <b>{toArabic(18)} و {toArabic(77)}</b></div>
@@ -169,13 +169,16 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const [isAudioLoading, setIsAudioLoading] = useState(false);
     const [playingAyah, setPlayingAyah] = useState<{s: number; a: number} | null>(null);
     
-    const [tafseerInfo, setTafseerInfo] = useState({ isOpen: false, s: 0, a: 0, text: '', surahName: '' });
+    const [tafseerInfo, setTafseerInfo] = useState({ isOpen: false, s: 0, a: 0, text: '', surahName: '', wasAutoscrolling: false });
     const [tafseerSelectionInfo, setTafseerSelectionInfo] = useState({ isOpen: false, s: 0, a: 0 });
     const [isTafseerLoading, setIsTafseerLoading] = useState(false);
     const tafseerCache = useRef<any>({});
     
     const [isPageInputActive, setIsPageInputActive] = useState(false);
     const [pageInput, setPageInput] = useState('');
+    const isPageInputActiveRef = useRef(false);
+    useEffect(() => { isPageInputActiveRef.current = isPageInputActive; }, [isPageInputActive]);
+    const isJumpingRef = useRef(false);
 
     const [settings, setSettings] = useState(() => {
         const saved = localStorage.getItem('quran_settings');
@@ -491,8 +494,13 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         if (!quranData) return;
         const surah = quranData.surahs.find((su: any) => su.number === s);
         if (surah) {
+            const wasAutoscrolling = autoScrollStateRef.current.isActive && !autoScrollStateRef.current.isPaused;
+            if (wasAutoscrolling) {
+                autoScrollPausedRef.current = true;
+                setAutoScrollState(p => ({ ...p, isPaused: true }));
+            }
             setIsTafseerLoading(true);
-            setTafseerInfo({ isOpen: true, s, a, text: '', surahName: surah.name });
+            setTafseerInfo({ isOpen: true, s, a, text: '', surahName: surah.name, wasAutoscrolling });
         }
     }, [quranData]);
 
@@ -660,7 +668,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 });
             }
     
-            if (autoScrollState.isActive) return;
+            if (autoScrollState.isActive || isJumpingRef.current) return;
     
             const now = Date.now();
             if (now - lastScrollUpdateTime.current < 100) return;
@@ -702,7 +710,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         };
     }, [visiblePages, autoScrollState.isActive, handleSajdahVisible]);
 
-    const getPageData = useCallback((pageNum) => quranData ? quranData.surahs.flatMap((s:any) => s.ayahs.filter((a:any) => a.page === pageNum).map((a:any) => ({ ...a, sNum: s.number, sName: s.name }))) : [], [quranData]);
+    const getPageData = useCallback((pageNum) => quranData ? quranData.surahs.flatMap((s:any) => s.ayahs.filter((a:any) => Number(a.page) === Number(pageNum)).map((a:any) => ({ ...a, sNum: s.number, sName: s.name }))) : [], [quranData]);
     
     const handleAyahClick = useCallback((s, a) => {
         setHighlightedAyahId(`ayah-${s}-${a}`);
@@ -716,18 +724,23 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         const surah = quranData.surahs.find((su:any) => su.number === s);
         const ayah = surah?.ayahs.find((ay:any) => ay.numberInSurah === a);
         if (!ayah) return;
+        
+        isJumpingRef.current = true;
         const p = Number(ayah.page);
         setVisiblePages([...new Set([p, p + 1, p + 2, p - 1, p - 2])].filter(n => n > 0 && n <= 604).sort((a: number, b: number) => a - b));
+        
         setTimeout(() => {
             scrollToAyah(s, a, instant);
             handleAyahClick(s, a);
-        }, 100);
+            setTimeout(() => {
+                isJumpingRef.current = false;
+            }, 500);
+        }, 150);
         
-        // Only close modals if not typing page number
-        if (!isPageInputActive) {
+        if (!isPageInputActiveRef.current) {
             setActiveModals({});
         }
-    }, [quranData, handleAyahClick, stopAudio, isPageInputActive, scrollToAyah]);
+    }, [quranData, handleAyahClick, stopAudio, scrollToAyah]);
 
     useEffect(() => {
         const lastPos = JSON.parse(localStorage.getItem('last_pos') || '{}');
@@ -739,14 +752,15 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const jumpToPage = useCallback((pageNum: number, instant: boolean = true) => {
         if (!quranData || isNaN(pageNum) || pageNum < 1 || pageNum > 604) return;
         
-        let firstAyahInfo: { s: number, a: number } | null = null;
         const pageData = getPageData(pageNum);
         if (pageData && pageData.length > 0) {
-            firstAyahInfo = { s: pageData[0].sNum, a: pageData[0].numberInSurah };
-        }
-    
-        if (firstAyahInfo) {
-            jumpToAyah(firstAyahInfo.s, firstAyahInfo.a, instant);
+            // Sort by surah number then ayah number to get the absolute first ayah of the page
+            const sortedAyahs = pageData.sort((a: any, b: any) => {
+                if (a.sNum !== b.sNum) return a.sNum - b.sNum;
+                return a.numberInSurah - b.numberInSurah;
+            });
+            const firstAyah = sortedAyahs[0];
+            jumpToAyah(firstAyah.sNum, firstAyah.numberInSurah, instant);
         } else {
             showToast(`لا توجد بيانات لصفحة ${toArabic(pageNum)}`);
         }
@@ -1053,7 +1067,19 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             {activeModals['toolbar-color-picker-modal'] && <ToolbarColorPickerModal onClose={() => closeModal('toolbar-color-picker-modal')} onOpenModal={openModal} showToast={showToast} currentTheme={currentTheme} toolbarColors={toolbarColors} />}
             {activeModals['quran-download-modal'] && <QuranDownloadModal onClose={() => closeModal('quran-download-modal')} quranData={quranData} showToast={showToast} />}
             {activeModals['tafsir-download-modal'] && <TafsirDownloadModal onClose={() => closeModal('tafsir-download-modal')} quranData={quranData} showToast={showToast} />}
-            <TafseerModal isOpen={tafseerInfo.isOpen} isLoading={isTafseerLoading} title={`${tafseerName} - ${tafseerInfo.surahName.replace('سورة','').trim()} - آية ${toArabic(tafseerInfo.a)}`} text={tafseerInfo.text} onClose={() => setTafseerInfo(p => ({ ...p, isOpen: false }))} />
+            <TafseerModal 
+                isOpen={tafseerInfo.isOpen} 
+                isLoading={isTafseerLoading} 
+                title={`${tafseerName} - ${tafseerInfo.surahName.replace('سورة','').trim()} - آية ${toArabic(tafseerInfo.a)}`} 
+                text={tafseerInfo.text} 
+                onClose={() => {
+                    if (tafseerInfo.wasAutoscrolling) {
+                        autoScrollPausedRef.current = false;
+                        setAutoScrollState(p => ({ ...p, isPaused: false }));
+                    }
+                    setTafseerInfo(p => ({ ...p, isOpen: false, wasAutoscrolling: false }));
+                }} 
+            />
             <TafseerSelectionModal isOpen={tafseerSelectionInfo.isOpen} onClose={() => setTafseerSelectionInfo(p => ({ ...p, isOpen: false }))} onSelect={handleTafseerSelect} currentTafseerId={settings.tafseer} />
             <SajdahCardModal info={sajdahCardInfo} onClose={handleCloseSajdahCard} />
             <Toast message={toast.message} show={toast.show} onClose={handleToastClose} />
