@@ -1,5 +1,5 @@
 /* Base Styles & Variables */
-.quran-reader-container {
+.quran-reader-container-horizontal {
     --font-amiri: 'Amiri', serif;
     --font-amiri-quran: 'Amiri Quran', serif;
     --font-scheherazade: 'Scheherazade New', serif;
@@ -33,19 +33,19 @@
     --search-highlight-text: #000000;
 }
 
-.quran-reader-container, .quran-reader-container button, .quran-reader-container input, .quran-reader-container select, .quran-reader-container h1, .quran-reader-container h2, .quran-reader-container h3, .quran-reader-container h4, .quran-reader-container h5, .quran-reader-container h6, .quran-reader-container .ui-font {
+.quran-reader-container-horizontal, .quran-reader-container-horizontal button, .quran-reader-container-horizontal input, .quran-reader-container-horizontal select, .quran-reader-container-horizontal h1, .quran-reader-container-horizontal h2, .quran-reader-container-horizontal h3, .quran-reader-container-horizontal h4, .quran-reader-container-horizontal h5, .quran-reader-container-horizontal h6, .quran-reader-container-horizontal .ui-font {
     font-family: var(--font-ui);
 }
 
-.quran-reader-container .page-content, .quran-reader-container #settings-preview p {
+.quran-reader-container-horizontal .page-content, .quran-reader-container-horizontal #settings-preview p {
     font-family: var(--font-default); 
 }
 
-.quran-reader-container .ayah-text-block {
+.quran-reader-container-horizontal .ayah-text-block {
     font-family: inherit;
 }
 
-.quran-reader-container { 
+.quran-reader-container-horizontal { 
     width: 100%; 
     height: 100dvh;
     display: flex; flex-direction: column; 
@@ -54,24 +54,24 @@
     background-color: var(--bg-color, #f3f4f6);
 }
 
-.quran-reader-container ::-webkit-scrollbar { display: none; }
+.quran-reader-container-horizontal ::-webkit-scrollbar { display: none; }
 
-.quran-reader-container.dark { background-color: #000; color: #fff; }
+.quran-reader-container-horizontal.dark { background-color: #000; color: #fff; }
 
-.quran-reader-container .header-default, .quran-reader-container .footer-default { 
+.quran-reader-container-horizontal .header-default, .quran-reader-container-horizontal .footer-default { 
     background-color: white; 
     border-color: #e5e7eb; 
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     transition: transform 0.3s ease-in-out;
 }
-.quran-reader-container.dark .header-default, .quran-reader-container.dark .footer-default { 
+.quran-reader-container-horizontal.dark .header-default, .quran-reader-container-horizontal.dark .footer-default { 
     background-color: rgba(31, 41, 55, 0.8); 
     border-color: #374151; 
 }
 
-.quran-reader-container .mushaf-page { background-color: #fff; color: #000; }
-.quran-reader-container.dark .mushaf-page { background-color: #000; color: #fff; }
+.quran-reader-container-horizontal .mushaf-page { background-color: #fff; color: #000; }
+.quran-reader-container-horizontal.dark .mushaf-page { background-color: #000; color: #fff; }
 
 .modal-skinned {
     transition: all 0.3s ease;
@@ -462,16 +462,16 @@
 }
 
 /* Full Screen Reading Mode */
-.quran-reader-container.fullscreen-active #header,
-.quran-reader-container.fullscreen-active #bottom-bar {
+.quran-reader-container-horizontal.fullscreen-active #header,
+.quran-reader-container-horizontal.fullscreen-active #bottom-bar {
     display: none !important;
 }
-.quran-reader-container.fullscreen-active #floating-menu {
+.quran-reader-container-horizontal.fullscreen-active #floating-menu {
     display: none !important;
 }
 
-.quran-reader-container.force-ui-visible #header,
-.quran-reader-container.force-ui-visible #bottom-bar {
+.quran-reader-container-horizontal.force-ui-visible #header,
+.quran-reader-container-horizontal.force-ui-visible #bottom-bar {
     display: flex !important;
 }
 

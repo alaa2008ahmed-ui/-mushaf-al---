@@ -36,7 +36,7 @@ function App() {
 
   const handleNavigate = (pageId: string) => {
     const validPages = [
-      'quran', 'salah-adhkar', 'calendar', 'listen', 'tasbeeh', 
+      'quran', 'quran-horizontal', 'salah-adhkar', 'calendar', 'listen', 'tasbeeh', 
       'hajj-umrah', 'hisn-muslim', 'prayer-times', 'qibla', 
       'sabah-masaa', 'adia', 'nawawi', 'calculators'
     ];
@@ -53,18 +53,18 @@ function App() {
   const toggleThemeSelector = () => setIsThemeSelectorOpen(prev => !prev);
   const closeThemeSelector = () => setIsThemeSelectorOpen(false);
 
+  if (showSplash) {
+    return <VideoSplash onEnded={() => setShowSplash(false)} />;
+  }
+
   return (
-    <div className="relative w-full h-full">
+    <div>
       <AppRouter 
         page={page} 
         onBack={navigateBack} 
         onNavigate={handleNavigate} 
         onOpenThemes={toggleThemeSelector}
       />
-
-      {showSplash && (
-        <VideoSplash onEnded={() => setShowSplash(false)} />
-      )}
 
       {isThemeSelectorOpen && (
         <ThemeSelector 

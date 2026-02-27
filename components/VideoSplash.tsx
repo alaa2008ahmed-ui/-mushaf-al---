@@ -8,7 +8,6 @@ interface VideoSplashProps {
 const VideoSplash: React.FC<VideoSplashProps> = ({ onEnded }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isReady, setIsReady] = useState(false);
-  const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -29,7 +28,7 @@ const VideoSplash: React.FC<VideoSplashProps> = ({ onEnded }) => {
     >
       <video
         ref={videoRef}
-        className={`w-full h-full object-cover pointer-events-none transition-opacity duration-300 ${isReady ? 'opacity-100' : 'opacity-0'}`}
+        className="w-full h-full object-cover pointer-events-none"
         src="/splash.mp4"
         autoPlay
         muted
