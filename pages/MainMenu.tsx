@@ -34,12 +34,17 @@ interface NavButtonProps {
     onResize?: (e: React.MouseEvent) => void;
 }
 
-const NavButton: React.FC<NavButtonProps> = ({ label, onClick, className, color, border, isEditMode, onResize }) => (
+const NavButton: React.FC<NavButtonProps & { isGlass?: boolean }> = ({ label, onClick, className, color, border, isEditMode, onResize, isGlass }) => (
     <div className={`h-full ${className} relative group`}>
         <button 
             onClick={onClick} 
             className={`btn-3d-effect w-full rounded-2xl py-3 px-1 font-bold text-white relative text-sm h-full ${isEditMode ? 'cursor-move animate-pulse' : ''}`}
-            style={{ background: color, border: border || 'none' }}
+            style={{ 
+                background: isGlass ? 'transparent' : color, 
+                border: border || (isGlass ? '1px solid rgba(255, 255, 255, 0.3)' : 'none'),
+                boxShadow: isGlass ? '0 2px 10px rgba(0,0,0,0.1)' : undefined,
+                textShadow: isGlass ? '0 2px 4px rgba(0,0,0,0.8)' : undefined
+            }}
             disabled={isEditMode}
         >
             {label}
@@ -278,6 +283,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                             border={theme.btnBorder} 
                             isEditMode={isEditMode}
                             onResize={(e) => handleResize(item.id, e)}
+                            isGlass={theme.isGlass}
                           />
                       </motion.div>
                   ))}

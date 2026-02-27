@@ -633,7 +633,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         root.style.setProperty('--search-result-border', t.accent);
         root.style.setProperty('--search-result-text', t.cardText);
         
-        const darkBgs = ['#000000', '#2c241b', '#101010', '#0f172a', '#2e1065'];
+        const darkBgs = ['#000000', '#2c241b', '#101010', '#0f172a', '#2e1065', '#064e3b', '#1e293b', '#4c1d95', '#1e1b4b', '#451a03'];
         const isDark = t.bg && darkBgs.includes(t.bg.toLowerCase());
         if (isDark) document.documentElement.classList.add('dark');
         else document.documentElement.classList.remove('dark');

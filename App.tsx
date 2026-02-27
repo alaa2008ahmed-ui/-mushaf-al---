@@ -1,14 +1,16 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import ThemeSelector from './components/ThemesModal';
 import ExitConfirmModal from './components/ExitConfirmModal';
 import AppRouter from './router/AppRouter';
+import VideoSplash from './components/VideoSplash';
 import { useWakeLock } from './hooks/useWakeLock';
 import { useBackButton } from './hooks/useBackButton';
 import { App as CapacitorApp } from '@capacitor/app';
 
 // --- Main App Component ---
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [history, setHistory] = useState(['home']);
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
@@ -28,29 +30,32 @@ function App() {
     setShowExitConfirm
   });
 
-    const handleConfirmExit = () => {
-        CapacitorApp.exitApp();
-    };
-
+  const handleConfirmExit = () => {
+    CapacitorApp.exitApp();
+  };
 
   const handleNavigate = (pageId: string) => {
     const validPages = [
-        'quran', 'salah-adhkar', 'calendar', 'listen', 'tasbeeh', 
-        'hajj-umrah', 'hisn-muslim', 'prayer-times', 'qibla', 
-        'sabah-masaa', 'adia', 'nawawi', 'calculators'
+      'quran', 'salah-adhkar', 'calendar', 'listen', 'tasbeeh', 
+      'hajj-umrah', 'hisn-muslim', 'prayer-times', 'qibla', 
+      'sabah-masaa', 'adia', 'nawawi', 'calculators'
     ];
 
     if (validPages.includes(pageId)) {
-        if (history[history.length - 1] !== pageId) {
-            setHistory(prev => [...prev, pageId]);
-        }
+      if (history[history.length - 1] !== pageId) {
+        setHistory(prev => [...prev, pageId]);
+      }
     } else {
-        alert(`التنقل إلى قسم "${pageId}" قيد الإنشاء.`);
+      alert(`التنقل إلى قسم "${pageId}" قيد الإنشاء.`);
     }
   };
   
   const toggleThemeSelector = () => setIsThemeSelectorOpen(prev => !prev);
   const closeThemeSelector = () => setIsThemeSelectorOpen(false);
+
+  if (showSplash) {
+    return <VideoSplash onEnded={() => setShowSplash(false)} />;
+  }
 
   return (
     <>

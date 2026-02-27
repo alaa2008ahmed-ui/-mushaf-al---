@@ -161,7 +161,7 @@ const InteractiveBackground: React.FC = () => {
         <canvas
             ref={canvasRef}
             className="fixed inset-0 z-[-1] pointer-events-none"
-            style={{ opacity: 0.6 }}
+            style={{ opacity: theme.isGlass ? 0.9 : 0.6 }}
         />
     );
 };

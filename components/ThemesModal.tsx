@@ -66,13 +66,15 @@ function ThemeSelector({ onClose }) {
                             key={key}
                             onClick={() => applyPresetTheme(key)}
                             className="theme-selector-button w-20 h-12 rounded-lg border-2 text-[9px] font-bold flex items-center justify-center text-center shadow-sm transition-transform active:scale-95"
-                            style={{
-                                animationDelay: `${index * 0.04}s`,
-                                backgroundColor: themeOption.bgColor || '#fff',
-                                color: themeOption.textColor || '#000',
-                                borderColor: themeKey === key ? theme.palette[1] : themeOption.palette[0],
-                                transform: themeKey === key ? 'scale(1.05)' : 'scale(1)',
-                            }}
+                                style={{
+                                    animationDelay: `${index * 0.04}s`,
+                                    backgroundColor: themeOption.bgColor || '#fff',
+                                    backgroundImage: themeOption.bgGradient || 'none',
+                                    backgroundSize: 'cover',
+                                    color: themeOption.textColor || '#000',
+                                    borderColor: themeKey === key ? theme.palette[1] : themeOption.palette[0],
+                                    transform: themeKey === key ? 'scale(1.05)' : 'scale(1)',
+                                }}
                         >
                             {themeOption.name}
                         </button>

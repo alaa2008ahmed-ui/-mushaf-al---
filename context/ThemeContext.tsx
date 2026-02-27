@@ -89,10 +89,15 @@ export const ThemeProvider = ({ children }: { children?: ReactNode }) => {
             // Handle theme background
             if (videoBg) videoBg.style.display = 'none';
             document.body.style.backgroundColor = theme.bgColor || '#0D1B2A';
-            document.body.style.backgroundImage = theme.isOriginal ? `
-                radial-gradient(circle at 15% 25%, rgba(20, 184, 166, 0.1), transparent 30%),
-                radial-gradient(circle at 85% 75%, rgba(124, 58, 237, 0.1), transparent 30%)
-            ` : 'none';
+            if (theme.bgGradient) {
+                document.body.style.backgroundImage = theme.bgGradient;
+                document.body.style.backgroundAttachment = 'fixed';
+            } else {
+                document.body.style.backgroundImage = theme.isOriginal ? `
+                    radial-gradient(circle at 15% 25%, rgba(20, 184, 166, 0.1), transparent 30%),
+                    radial-gradient(circle at 85% 75%, rgba(124, 58, 237, 0.1), transparent 30%)
+                ` : 'none';
+            }
         }
 
         // Apply common theme properties
@@ -102,19 +107,23 @@ export const ThemeProvider = ({ children }: { children?: ReactNode }) => {
         root.style.setProperty('--color-primary', theme.palette[0]);
         root.style.setProperty('--color-secondary', theme.palette[1]);
         
-        const isDark = !theme.bgColor || ['#191D3A', '#0c0a09', '#000000', '#4c1d95', '#7c2d12', '#1e40af', '#1e1b4b', '#1c1917', '#0b0f19', '#3e2723', '#450a0a', '#064e3b', '#0f766e', '#155e75', '#581c87'].includes(theme.bgColor);
+        const isDark = !theme.bgColor || 
+            ['#191D3A', '#0c0a09', '#000000', '#4c1d95', '#7c2d12', '#1e40af', '#1e1b4b', '#1c1917', '#0b0f19', '#3e2723', '#450a0a', '#064e3b', '#0f766e', '#155e75', '#581c87', '#0F172A'].includes(theme.bgColor) ||
+            (theme.isGlass && theme.textColor === '#FFFFFF') ||
+            (theme.isGlass && theme.textColor === '#FEF3C7') ||
+            (theme.isGlass && theme.textColor === '#F1F5F9');
 
         // Apply shared colors/styles
         root.style.setProperty('--text-color', theme.textColor);
         root.style.setProperty('--text-color-muted', isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(0, 0, 0, 0.6)');
 
-        // Bar and Card styles (glassmorphism if custom bg)
-        if (settings.customBg) {
+        // Bar and Card styles (glassmorphism if custom bg or isGlass)
+        if (settings.customBg || theme.isGlass) {
             root.style.setProperty('--top-bar-rgb', isDark ? '26, 35, 50' : '255, 255, 255');
-            root.style.setProperty('--bottom-bar-bg', isDark ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.7)');
+            root.style.setProperty('--bottom-bar-bg', isDark ? 'rgba(30, 41, 59, 0.2)' : 'rgba(255, 255, 255, 0.2)');
             root.style.setProperty('--bottom-bar-border', isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.07)');
-            root.style.setProperty('--card-bg', isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.5)');
-            root.style.setProperty('--card-border', isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.07)');
+            root.style.setProperty('--card-bg', 'transparent');
+            root.style.setProperty('--card-border', isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)');
         } else {
             const topBarRgb = hexToRgb(theme.isOriginal ? '#1a2233' : (theme.barBg || theme.palette[0]));
             root.style.setProperty('--top-bar-rgb', topBarRgb || '26, 35, 50');
