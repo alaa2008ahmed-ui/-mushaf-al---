@@ -733,39 +733,36 @@ const QuranReaderHorizontal: FC<{ onBack: () => void }> = ({ onBack }) => {
             return newPages;
         });
 
-        // 2. Use requestAnimationFrame to wait for render, then scroll
-        requestAnimationFrame(() => {
-            // Force a small delay to ensure React has committed the changes to DOM
-            setTimeout(() => {
-                const el = document.getElementById(`ayah-${s}-${a}`);
-                if (el) {
-                    const pageEl = el.closest('.horizontal-mushaf-page');
-                    if (pageEl) {
-                        // Temporarily disable scroll snap to allow instant jump
-                        const container = mushafContentRef.current;
-                        if (container) {
-                            container.style.scrollSnapType = 'none';
-                            container.style.overflowX = 'hidden'; // Hide scrollbar during jump
-                        }
+        // 2. Scroll immediately to the page container
+        // We don't need to wait for content to render because the page containers (divs) always exist
+        const container = mushafContentRef.current;
+        if (container && container.children[p - 1]) {
+            const targetPage = container.children[p - 1] as HTMLElement;
+            const targetLeft = targetPage.offsetLeft;
 
-                        pageEl.scrollIntoView({ behavior: 'auto', inline: 'center' });
-                        
-                        // Re-enable scroll snap after a short delay
-                        setTimeout(() => {
-                            if (container) {
-                                container.style.scrollSnapType = 'x mandatory';
-                                container.style.overflowX = 'auto';
-                            }
-                            isJumpingRef.current = false;
-                        }, 50);
-                    }
-                } else {
-                    // Fallback if element not found yet (should rarely happen with this logic)
-                    isJumpingRef.current = false;
+            // Temporarily disable scroll snap and hide overflow for instant jump
+            container.style.scrollSnapType = 'none';
+            container.style.overflowX = 'hidden';
+            
+            container.scrollTo({
+                left: targetLeft,
+                behavior: 'auto'
+            });
+
+            // Re-enable scroll snap after a short delay
+            setTimeout(() => {
+                if (container) {
+                    container.style.scrollSnapType = 'x mandatory';
+                    container.style.overflowX = 'auto';
                 }
-                handleAyahClick(s, a);
-            }, 50);
-        });
+                isJumpingRef.current = false;
+            }, 100);
+        } else {
+            isJumpingRef.current = false;
+        }
+
+        // 3. Highlight the ayah
+        handleAyahClick(s, a);
         
         if (!isPageInputActiveRef.current) {
             setActiveModals({});

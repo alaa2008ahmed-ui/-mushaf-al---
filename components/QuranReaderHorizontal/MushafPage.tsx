@@ -52,11 +52,12 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     let currentSurah = -1;
     
     const pageStyle = {
-        fontSize: 'clamp(1rem, min(3.3cqh, 5.5cqw), 3.5rem)', // Reduced from 3.8cqh to 3.3cqh
-        lineHeight: '1.7', // Reduced from 1.8
+        fontSize: 'clamp(1rem, min(3.6cqh, 6cqw), 3.8rem)', // Increased to fill space
+        lineHeight: '1.8', // Increased line height
         fontFamily: settings?.fontFamily || 'var(--font-amiri)',
         color: settings?.theme === 'dark' ? '#fff' : (settings?.textColor || '#000'),
-        height: '100%'
+        height: '100%',
+        paddingTop: '2px' // Minimal padding
     };
 
     const headerStyle = {
@@ -67,7 +68,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     return (
         <div className={`mushaf-page ${isHorizontal ? 'horizontal-mushaf-page' : ''}`} data-page={pageNum} ref={pageRef} style={{ backgroundColor: 'transparent' }}>
             <div className="page-content" style={pageStyle}>
-                <div style={{ width: '100%', margin: 'auto 0' }}>
+                <div style={{ width: '100%' }}>
                     {pageData.map(ayah => {
                     const isSajdah = SAJDAH_LOCATIONS.some(sl => sl.s === ayah.sNum && sl.a === ayah.numberInSurah);
                     const showHeader = currentSurah !== ayah.sNum && ayah.numberInSurah === 1;
