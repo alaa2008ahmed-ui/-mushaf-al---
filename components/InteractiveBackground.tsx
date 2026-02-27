@@ -57,9 +57,9 @@ const InteractiveBackground: React.FC = () => {
                 this.y = y;
                 this.baseX = x;
                 this.baseY = y;
-                this.size = Math.random() * 5 + 2; // Increased size
-                this.density = (Math.random() * 35) + 5;
-                this.alpha = Math.random() * 0.5 + 0.3; // Increased alpha
+                this.size = Math.random() * 3 + 1; 
+                this.density = (Math.random() * 20) + 2;
+                this.alpha = Math.random() * 0.3 + 0.1; 
                 this.color = themeColors[Math.floor(Math.random() * themeColors.length)];
             }
 

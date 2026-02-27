@@ -7,14 +7,16 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   plugins: {
     SplashScreen: {
-      launchShowDuration: 1000,      // ثانية واحدة بالضبط
-      launchAutoHide: true,           // إخفاء تلقائي
-      backgroundColor: "#ffffff",     // خلفية بيضاء
+      // تعديل هام: نجعل المدة 0 ونلغي الإخفاء التلقائي
+      launchShowDuration: 0, 
+      launchAutoHide: false, // لا تختفي حتى نأمرها نحن بذلك من الكود
+      
+      backgroundColor: "#ffffff",
       androidScaleType: "CENTER_CROP", 
       splashFullScreen: true,
       splashImmersive: true,
-      launchFadeOutDuration: 0,       // إغلاق فوري بدون تلاشي (يمنع الشاشة البيضاء)
-      androidSplashScreenAnimationDuration: 0 // تعطيل حركة أندرويد 12 لسرعة الدخول
+      launchFadeOutDuration: 300, // إضافة تلاشي بسيط جداً لجعل الانتقال ناعماً
+      androidSplashScreenAnimationDuration: 0
     }
   }
 };

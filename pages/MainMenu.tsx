@@ -235,27 +235,27 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                 onContextMenu={handleContextMenu}
                 style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
               >
-                  <p className="font-bold leading-tight mb-0.5 pointer-events-none" style={{ color: theme.textColor, fontSize: '1.1rem', textShadow: '0 1px 3px rgba(0,0,0,0.3)' }}>
+                  <p className="font-bold leading-tight mb-1 pointer-events-none" style={{ color: theme.textColor, fontSize: '1.25rem' }}>
                       {currentVerse.text}
                   </p>
-                  <p className="text-[10px] opacity-70 text-left pl-6 pointer-events-none" style={{ color: theme.textColor }}>
+                  <p className="text-[12px] font-bold text-left pl-8 pointer-events-none" style={{ color: theme.textColor }}>
                       {`(${currentVerse.surah}: ${currentVerse.number})`}
                   </p>
               </div>
 
               {/* Title Section */}
               <div 
-                  className="text-center mt-4 select-none"
+                  className="text-center mt-6 select-none"
                   onTouchStart={startTitlePress}
                   onTouchEnd={cancelTitlePress}
                   onMouseDown={startTitlePress}
                   onMouseUp={cancelTitlePress}
                   onMouseLeave={cancelTitlePress}
               >
-                  <h1 className={`text-4xl font-extrabold tracking-tight transition-transform ${isEditMode ? 'scale-110 text-yellow-400' : ''}`} style={{ color: isEditMode ? undefined : theme.textColor, textShadow: '0 2px 5px rgba(0,0,0,0.4)' }}>
+                  <h1 className={`text-4xl font-black tracking-tight transition-transform ${isEditMode ? 'scale-110 text-yellow-400' : ''}`} style={{ color: isEditMode ? undefined : theme.textColor }}>
                       مُصْحَفُ أَحْمَدَ وَلَيْلَى
                   </h1>
-                  <p className="text-[14px] font-semibold mt-2" style={{ color: theme.textColor, opacity: 0.9 }}>
+                  <p className="text-[16px] font-black mt-3" style={{ color: theme.textColor }}>
                       {isEditMode ? 'وضع تعديل التصميم' : 'نرجوا الدعاء لهم بالرحمة والمغفرة'}
                   </p>
               </div>

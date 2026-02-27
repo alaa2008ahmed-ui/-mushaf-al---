@@ -51,7 +51,8 @@
         }
     </script>
 
-    <style>
+<style>
+      body { background: black; }
       :root {
           --font-amiri: 'Amiri', serif;
           --font-amiri-quran: 'Amiri Quran', serif;
@@ -288,9 +289,9 @@
 </script>
 <link rel="stylesheet" href="/index.css">
 </head>
-<body class="bg-black">
+<body>
     <video id="video-background" autoplay muted loop playsinline preload="auto" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: -1; display: none;"></video>
-    <div id="root" style="background: black;"></div>
+    <div id="root"></div>
     <div id="theme-modal-root"></div>
     <script type="module" src="/index.tsx"></script>
 </body>

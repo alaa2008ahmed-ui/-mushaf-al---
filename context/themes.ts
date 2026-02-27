@@ -16,12 +16,12 @@ export interface Theme {
 export const presetThemes: { [key: string]: Theme } = {
     default: {
         name: "الافتراضي",
-        bgColor: "#F3F4F6",
-        textColor: "#1F2937",
+        bgColor: "#FFFFFF",
+        textColor: "#000000",
         font: "'Cairo', sans-serif",
-        palette: ["#10B981", "#8B5CF6", "#F3F4F6"],
+        palette: ["#10B981", "#8B5CF6", "#F9FAFB"],
         barBg: "#FFFFFF",
-        barBorder: "1px solid #E5E7EB"
+        barBorder: "1px solid #F3F4F6"
     },
     black_and_white: {
         name: "أبيض وأسود",
