@@ -7,15 +7,14 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   plugins: {
     SplashScreen: {
-      // تعديل هام: نجعل المدة 0 ونلغي الإخفاء التلقائي
+      // إلغاء الشاشة تماماً بجعل الوقت 0 والإخفاء التلقائي true
       launchShowDuration: 0, 
-      launchAutoHide: false, // لا تختفي حتى نأمرها نحن بذلك من الكود
-      
+      launchAutoHide: true,
       backgroundColor: "#ffffff",
       androidScaleType: "CENTER_CROP", 
-      splashFullScreen: true,
-      splashImmersive: true,
-      launchFadeOutDuration: 300, // إضافة تلاشي بسيط جداً لجعل الانتقال ناعماً
+      splashFullScreen: false,
+      splashImmersive: false,
+      launchFadeOutDuration: 0,
       androidSplashScreenAnimationDuration: 0
     }
   }
