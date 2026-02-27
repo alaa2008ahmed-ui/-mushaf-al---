@@ -7,16 +7,17 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   plugins: {
     SplashScreen: {
-      // تم جعل المدة 0 لتعطيل الظهور
+      // إخفاء الشاشة بأسرع وقت ممكن
       launchShowDuration: 0, 
       launchAutoHide: true,
       
-      // اللون #00000000 يعني شفاف تماماً (Transparent)
-      backgroundColor: "#00000000",
+      // نستخدم اللون الأسود ليتوافق مع بداية فيديو Splash الخاص بك
+      // ويمنع ظهور اللون الأبيض تماماً
+      backgroundColor: "#000000",
       
       androidScaleType: "CENTER_CROP", 
-      splashFullScreen: false,
-      splashImmersive: false,
+      splashFullScreen: true,
+      splashImmersive: true,
       launchFadeOutDuration: 0,
       androidSplashScreenAnimationDuration: 0
     }
