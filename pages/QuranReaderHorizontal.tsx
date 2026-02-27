@@ -730,13 +730,14 @@ const QuranReaderHorizontal: FC<{ onBack: () => void }> = ({ onBack }) => {
         const p = Number(ayah.page);
         setVisiblePages([...new Set([p, p + 1, p + 2, p - 1, p - 2])].filter(n => n > 0 && n <= 604).sort((a: number, b: number) => a - b));
         
+        // Use a shorter timeout to allow render, but make it feel instant
         setTimeout(() => {
             scrollToAyah(s, a, instant);
             handleAyahClick(s, a);
             setTimeout(() => {
                 isJumpingRef.current = false;
-            }, 500);
-        }, 150);
+            }, 100);
+        }, 50);
         
         if (!isPageInputActiveRef.current) {
             setActiveModals({});

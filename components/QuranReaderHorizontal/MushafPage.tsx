@@ -52,7 +52,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     let currentSurah = -1;
     
     const pageStyle = {
-        fontSize: 'clamp(1rem, min(3.5cqh, 5.5cqw), 3rem)',
+        fontSize: 'clamp(1rem, min(3.8cqh, 6cqw), 3.5rem)',
         lineHeight: '1.8',
         fontFamily: settings?.fontFamily || 'var(--font-amiri)',
         color: settings?.theme === 'dark' ? '#fff' : (settings?.textColor || '#000')
