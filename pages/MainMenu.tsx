@@ -68,10 +68,16 @@ function MainMenu({ onNavigate, onOpenThemes }) {
   const [menuItems, setMenuItems] = useState(DEFAULT_MENU_ITEMS);
   const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [verseFontSize, setVerseFontSize] = useState(() => {
+      const saved = localStorage.getItem('mainMenuVerseFontSize');
+      return saved ? parseFloat(saved) : 1.25;
+  });
   
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isLongPressRef = useRef(false);
   const titleLongPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const initialDistanceRef = useRef<number | null>(null);
+  const initialFontSizeRef = useRef<number>(1.25);
 
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * verses.length);
@@ -177,7 +183,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
       }
   };
 
-  // Verse Long Press Logic
+  // Verse Long Press & Pinch Zoom Logic
   const startPress = (e: React.SyntheticEvent) => {
       isLongPressRef.current = false;
       longPressTimerRef.current = setTimeout(() => {
@@ -192,6 +198,46 @@ function MainMenu({ onNavigate, onOpenThemes }) {
           clearTimeout(longPressTimerRef.current);
           longPressTimerRef.current = null;
       }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+      if (e.touches.length === 2) {
+          cancelPress();
+          const touch1 = e.touches[0];
+          const touch2 = e.touches[1];
+          const dist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+          initialDistanceRef.current = dist;
+          initialFontSizeRef.current = verseFontSize;
+      } else if (e.touches.length === 1) {
+          startPress(e);
+      }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+      if (e.touches.length === 2 && initialDistanceRef.current !== null) {
+          cancelPress();
+          const touch1 = e.touches[0];
+          const touch2 = e.touches[1];
+          const dist = Math.hypot(touch1.clientX - touch2.clientX, touch1.clientY - touch2.clientY);
+          
+          const scale = dist / initialDistanceRef.current;
+          let newSize = initialFontSizeRef.current * scale;
+          
+          newSize = Math.max(0.8, Math.min(newSize, 3.0));
+          setVerseFontSize(newSize);
+      } else {
+          cancelPress();
+      }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+      if (e.touches.length < 2) {
+          if (initialDistanceRef.current !== null) {
+              localStorage.setItem('mainMenuVerseFontSize', verseFontSize.toString());
+              initialDistanceRef.current = null;
+          }
+      }
+      cancelPress();
   };
 
   // Title Long Press Logic (for Edit Mode)
@@ -226,19 +272,19 @@ function MainMenu({ onNavigate, onOpenThemes }) {
               {/* Verse Section */}
               <div 
                 className="text-center pt-12 select-none cursor-pointer active:scale-95 transition-transform touch-manipulation"
-                onTouchStart={startPress}
-                onTouchEnd={cancelPress}
-                onTouchMove={cancelPress}
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onTouchMove={handleTouchMove}
                 onMouseDown={startPress}
                 onMouseUp={cancelPress}
                 onMouseLeave={cancelPress}
                 onContextMenu={handleContextMenu}
                 style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
               >
-                  <p className="font-bold leading-tight mb-1 pointer-events-none" style={{ color: theme.textColor, fontSize: '1.25rem' }}>
+                  <p className="font-bold leading-tight mb-1 pointer-events-none transition-all duration-75" style={{ color: theme.textColor, fontSize: `${verseFontSize}rem` }}>
                       {currentVerse.text}
                   </p>
-                  <p className="text-[12px] font-bold text-left pl-8 pointer-events-none" style={{ color: theme.textColor }}>
+                  <p className="text-[12px] font-bold text-left pl-8 pointer-events-none transition-all duration-75" style={{ color: theme.textColor, fontSize: `${Math.max(0.75, verseFontSize * 0.6)}rem` }}>
                       {`(${currentVerse.surah}: ${currentVerse.number})`}
                   </p>
               </div>
