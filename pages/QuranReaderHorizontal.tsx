@@ -159,7 +159,6 @@ const QuranReaderHorizontal: FC<{ onBack: () => void }> = ({ onBack }) => {
     const [sajdahCardInfo, setSajdahCardInfo] = useState({ show: false, surah: '', ayah: 0, juz: 0, page: 0, wasAutoscrolling: false, wasPlaying: false });
 
     const [autoScrollState, setAutoScrollState] = useState({ isActive: false, isPaused: false, elapsedTime: 0 });
-    const [hideUIOnScroll, setHideUIOnScroll] = useState(() => localStorage.getItem('hide_ui_on_scroll_horizontal') === 'true');
     const [showSajdahCard, setShowSajdahCard] = useState(() => {
         const saved = localStorage.getItem('show_sajdah_card_horizontal');
         return saved !== null ? saved === 'true' : true;
@@ -600,7 +599,6 @@ const QuranReaderHorizontal: FC<{ onBack: () => void }> = ({ onBack }) => {
             const saved = localStorage.getItem('quran_settings_horizontal');
             if (saved) setSettings(JSON.parse(saved));
             setToolbarColors(JSON.parse(localStorage.getItem('toolbar_colors_horizontal') || '{}'));
-            setHideUIOnScroll(localStorage.getItem('hide_ui_on_scroll_horizontal') === 'true');
             const savedSajdah = localStorage.getItem('show_sajdah_card_horizontal');
             setShowSajdahCard(savedSajdah !== null ? savedSajdah === 'true' : true);
             setIsTransparentMode(localStorage.getItem('transparent_mode_horizontal') === 'true');
@@ -728,21 +726,51 @@ const QuranReaderHorizontal: FC<{ onBack: () => void }> = ({ onBack }) => {
         
         isJumpingRef.current = true;
         const p = Number(ayah.page);
-        setVisiblePages([...new Set([p, p + 1, p + 2, p - 1, p - 2])].filter(n => n > 0 && n <= 604).sort((a: number, b: number) => a - b));
         
-        // Use a shorter timeout to allow render, but make it feel instant
-        setTimeout(() => {
-            scrollToAyah(s, a, instant);
-            handleAyahClick(s, a);
+        // 1. Update visible pages to include the target page
+        setVisiblePages(prev => {
+            const newPages = [...new Set([p, p + 1, p + 2, p - 1, p - 2])].filter(n => n > 0 && n <= 604).sort((a: number, b: number) => a - b);
+            return newPages;
+        });
+
+        // 2. Use requestAnimationFrame to wait for render, then scroll
+        requestAnimationFrame(() => {
+            // Force a small delay to ensure React has committed the changes to DOM
             setTimeout(() => {
-                isJumpingRef.current = false;
-            }, 100);
-        }, 50);
+                const el = document.getElementById(`ayah-${s}-${a}`);
+                if (el) {
+                    const pageEl = el.closest('.horizontal-mushaf-page');
+                    if (pageEl) {
+                        // Temporarily disable scroll snap to allow instant jump
+                        const container = mushafContentRef.current;
+                        if (container) {
+                            container.style.scrollSnapType = 'none';
+                            container.style.overflowX = 'hidden'; // Hide scrollbar during jump
+                        }
+
+                        pageEl.scrollIntoView({ behavior: 'auto', inline: 'center' });
+                        
+                        // Re-enable scroll snap after a short delay
+                        setTimeout(() => {
+                            if (container) {
+                                container.style.scrollSnapType = 'x mandatory';
+                                container.style.overflowX = 'auto';
+                            }
+                            isJumpingRef.current = false;
+                        }, 50);
+                    }
+                } else {
+                    // Fallback if element not found yet (should rarely happen with this logic)
+                    isJumpingRef.current = false;
+                }
+                handleAyahClick(s, a);
+            }, 50);
+        });
         
         if (!isPageInputActiveRef.current) {
             setActiveModals({});
         }
-    }, [quranData, handleAyahClick, stopAudio, scrollToAyah]);
+    }, [quranData, handleAyahClick, stopAudio]);
 
     useEffect(() => {
         const lastPos = JSON.parse(localStorage.getItem('last_pos_horizontal') || '{}');
@@ -996,7 +1024,7 @@ const QuranReaderHorizontal: FC<{ onBack: () => void }> = ({ onBack }) => {
     };
 
     return (
-        <div className={`quran-reader-container-horizontal ${autoScrollState.isActive && !autoScrollState.isPaused && hideUIOnScroll && !isPageInputActive ? 'fullscreen-active' : ''} ${isPageInputActive ? 'force-ui-visible' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
+        <div className={`quran-reader-container-horizontal ${isPageInputActive ? 'force-ui-visible' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
             <header id="header" className="header-default flex-none z-50 flex items-center px-4 justify-between border-b shadow-xl w-full gap-2" style={getToolbarStyle('top-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button id="surah-name-header" onClick={() => openModal('surah-modal')} className="top-bar-text-button" style={getToolbarStyle('surah', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}><span>{surahName} - آية {toArabic(currentAyah.a)}</span></button>
                 <button id="juz-number-header" onClick={() => openModal('juz-modal')} className="top-bar-text-button" style={getToolbarStyle('juz', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>الجزء {toArabic(juz)}</button>

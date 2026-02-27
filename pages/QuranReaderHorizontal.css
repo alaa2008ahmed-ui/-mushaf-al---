@@ -159,7 +159,7 @@
     flex-grow: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    /* justify-content: center; Removed to prevent clipping */
     height: 100%;
     overflow: hidden;
 }
@@ -180,12 +180,12 @@
 
 .page-footer {
     display: flex; justify-content: center; align-items: center;
-    margin-top: 15px; padding-bottom: 10px;
+    margin-top: 4px; padding-bottom: 2px; /* Reduced margin and padding */
     font-family: var(--font-default); line-height: 1;
+    height: 24px; /* Fixed small height */
 }
-.page-number-bracket { color: #d97706; font-family: var(--font-hafs), serif; font-size: 1.6rem; margin: 0 2px; font-weight: normal; }
-.dark .page-number-bracket { color: #fbbf24; }
-.page-number-text { color: #1d4ed8; font-weight: bold; font-size: 1.3rem; font-family: var(--font-default); position: relative; top: 4px; margin: 0 2px;}
+.page-number-bracket { color: #d97706; font-family: var(--font-hafs), serif; font-size: 1.2rem; margin: 0 2px; font-weight: normal; }
+.page-number-text { color: #1d4ed8; font-weight: bold; font-size: 1rem; font-family: var(--font-default); position: relative; top: 2px; margin: 0 2px;}
 .dark .page-number-text { color: #60a5fa; }
 
 .ayah-text-block { display: inline; cursor: pointer; padding: 0; border-radius: 6px; transition: background-color 0.2s; }
