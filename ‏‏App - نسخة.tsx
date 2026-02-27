@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback, useEffect } from 'react';
 import ThemeSelector from './components/ThemesModal';
 import ExitConfirmModal from './components/ExitConfirmModal';
@@ -6,7 +7,6 @@ import VideoSplash from './components/VideoSplash';
 import { useWakeLock } from './hooks/useWakeLock';
 import { useBackButton } from './hooks/useBackButton';
 import { App as CapacitorApp } from '@capacitor/app';
-import { SplashScreen } from '@capacitor/splash-screen'; // استيراد إضافة شاشة البداية
 
 // --- Main App Component ---
 function App() {
@@ -14,18 +14,6 @@ function App() {
   const [history, setHistory] = useState(['home']);
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
-
-  // تأثير جانبي لإخفاء شاشة بداية النظام فور تشغيل التطبيق
-  useEffect(() => {
-    const initApp = async () => {
-      try {
-        await SplashScreen.hide(); // إخفاء الشاشة الشفافة للنظام
-      } catch (e) {
-        console.warn("SplashScreen might not be available in browser mode", e);
-      }
-    };
-    initApp();
-  }, []);
 
   const page = history[history.length - 1];
 
@@ -65,7 +53,6 @@ function App() {
   const toggleThemeSelector = () => setIsThemeSelectorOpen(prev => !prev);
   const closeThemeSelector = () => setIsThemeSelectorOpen(false);
 
-  // عرض الفيديو الترحيبي في البداية
   if (showSplash) {
     return <VideoSplash onEnded={() => setShowSplash(false)} />;
   }
