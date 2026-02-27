@@ -7,9 +7,14 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   plugins: {
     SplashScreen: {
-      launchShowDuration: 0,     // جعل مدة العرض صفر
-      launchAutoHide: true,      // إخفاء تلقائي فوري
-      backgroundColor: "#ffffff" // لون خلفية احتياطي سريع جداً
+      launchShowDuration: 0,
+      launchAutoHide: true,
+      backgroundColor: "#ffffff",
+      androidScaleType: "CENTER_CROP",
+      splashFullScreen: true,
+      splashImmersive: true,
+      // هذا السطر يمنع الإضافة من محاولة التحكم في الشاشة برمجياً
+      androidSplashScreenAnimationDuration: 0
     }
   }
 };
