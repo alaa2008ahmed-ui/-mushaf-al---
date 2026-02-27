@@ -1,22 +1,28 @@
 @echo off
 cls
+color 0B
 echo =========================================
-echo    جاري تحديث تطبيق (مصحف أحمد وليلى)
+echo     جاري تحديث تطبيق (مصحف أحمد وليلى)
 echo =========================================
 
-echo [1/4] Syncing Capacitor...
+:: هنا نطلب منك إدخال وصف التحديث يدوياً
+set /p desc="Enter update description (ماذا فعلت في هذا التحديث؟): "
+
+echo [1/4] Syncing Capacitor (Android)...
 call npx cap sync android
 
-echo [2/4] Saving changes to Git...
+echo [2/4] Saving Changes to Git...
 git add .
-git commit -m "Update: %date% %time%"
+:: هنا سيستخدم الكلام الذي كتبته أنت بالأعلى
+git commit -m "%desc%"
 
-echo [3/4] Pushing to GitHub...
+echo [3/4] Pushing to GitHub (Main Branch)...
 git push origin main
 
-echo [4/4] Done! 
+echo [4/4] Process Completed Successfully!
 echo =========================================
-echo اذهب الآن إلى GitHub Actions لتحميل ملف:
-echo (مصحف أحمد وليلى.apk)
+echo اذهب الآن إلى GitHub Actions لتحميل ملف الـ APK
 echo =========================================
+timeout /t 5
+start https://github.com/Ahmed11Laila/mushaf-al/actions
 pause
