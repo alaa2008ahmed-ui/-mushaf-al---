@@ -7,14 +7,20 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   plugins: {
     SplashScreen: {
-      launchShowDuration: 0,
+      // 1. ضبط وقت الظهور (3000 ملي ثانية = 3 ثوانٍ)
+      launchShowDuration: 3000, 
       launchAutoHide: true,
+      
+      // 2. إعدادات المظهر
       backgroundColor: "#ffffff",
-      androidScaleType: "CENTER_CROP",
+      androidScaleType: "CENTER_CROP", // لجعل الصورة تملأ الشاشة بشكل احترافي
+      
+      // 3. إعدادات الشاشة الكاملة
       splashFullScreen: true,
       splashImmersive: true,
-      // هذا السطر يمنع الإضافة من محاولة التحكم في الشاشة برمجياً
-      androidSplashScreenAnimationDuration: 0
+      
+      // 4. مدة تلاشي الصورة عند الاختفاء (نعومة في الانتقال)
+      launchFadeOutDuration: 500 
     }
   }
 };
