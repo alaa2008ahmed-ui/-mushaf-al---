@@ -58,7 +58,7 @@ function App() {
   }
 
   return (
-    <>
+    <div className="animate-fadeIn">
       <AppRouter 
         page={page} 
         onBack={navigateBack} 
@@ -79,7 +79,7 @@ function App() {
               onClose={() => setShowExitConfirm(false)}
           />
       )}
-    </>
+    </div>
   );
 }
 
