@@ -15,6 +15,18 @@ function App() {
   const [isThemeSelectorOpen, setIsThemeSelectorOpen] = useState(false);
   const [showExitConfirm, setShowExitConfirm] = useState(false);
 
+  useEffect(() => {
+    if (showSplash) {
+      document.body.classList.add('splash-active');
+    } else {
+      // Keep background black for a moment while the main content fades in
+      const timer = setTimeout(() => {
+        document.body.classList.remove('splash-active');
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [showSplash]);
+
   const page = history[history.length - 1];
 
   const navigateBack = useCallback(() => {
