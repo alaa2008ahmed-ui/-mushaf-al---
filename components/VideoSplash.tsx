@@ -28,8 +28,9 @@ const VideoSplash: React.FC<VideoSplashProps> = ({ onEnded }) => {
     >
       <video
         ref={videoRef}
-        className="w-full h-full object-cover pointer-events-none"
+        className={`w-full h-full object-cover pointer-events-none transition-opacity duration-500 ${isReady ? 'opacity-100' : 'opacity-0'}`}
         src="/splash.mp4"
+        poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
         autoPlay
         muted
         playsInline
@@ -37,7 +38,7 @@ const VideoSplash: React.FC<VideoSplashProps> = ({ onEnded }) => {
         preload="auto"
         disablePictureInPicture
         controls={false}
-        onLoadedData={() => setIsReady(true)}
+        onPlaying={() => setIsReady(true)}
         onEnded={handleEnded}
         style={{ WebkitMaskImage: '-webkit-radial-gradient(white, black)' }} // Fix for some mobile clipping issues
       />

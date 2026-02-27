@@ -52,20 +52,22 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     let currentSurah = -1;
     
     const pageStyle = {
-        fontSize: settings ? `${settings.fontSize}rem` : '1.7rem',
+        fontSize: 'clamp(1rem, min(3.5cqh, 5.5cqw), 3rem)',
+        lineHeight: '1.8',
         fontFamily: settings?.fontFamily || 'var(--font-amiri)',
         color: settings?.theme === 'dark' ? '#fff' : (settings?.textColor || '#000')
     };
 
     const headerStyle = {
-        fontSize: settings ? `${settings.fontSize * 0.94}rem` : '1.6rem',
+        fontSize: 'clamp(0.9rem, min(2.5cqh, 4cqw), 2rem)',
         fontFamily: settings?.fontFamily || 'var(--font-amiri)'
     };
 
     return (
         <div className={`mushaf-page ${isHorizontal ? 'horizontal-mushaf-page' : ''}`} data-page={pageNum} ref={pageRef} style={{ backgroundColor: 'transparent' }}>
             <div className="page-content" style={pageStyle}>
-                {pageData.map(ayah => {
+                <div style={{ width: '100%' }}>
+                    {pageData.map(ayah => {
                     const isSajdah = SAJDAH_LOCATIONS.some(sl => sl.s === ayah.sNum && sl.a === ayah.numberInSurah);
                     const showHeader = currentSurah !== ayah.sNum && ayah.numberInSurah === 1;
                     if (showHeader) currentSurah = ayah.sNum;
@@ -119,11 +121,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                         </React.Fragment>
                     );
                 })}
-            </div>
-            <div className="page-footer">
-                <span className="page-number-bracket">﴿</span>
-                <span className="page-number-text">{toArabic(pageNum)}</span>
-                <span className="page-number-bracket">﴾</span>
+                </div>
             </div>
         </div>
     );

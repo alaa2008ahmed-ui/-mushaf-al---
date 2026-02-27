@@ -87,6 +87,7 @@
       html { scroll-behavior: smooth; }
       body {
         -webkit-tap-highlight-color: transparent;
+        transition: background 0.15s ease-out, color 0.15s ease-out;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         overflow: hidden; /* Prevent scrolling on the body for SPA */
@@ -255,6 +256,27 @@
       }
       video::-webkit-media-controls-enclosure {
           display:none !important;
+      }
+      video::-webkit-media-controls-panel {
+          display: none !important;
+      }
+      video::-webkit-media-controls-play-button {
+          display: none !important;
+      }
+      video::-webkit-media-controls-overlay-play-button {
+          display: none !important;
+      }
+      *::-webkit-media-controls-panel {
+        display: none!important;
+        -webkit-appearance: none;
+      }
+      *::-webkit-media-controls-play-button {
+        display: none!important;
+        -webkit-appearance: none;
+      }
+      *::-webkit-media-controls-start-playback-button {
+        display: none!important;
+        -webkit-appearance: none;
       }
     </style>
 <script type="importmap">
