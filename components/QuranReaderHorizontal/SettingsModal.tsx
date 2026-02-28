@@ -60,7 +60,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
     const getTafseerName = (id: string) => TAFSEERS.find(t => t.id === id)?.name || id;
     const getFontName = (val: string) => {
         const fontMap: Record<string, string> = {
-            "var(--font-amiri-quran)": "حفص", "var(--font-amiri)": "نسخ", "var(--font-scheherazade)": "مجود",
+            "var(--font-hafs)": "حفص", "var(--font-amiri-quran)": "حفص", "var(--font-amiri)": "نسخ", "var(--font-scheherazade)": "مجود",
             "var(--font-lateef)": "تراثي", "var(--font-harmattan)": "ورش", "var(--font-aref)": "رقعة",
             "var(--font-gulzar)": "نستعليق", "var(--font-kufi)": "كوفي", "var(--font-kufam)": "كوفي حديث",
             "var(--font-noto)": "نسخ حديث", "var(--font-cairo)": "القاهرة", "var(--font-messiri)": "المسيري",
@@ -114,7 +114,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                             <div className="custom-select-wrapper mt-0.5">
                                 <div className="custom-select-display text-xs h-7 themed-card-bg">{getFontName(settings.fontFamily)}</div>
                                 <select value={settings.fontFamily} onChange={(e) => updateSetting('fontFamily', e.target.value)} className="custom-select-design">
-                                    <option value="var(--font-amiri-quran)">حفص</option>
+                                    <option value="var(--font-hafs)">حفص</option>
                                     <option value="var(--font-amiri)">نسخ</option>
                                     <option value="var(--font-scheherazade)">مجود</option>
                                     <option value="var(--font-lateef)">تراثي</option>

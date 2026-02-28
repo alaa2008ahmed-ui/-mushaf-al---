@@ -137,7 +137,9 @@
     overflow-x: auto;
     overflow-y: hidden;
     scroll-snap-type: x mandatory;
-    height: 100%;
+    flex-grow: 1;
+    height: 0; /* Important for flex child to scroll properly */
+    min-height: 0;
     width: 100%;
     /* scroll-behavior: smooth; Removed to allow instant jumps */
 }

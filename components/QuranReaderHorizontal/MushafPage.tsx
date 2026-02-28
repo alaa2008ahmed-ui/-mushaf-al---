@@ -50,10 +50,32 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     if (!pageData || !pageData.length) return <div className={`mushaf-page ${isHorizontal ? 'horizontal-mushaf-page' : ''}`} style={isHorizontal ? {} : {height: '1000px'}}></div>; // Placeholder for height calculation
     
     let currentSurah = -1;
+
+    // Calculate text density to adjust font size
+    const totalCharacters = pageData.reduce((acc, ayah) => acc + ayah.text.length, 0);
+    
+    // Base sizing for "normal" pages
+    let fontScale = 3.6; // cqh
+    let lineVal = 1.8;
+    
+    // Thresholds for dense pages (heuristics based on Uthmani script length)
+    if (totalCharacters > 1500) {
+        fontScale = 2.7;
+        lineVal = 1.5;
+    } else if (totalCharacters > 1300) {
+        fontScale = 2.9;
+        lineVal = 1.6;
+    } else if (totalCharacters > 1100) {
+        fontScale = 3.1;
+        lineVal = 1.65;
+    } else if (totalCharacters > 900) {
+        fontScale = 3.3;
+        lineVal = 1.7;
+    }
     
     const pageStyle = {
-        fontSize: 'clamp(1rem, min(3.6cqh, 6cqw), 3.8rem)', // Increased to fill space
-        lineHeight: '1.8', // Increased line height
+        fontSize: `clamp(1rem, min(${fontScale}cqh, ${fontScale * 1.6}cqw), 3.8rem)`, 
+        lineHeight: `${lineVal}`, 
         fontFamily: settings?.fontFamily || 'var(--font-amiri)',
         color: settings?.theme === 'dark' ? '#fff' : (settings?.textColor || '#000'),
         height: '100%',
@@ -61,7 +83,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     };
 
     const headerStyle = {
-        fontSize: 'clamp(0.9rem, min(2.5cqh, 4cqw), 2rem)',
+        fontSize: `clamp(0.8rem, min(${fontScale * 0.7}cqh, ${fontScale * 1.1}cqw), 1.8rem)`,
         fontFamily: settings?.fontFamily || 'var(--font-amiri)'
     };
 

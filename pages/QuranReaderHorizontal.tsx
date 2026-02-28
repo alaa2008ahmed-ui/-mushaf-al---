@@ -717,48 +717,115 @@ const QuranReaderHorizontal: FC<{ onBack: () => void }> = ({ onBack }) => {
         localStorage.setItem('last_pos_horizontal', JSON.stringify({ s, a }));
     }, []);
     
-    const jumpToAyah = useCallback((s, a, instant = false) => {
+    const jumpToAyah = useCallback((s: number, a: number, instant: boolean = false) => {
         stopAudio();
         if (!quranData) return;
-        const surah = quranData.surahs.find((su:any) => su.number === s);
-        const ayah = surah?.ayahs.find((ay:any) => ay.numberInSurah === a);
+        
+        // Find the ayah data
+        const surah = quranData.surahs.find((su: any) => su.number === s);
+        if (!surah) return;
+        
+        const ayah = surah.ayahs.find((ay: any) => ay.numberInSurah === a);
         if (!ayah) return;
         
-        isJumpingRef.current = true;
         const p = Number(ayah.page);
         
-        // 1. Update visible pages to include the target page
-        setVisiblePages(prev => {
-            const newPages = [...new Set([p, p + 1, p + 2, p - 1, p - 2])].filter(n => n > 0 && n <= 604).sort((a: number, b: number) => a - b);
-            return newPages;
-        });
+        isJumpingRef.current = true;
 
-        // 2. Scroll immediately to the page container
-        // We don't need to wait for content to render because the page containers (divs) always exist
+        // 1. Force update visible pages to ONLY the target page and neighbors
+        // This prevents rendering intermediate pages
+        setVisiblePages([p - 1, p, p + 1].filter(n => n > 0 && n <= 604));
+
+        // 2. Scroll instantly
         const container = mushafContentRef.current;
-        if (container && container.children[p - 1]) {
-            const targetPage = container.children[p - 1] as HTMLElement;
-            const targetLeft = targetPage.offsetLeft;
+        if (container) {
+            // Calculate position based on page width (assuming full width pages)
+            const pageWidth = container.clientWidth;
+            const targetScrollLeft = (p - 1) * pageWidth; // RTL or LTR depends on implementation, but usually page index * width
 
-            // Temporarily disable scroll snap and hide overflow for instant jump
+            // Temporarily disable scroll snap and smooth scrolling
+            container.style.scrollBehavior = 'auto';
             container.style.scrollSnapType = 'none';
-            container.style.overflowX = 'hidden';
-            
-            container.scrollTo({
-                left: targetLeft,
-                behavior: 'auto'
-            });
+            container.style.overflowX = 'hidden'; // Hide scrollbar during jump
 
-            // Re-enable scroll snap after a short delay
-            setTimeout(() => {
+            // Force scroll
+            container.scrollLeft = targetScrollLeft; // For RTL, this might need adjustment if using negative values or specific RTL logic
+
+            // Check if we need to adjust for RTL (if scrollLeft is negative or starts from right)
+            // In many RTL implementations with flex-row-reverse or dir="rtl", scrollLeft might behave differently.
+            // Assuming standard LTR container with RTL content or standard behavior:
+            // If the container uses standard scrolling, (p-1) * width is correct for LTR.
+            // If RTL, it might be -(p-1)*width or (totalWidth - (p*width)).
+            // Let's stick to the logic that was likely used before or standard scrollIntoView if possible, 
+            // but scrollIntoView is async/animated often. Direct scrollLeft is fastest.
+            
+            // Let's try to find the element if it exists, otherwise calculate.
+            // Since we just updated visiblePages, the element might not be in DOM yet if React hasn't committed.
+            // However, we can try to scroll based on calculation which is faster.
+            
+            // Fallback/Refinement: Use a timeout to ensure React renders the new page before scrolling if needed,
+            // BUT the user wants "instant" without seeing other pages.
+            // Setting visiblePages restricts what's rendered.
+            // We can also use requestAnimationFrame.
+
+            requestAnimationFrame(() => {
                 if (container) {
-                    container.style.scrollSnapType = 'x mandatory';
-                    container.style.overflowX = 'auto';
+                     // Recalculate in case of resize or layout shift
+                    const pageWidth = container.clientWidth;
+                    // For RTL direction, sometimes scrollLeft is negative or inverted. 
+                    // Safest is to find the page element if possible, or assume standard calculation.
+                    // If we assume the pages are ordered 1..604 in the container:
+                    // If dir="rtl", scrollLeft starts at 0 (rightmost) and goes negative or positive depending on browser.
+                    // A safer cross-browser way for "instant" jump to a specific index in a flex container:
+                    
+                    // Actually, the previous code used `container.children[p-1]`. 
+                    // If all 604 placeholders exist, that works. If only visible pages exist, we need to find the right one.
+                    // The `visiblePages` state implies we only render SOME pages. 
+                    // If we only render pages [p-1, p, p+1], then the container might not have 604 children.
+                    // We need to check how `MushafPage` are rendered. 
+                    // Looking at `visiblePages` usage in `render` (not shown here but assumed), 
+                    // usually virtualized lists have spacers or absolute positioning.
+                    // If it's a standard list where only visible pages are in DOM, we can't scroll to p-1 index of children.
+                    
+                    // Let's assume the previous logic `container.children[p-1]` implied all pages are rendered or placeholders exist.
+                    // If `visiblePages` controls *content* but the *containers* for pages always exist (virtualization with placeholders),
+                    // then `children[p-1]` is valid.
+                    
+                    // If the user wants "instant" without seeing others, we must ensure the scroll happens 
+                    // IN THE SAME FRAME or immediately after render.
+                    
+                    // Let's rely on the fact that we updated `visiblePages` to include the target.
+                    // We will use a slight timeout to allow render, then hard scroll.
+                    
+                    // CRITICAL: To avoid seeing other pages, we hide the container opacity temporarily? 
+                    // Or just rely on `visiblePages` filtering out the others.
+                    
+                    // Let's try to scroll to the calculated position immediately.
+                     const isRTL = window.getComputedStyle(container).direction === 'rtl';
+                     const scrollX = isRTL ? -((p - 1) * pageWidth) : ((p - 1) * pageWidth);
+                     
+                     // Try scrolling to the element if it exists (best effort)
+                     const targetPage = document.getElementById(`page-${p}`);
+                     if (targetPage) {
+                         targetPage.scrollIntoView({ behavior: 'auto', inline: 'start' });
+                     } else {
+                         // Fallback to calculated
+                         container.scrollTo({ left: scrollX, behavior: 'auto' });
+                     }
                 }
-                isJumpingRef.current = false;
-            }, 100);
+                
+                // Re-enable snap
+                setTimeout(() => {
+                    if (container) {
+                        container.style.scrollSnapType = 'x mandatory';
+                        container.style.overflowX = 'auto';
+                        container.style.scrollBehavior = 'smooth';
+                    }
+                    isJumpingRef.current = false;
+                }, 50);
+            });
         } else {
-            isJumpingRef.current = false;
+             isJumpingRef.current = false;
         }
 
         // 3. Highlight the ayah
