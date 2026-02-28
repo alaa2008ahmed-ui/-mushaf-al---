@@ -85,15 +85,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                         </div>
                     </div>
                     
-                    <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
-                        <div className="flex items-center justify-between mt-3">
-                            <label className="text-sm font-bold opacity-80">حجم الخط</label>
-                            <span className="text-xs px-2 rounded themed-card-bg">{settings.fontSize}</span>
-                        </div>
-                        <input type="range" min="0.5" max="4.5" step="0.1" value={settings.fontSize} onChange={(e) => updateSetting('fontSize', parseFloat(e.target.value))} className="w-full h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3 border-b pb-2 border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-2 gap-3 border-b pb-2 border-gray-200 dark:border-gray-700 mt-2">
                         <div>
                             <label className="text-xs font-bold block mb-1 opacity-80">لون النص</label>
                             <div className="h-8 w-full rounded border border-gray-300 relative overflow-hidden">

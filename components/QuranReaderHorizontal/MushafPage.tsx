@@ -54,32 +54,53 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     // Calculate text density to adjust font size
     const totalCharacters = pageData.reduce((acc, ayah) => acc + ayah.text.length, 0);
     
-    // Base sizing for "normal" pages
-    let fontScale = 3.6; // cqh
-    let lineVal = 1.8;
+    // Base sizing for "normal" pages (approx 600-800 chars)
+    let fontScale = 4.2; // Increased base scale to fill more space
+    let lineVal = 2.0;
     
-    // Thresholds for dense pages (heuristics based on Uthmani script length)
-    if (totalCharacters > 1500) {
-        fontScale = 2.7;
+    // Fine-tuned thresholds for dense pages
+    // The goal is to maximize size without overflow
+    if (totalCharacters > 2500) { // Extremely dense (rare)
+        fontScale = 2.2;
+        lineVal = 1.4;
+    } else if (totalCharacters > 2000) {
+        fontScale = 2.4;
+        lineVal = 1.45;
+    } else if (totalCharacters > 1800) {
+        fontScale = 2.6;
         lineVal = 1.5;
-    } else if (totalCharacters > 1300) {
-        fontScale = 2.9;
+    } else if (totalCharacters > 1600) {
+        fontScale = 2.8;
+        lineVal = 1.55;
+    } else if (totalCharacters > 1400) {
+        fontScale = 3.0;
         lineVal = 1.6;
-    } else if (totalCharacters > 1100) {
-        fontScale = 3.1;
+    } else if (totalCharacters > 1200) {
+        fontScale = 3.2;
         lineVal = 1.65;
-    } else if (totalCharacters > 900) {
-        fontScale = 3.3;
-        lineVal = 1.7;
+    } else if (totalCharacters > 1000) {
+        fontScale = 3.5;
+        lineVal = 1.75;
+    } else if (totalCharacters > 800) {
+        fontScale = 3.8;
+        lineVal = 1.85;
     }
     
+    // For very sparse pages (e.g. end of surah), we might want to cap the size so it doesn't look comically large,
+    // or let it be large. The user said "fill the page".
+    // However, if it's just 3 lines, filling the page height would look wrong.
+    // We'll stick to a reasonable max (4.2cqh is quite large).
+
     const pageStyle = {
-        fontSize: `clamp(1rem, min(${fontScale}cqh, ${fontScale * 1.6}cqw), 3.8rem)`, 
+        fontSize: `clamp(1rem, min(${fontScale}cqh, ${fontScale * 1.5}cqw), 5rem)`, 
         lineHeight: `${lineVal}`, 
         fontFamily: settings?.fontFamily || 'var(--font-amiri)',
         color: settings?.theme === 'dark' ? '#fff' : (settings?.textColor || '#000'),
         height: '100%',
-        paddingTop: '2px' // Minimal padding
+        paddingTop: '2px',
+        display: 'flex',
+        flexDirection: 'column' as const,
+        justifyContent: totalCharacters < 300 ? 'flex-start' : 'space-between' // Distribute lines for full pages, top for sparse
     };
 
     const headerStyle = {
