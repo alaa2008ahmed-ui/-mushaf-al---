@@ -111,9 +111,8 @@ export const useAutoScroll = ({
         const totalPixels = pageSize * PAGES_PER_JUZ;
         const totalTimeMs = minutesPerJuz * 60 * 1000;
         
-        // Desktop (Preview) stays at 9.0 as requested.
-        // Mobile (APK) gets the same multiplier now that the performance bug is fixed.
-        const baseMultiplier = 9.0;
+        // Desktop (Preview) and Mobile (APK) should use the exact time requested.
+        const baseMultiplier = 1.0;
         const mobileFactor = 1.0;
         
         return totalTimeMs > 0 ? (totalPixels / totalTimeMs) * baseMultiplier * mobileFactor : 0;
