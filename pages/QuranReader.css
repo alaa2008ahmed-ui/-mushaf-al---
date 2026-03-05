@@ -131,32 +131,6 @@
     width: 100%; max-width: 100%; margin: 0 auto;
 }
 
-.horizontal-mushaf-container {
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    height: 100%;
-    width: 100%;
-    scroll-behavior: smooth;
-}
-
-.horizontal-mushaf-page {
-    flex: 0 0 100%;
-    width: 100%;
-    height: 100%;
-    scroll-snap-align: center;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    padding: 15px 8px 5px;
-}
-
-.horizontal-mushaf-page .page-content {
-    flex-grow: 1;
-}
-
 .mushaf-page { 
     padding: 15px 8px 5px; 
     border-bottom: none !important;

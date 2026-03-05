@@ -718,43 +718,24 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         localStorage.setItem('last_pos', JSON.stringify({ s, a }));
     }, []);
     
-    const jumpToAyah = useCallback((s: number, a: number, instant: boolean = false) => {
+    const jumpToAyah = useCallback((s, a, instant = false) => {
         stopAudio();
         if (!quranData) return;
-        const surah = quranData.surahs.find((su: any) => su.number === s);
-        const ayah = surah?.ayahs.find((ay: any) => ay.numberInSurah === a);
+        const surah = quranData.surahs.find((su:any) => su.number === s);
+        const ayah = surah?.ayahs.find((ay:any) => ay.numberInSurah === a);
         if (!ayah) return;
         
         isJumpingRef.current = true;
         const p = Number(ayah.page);
+        setVisiblePages([...new Set([p, p + 1, p + 2, p - 1, p - 2])].filter(n => n > 0 && n <= 604).sort((a: number, b: number) => a - b));
         
-        // 1. Update visible pages to ONLY the target page and neighbors
-        setVisiblePages([p - 1, p, p + 1].filter(n => n > 0 && n <= 604));
-        
-        // 2. Scroll instantly
-        requestAnimationFrame(() => {
-            const container = mushafContentRef.current;
-            if (container) {
-                container.style.scrollBehavior = 'auto';
-                container.style.overflowY = 'hidden'; // Hide scrollbar
-                
-                setTimeout(() => {
-                    scrollToAyah(s, a, true); // Use instant=true
-                    
-                    setTimeout(() => {
-                        if (container) {
-                            container.style.scrollBehavior = 'smooth';
-                            container.style.overflowY = 'auto';
-                        }
-                        isJumpingRef.current = false;
-                    }, 100);
-                }, 50);
-            } else {
+        setTimeout(() => {
+            scrollToAyah(s, a, instant);
+            handleAyahClick(s, a);
+            setTimeout(() => {
                 isJumpingRef.current = false;
-            }
-        });
-        
-        handleAyahClick(s, a);
+            }, 500);
+        }, 150);
         
         if (!isPageInputActiveRef.current) {
             setActiveModals({});

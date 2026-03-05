@@ -10,7 +10,6 @@ import MenuCustomizationModal from '../components/MenuCustomizationModal';
 
 const DEFAULT_MENU_ITEMS = [
     { id: 'quran', label: "📖 القرآن الكريم", className: "col-span-2 h-12", colorIndex: 0 },
-    { id: 'quran-horizontal', label: "📖 القرآن الكريم - أفقي", className: "col-span-2 h-12", colorIndex: 0 },
     { id: 'listen', label: "🎧 الاستماع للقرآن", className: "col-span-2 h-10", colorIndex: 0 },
     { id: 'salah-adhkar', label: "🕌 أذكار الصلاة", className: "col-span-2 h-10", colorIndex: 0 },
     { id: 'adia', label: "🤲 الأدعية", className: "h-10", colorIndex: 1 },
@@ -87,20 +86,14 @@ function MainMenu({ onNavigate, onOpenThemes }) {
     // Load saved preferences
     const savedVisible = localStorage.getItem('visibleMenuItems');
     if (savedVisible) {
-        const parsedVisible = JSON.parse(savedVisible);
-        // Ensure new items are added if not present
-        const defaultIds = DEFAULT_MENU_ITEMS.map(i => i.id);
-        const missingIds = defaultIds.filter(id => !parsedVisible.includes(id) && id === 'quran-horizontal');
-        setVisibleItems([...parsedVisible, ...missingIds]);
+        setVisibleItems(JSON.parse(savedVisible));
     } else {
         setVisibleItems(DEFAULT_MENU_ITEMS.map(i => i.id));
     }
 
     const savedLayout = localStorage.getItem('menuLayout');
     if (savedLayout) {
-        const parsedLayout = JSON.parse(savedLayout);
-        const missingItems = DEFAULT_MENU_ITEMS.filter(item => !parsedLayout.find((p: any) => p.id === item.id));
-        setMenuItems([...parsedLayout, ...missingItems]);
+        setMenuItems(JSON.parse(savedLayout));
     }
   }, []);
 
