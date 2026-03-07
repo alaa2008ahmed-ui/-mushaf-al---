@@ -8,6 +8,8 @@ interface MushafPageProps {
     onAyahClick: (surah: number, ayah: number) => void;
     onVerseClick: (surah: number, ayah: number, event: React.MouseEvent) => void;
     onVerseLongPress?: (surah: number, ayah: number) => void;
+    onInteractionStart?: () => void;
+    onInteractionEnd?: () => void;
     settings?: {
         fontSize: number;
         fontFamily: string;
@@ -16,12 +18,13 @@ interface MushafPageProps {
     };
 }
 
-const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, highlightedAyahId, onAyahClick, onVerseClick, onVerseLongPress, settings }) => {
+const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, highlightedAyahId, onAyahClick, onVerseClick, onVerseLongPress, onInteractionStart, onInteractionEnd, settings }) => {
     const pageRef = useRef<HTMLDivElement | null>(null);
     const longPressTimer = useRef<number | null>(null);
     const isLongPressTriggered = useRef(false);
 
     const handlePointerDown = (s: number, a: number) => {
+        if (onInteractionStart) onInteractionStart();
         isLongPressTriggered.current = false;
         longPressTimer.current = window.setTimeout(() => {
             if (onVerseLongPress) {
@@ -33,6 +36,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     };
 
     const handlePointerUp = () => {
+        if (onInteractionEnd) onInteractionEnd();
         if (longPressTimer.current) {
             clearTimeout(longPressTimer.current);
             longPressTimer.current = null;
@@ -40,6 +44,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     };
 
     const handlePointerLeave = () => {
+        if (onInteractionEnd) onInteractionEnd();
         if (longPressTimer.current) {
             clearTimeout(longPressTimer.current);
             longPressTimer.current = null;
