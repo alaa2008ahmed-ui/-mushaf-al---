@@ -4,28 +4,17 @@ import { THEMES } from './constants';
 interface ThemesModalProps {
     onClose: () => void;
     showToast: (msg: string) => void;
-    storageKeys?: {
-        currentThemeId: string;
-        toolbarColors: string;
-        transparentMode: string;
-        quranSettings: string;
-    };
 }
 
-const ThemesModal: React.FC<ThemesModalProps> = ({ onClose, showToast, storageKeys = {
-    currentThemeId: 'current_theme_id',
-    toolbarColors: 'toolbar_colors',
-    transparentMode: 'transparent_mode',
-    quranSettings: 'quran_settings'
-} }) => {
-    const currentThemeId = localStorage.getItem(storageKeys.currentThemeId) || 'default';
+const ThemesModal: React.FC<ThemesModalProps> = ({ onClose, showToast }) => {
+    const currentThemeId = localStorage.getItem('current_theme_id') || 'default';
     const activeTheme = THEMES[currentThemeId as keyof typeof THEMES] || THEMES['default'];
 
     const applyTheme = (themeId: string) => {
         const theme = THEMES[themeId as keyof typeof THEMES];
         if (!theme) return;
 
-        localStorage.setItem(storageKeys.currentThemeId, themeId);
+        localStorage.setItem('current_theme_id', themeId);
         
         // Handle Transparency
         // FIX: Removed check for `theme.isGlass` as the property does not exist on the theme objects.
@@ -73,18 +62,18 @@ const ThemesModal: React.FC<ThemesModalProps> = ({ onClose, showToast, storageKe
             };
         }
 
-        localStorage.setItem(storageKeys.toolbarColors, JSON.stringify(themeColors));
-        localStorage.setItem(storageKeys.transparentMode, 'false');
+        localStorage.setItem('toolbar_colors', JSON.stringify(themeColors));
+        localStorage.setItem('transparent_mode', 'false');
 
         // Update quran_settings to match the theme's colors and font
-        const savedSettings = JSON.parse(localStorage.getItem(storageKeys.quranSettings) || '{}');
+        const savedSettings = JSON.parse(localStorage.getItem('quran_settings') || '{}');
         const updatedSettings = {
             ...savedSettings,
             bgColor: theme.bg,
             textColor: theme.text,
             fontFamily: theme.font
         };
-        localStorage.setItem(storageKeys.quranSettings, JSON.stringify(updatedSettings));
+        localStorage.setItem('quran_settings', JSON.stringify(updatedSettings));
 
         // Dispatch a custom event to notify the main component to reload theme
         window.dispatchEvent(new Event('theme-change'));
