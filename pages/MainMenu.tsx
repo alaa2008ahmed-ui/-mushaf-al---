@@ -291,7 +291,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
 
               {/* Title Section */}
               <div 
-                  className="text-center mt-6 select-none"
+                  className="text-center mt-6 select-none relative"
                   onTouchStart={startTitlePress}
                   onTouchEnd={cancelTitlePress}
                   onMouseDown={startTitlePress}
@@ -302,12 +302,35 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                       مُصْحَفُ أَحْمَدَ وَلَيْلَى
                   </h1>
                   <p className="text-[16px] font-black mt-3" style={{ color: theme.textColor }}>
-                      {isEditMode ? 'وضع تعديل التصميم' : 'نرجوا الدعاء لهم بالرحمة والمغفرة'}
+                      {isEditMode ? 'اسحب الأزرار لترتيبها' : 'نرجوا الدعاء لهم بالرحمة والمغفرة'}
                   </p>
+                  
+                  {isEditMode && (
+                      <div className="flex justify-center gap-2 mt-4 mb-2">
+                          <button 
+                              onClick={handleSaveLayout}
+                              className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm active:scale-95 transition-transform"
+                          >
+                              حفظ
+                          </button>
+                          <button 
+                              onClick={handleResetLayout}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm active:scale-95 transition-transform"
+                          >
+                              الافتراضي
+                          </button>
+                          <button 
+                              onClick={handleCancelEdit}
+                              className="bg-red-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm active:scale-95 transition-transform"
+                          >
+                              إلغاء
+                          </button>
+                      </div>
+                  )}
               </div>
 
               {/* Grid Section */}
-              <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto flex-grow content-center relative">
+              <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto flex-grow content-center relative mt-2">
                   {menuItems.filter(item => visibleItems.includes(item.id)).map(item => (
                       <motion.div
                           layout
@@ -316,8 +339,8 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                           className={item.className}
                           drag={isEditMode}
                           dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                          dragElastic={0.1}
-                          whileDrag={{ scale: 1.1, zIndex: 50, cursor: 'grabbing' }}
+                          dragElastic={1}
+                          whileDrag={{ scale: 1.05, zIndex: 50, cursor: 'grabbing', opacity: 0.8 }}
                           onDragStart={handleDragStart}
                           onDragEnd={(e, info) => handleDragEnd(e, info, item.id)}
                       >
@@ -336,34 +359,13 @@ function MainMenu({ onNavigate, onOpenThemes }) {
               </div>
 
               {/* Footer/Save Button */}
-              <div className="themed-card p-2.5 rounded-2xl text-center w-full max-w-sm mx-auto mt-4 mb-4 relative">
-                  {isEditMode ? (
-                      <div className="flex justify-center gap-2">
-                          <button 
-                              onClick={handleSaveLayout}
-                              className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm"
-                          >
-                              حفظ
-                          </button>
-                          <button 
-                              onClick={handleResetLayout}
-                              className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm"
-                          >
-                              الافتراضي
-                          </button>
-                          <button 
-                              onClick={handleCancelEdit}
-                              className="bg-red-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm"
-                          >
-                              إلغاء
-                          </button>
-                      </div>
-                  ) : (
+              {!isEditMode && (
+                  <div className="themed-card p-2.5 rounded-2xl text-center w-full max-w-sm mx-auto mt-4 mb-4 relative">
                       <p className="text-[14px] font-bold" style={{ color: theme.textColor }}>
                           اللهم ارحمهما واغفر لهما واجعل مثواهما الجنة
                       </p>
-                  )}
-              </div>
+                  </div>
+              )}
           </div>
         </div>
       </div>

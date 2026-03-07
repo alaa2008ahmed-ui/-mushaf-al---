@@ -181,15 +181,14 @@
 .surah-header { 
     margin: 0 auto; 
     display: flex; 
-    justify-content: center; 
+    justify-content: space-between; 
     align-items: center;
     border-top: 2px solid #10b981;
     border-bottom: 2px solid #10b981;
-    padding: 10px 10px;
+    padding: 10px 15px;
     position: relative;
     max-width: 95%;
     min-height: 60px;
-    gap: 15px;
 }
 .surah-header::before {
     display: none !important;
@@ -217,6 +216,7 @@
     font-feature-settings: "liga" 1, "clig" 1;
     text-rendering: optimizeLegibility;
     gap: 0;
+    flex: 1;
 }
 .surah-info-right, .surah-info-left {
     font-size: 0.9rem;
@@ -298,7 +298,7 @@
 .dark #btn-play { background-color: #1f2937 !important; color: #34d399 !important; border-color: #34d399 !important; }
 
 .bottom-bar-button {
-    display: flex; justify-content: center; align-items: center; padding: 8px 16px; border-radius: 0.75rem;
+    display: flex; justify-content: center; align-items: center; padding: 4px 12px; border-radius: 0.75rem;
     font-weight: 600; color: white; transition: transform 0.1s, background-color 0.2s, border-color 0.2s;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 0.85rem; height: 100%;
     z-index: 60;
@@ -334,11 +334,11 @@
 }
 
 #header {
-    height: calc(4rem + env(safe-area-inset-top, 0px));
+    height: calc(3.5rem + env(safe-area-inset-top, 0px));
     padding-top: env(safe-area-inset-top, 0px);
 }
 #bottom-bar {
-    height: calc(4rem + env(safe-area-inset-bottom, 0px));
+    height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
