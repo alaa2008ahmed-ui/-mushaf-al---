@@ -225,9 +225,10 @@
     flex: 1;
     text-align: center;
     font-family: var(--font-amiri) !important;
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: #000000; /* Black text on light background */
-    margin-top: -5px; /* Adjust for font baseline */
+    margin-top: -2px; /* Adjust for font baseline */
+    line-height: 1.4;
 }
 
 /* Dark Mode Adjustments */
