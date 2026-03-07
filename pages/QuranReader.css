@@ -182,8 +182,7 @@
 .surah-header-container {
     position: relative;
     width: 100%;
-    max-width: 95%;
-    margin: 15px auto;
+    margin: 15px 0;
     height: 60px;
     display: flex;
     justify-content: center;
@@ -219,15 +218,16 @@
     color: #ffffff; /* White text on green background */
     font-size: 0.9rem;
     text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    white-space: nowrap;
 }
 
 .surah-header-center-text {
     flex: 1;
     text-align: center;
     font-family: var(--font-amiri) !important;
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: #000000; /* Black text on light background */
-    margin-top: -2px; /* Adjust for font baseline */
+    margin-top: 0;
     line-height: 1.4;
 }
 
