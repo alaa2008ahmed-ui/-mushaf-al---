@@ -36,7 +36,7 @@ function App() {
 
   const handleNavigate = (pageId: string) => {
     const validPages = [
-      'quran', 'quran-horizontal', 'salah-adhkar', 'calendar', 'listen', 'tasbeeh', 
+      'quran', 'salah-adhkar', 'calendar', 'listen', 'tasbeeh', 
       'hajj-umrah', 'hisn-muslim', 'prayer-times', 'qibla', 
       'sabah-masaa', 'adia', 'nawawi', 'calculators'
     ];
@@ -58,7 +58,7 @@ function App() {
   }
 
   return (
-    <div>
+    <div className="animate-fadeIn">
       <AppRouter 
         page={page} 
         onBack={navigateBack} 

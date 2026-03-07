@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 import { prayerNamesAr } from '../data/prayerTimesData';
+import { Coordinates, CalculationMethod, PrayerTimes as AdhanPrayerTimes } from 'adhan';
 
 declare var window: any; // Allow cordova plugins
 
@@ -243,42 +244,60 @@ function PrayerTimes({ onBack }) {
     }, [times, config, scheduleAllNotifications]);
 
 
-    const updateAllData = (prayerData, locationData) => {
-        setTimes(prayerData.timings);
-        const hj = prayerData.date.hijri;
-        setDates({
-            hijri: `${hj.day} ${hj.month.ar} ${toArDigits(hj.year)} هـ`,
-            gregorian: new Date().toLocaleDateString('ar-EG', { day: 'numeric', month: 'long', year: 'numeric' })
-        });
+    const updateAllData = (timings, datesData, locationData) => {
+        setTimes(timings);
+        setDates(datesData);
         setConfig(prev => ({...prev, location: locationData}));
     };
 
     const fetchTimesForLocation = async (locationData) => {
         const { lat, lng } = locationData;
         try {
-            const res = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=4`);
-            const data = await res.json();
-            if (data.data) {
-                localStorage.setItem('grandPrayersCache', JSON.stringify(data.data));
-                updateAllData(data.data, locationData);
-            }
-        } catch(e) { console.error("Failed to fetch prayer times:", e); }
+            const coordinates = new Coordinates(lat, lng);
+            const params = CalculationMethod.UmmAlQura();
+            const date = new Date();
+            const prayerTimes = new AdhanPrayerTimes(coordinates, date, params);
+
+            const formatTime = (d) => {
+                return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+            };
+
+            const timings = {
+                Fajr: formatTime(prayerTimes.fajr),
+                Sunrise: formatTime(prayerTimes.sunrise),
+                Dhuhr: formatTime(prayerTimes.dhuhr),
+                Asr: formatTime(prayerTimes.asr),
+                Maghrib: formatTime(prayerTimes.maghrib),
+                Isha: formatTime(prayerTimes.isha),
+            };
+
+            const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            const hijriDate = hijriFormatter.format(date);
+            
+            const gregorianFormatter = new Intl.DateTimeFormat('ar-EG', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            const gregorianDate = gregorianFormatter.format(date);
+
+            const datesData = {
+                hijri: hijriDate,
+                gregorian: gregorianDate
+            };
+
+            localStorage.setItem('grandPrayersCache', JSON.stringify({ timings, dates: datesData }));
+            updateAllData(timings, datesData, locationData);
+        } catch(e) { console.error("Failed to calculate prayer times:", e); }
     };
 
     const fetchByIP = async () => {
-        try {
-            const res = await fetch('https://ipapi.co/json/');
-            const data = await res.json();
-            const newLoc = {
-                cityGov: `${data.city} - ${data.region}`,
-                fullCountry: data.country_name,
-                combinedCode: data.country_calling_code,
-                lat: data.latitude, lng: data.longitude
-            };
-            await fetchTimesForLocation(newLoc);
-        } catch(e) {
-            await fetchTimesForLocation(config.location); 
-        }
+        // Fallback to default location if offline
+        await fetchTimesForLocation(config.location);
     };
     
     const refreshLocation = () => {
@@ -290,6 +309,7 @@ function PrayerTimes({ onBack }) {
                         lat: latitude, lng: longitude,
                         cityGov: 'موقعي الحالي', fullCountry: '', combinedCode: ''
                     };
+                    // Try reverse geocoding if online, otherwise just use coordinates
                      try {
                         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ar`);
                         const data = await res.json();
@@ -301,7 +321,9 @@ function PrayerTimes({ onBack }) {
                             fullCountry: addr.country,
                             combinedCode: "+966"
                         };
-                    } catch(e) {}
+                    } catch(e) {
+                        newLoc.cityGov = "موقعي الحالي (بدون اتصال)";
+                    }
                     await fetchTimesForLocation(newLoc);
                 },
                 () => fetchByIP(),
@@ -329,8 +351,13 @@ function PrayerTimes({ onBack }) {
                     lat: data[0].lat, lng: data[0].lon
                 };
                 await fetchTimesForLocation(newLocation);
+            } else {
+                showToast("لم يتم العثور على نتائج. تأكد من اتصالك بالإنترنت.");
             }
-        } catch(e) { console.error(e); } 
+        } catch(e) { 
+            console.error(e); 
+            showToast("حدث خطأ أثناء البحث. تأكد من اتصالك بالإنترنت.");
+        } 
         finally { if (searchIconRef.current) searchIconRef.current.className = 'fa-solid fa-magnifying-glass'; }
     }
 
@@ -344,7 +371,7 @@ function PrayerTimes({ onBack }) {
         if (cached) {
             try {
                 const prayerData = JSON.parse(cached);
-                updateAllData(prayerData, config.location);
+                updateAllData(prayerData.timings, prayerData.dates, config.location);
             } catch(e) {
                  localStorage.removeItem('grandPrayersCache');
             }
