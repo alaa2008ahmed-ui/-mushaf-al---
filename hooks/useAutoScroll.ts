@@ -92,30 +92,29 @@ export const useAutoScroll = ({
         const minutesPerJuz = parseFloat(String(settings.scrollMinutes)) || 20;
         const content = mushafContentRef.current;
         
-        // Optimize: Only query the first page instead of all pages to prevent layout thrashing
-        const firstPage = content.querySelector(isHorizontal ? '.horizontal-mushaf-page' : '.mushaf-page') as HTMLElement;
+        // Try to find any rendered page to get its dimensions
+        const pageSelector = isHorizontal ? '.horizontal-mushaf-page' : '.mushaf-page';
+        const renderedPage = content.querySelector(pageSelector) as HTMLElement;
         
-        const PAGE_SIZE_FALLBACK = isHorizontal ? window.innerWidth : (window.innerHeight || 800);
-        let pageSize = PAGE_SIZE_FALLBACK;
-        
-        if (firstPage) {
-            pageSize = isHorizontal ? firstPage.offsetWidth : firstPage.offsetHeight;
-        }
-        
-        // Safety check: if pageSize is suspiciously small
-        if (pageSize < PAGE_SIZE_FALLBACK * 0.5) {
-             pageSize = PAGE_SIZE_FALLBACK;
+        let pageSize = 0;
+        if (renderedPage) {
+            pageSize = isHorizontal ? renderedPage.offsetWidth : renderedPage.offsetHeight;
         }
 
+        // Fallback if no page is rendered or height is 0
+        if (pageSize <= 0) {
+            // Use a sensible default based on viewport or common Mushaf page height
+            pageSize = isHorizontal ? window.innerWidth : 1200; 
+        }
+        
         const PAGES_PER_JUZ = 20;
         const totalPixels = pageSize * PAGES_PER_JUZ;
         const totalTimeMs = minutesPerJuz * 60 * 1000;
         
-        // Desktop (Preview) and Mobile (APK) should use the exact time requested.
-        const baseMultiplier = 1.0;
-        const mobileFactor = 1.0;
-        
-        return totalTimeMs > 0 ? (totalPixels / totalTimeMs) * baseMultiplier * mobileFactor : 0;
+        // Speed = Distance / Time (pixels per millisecond)
+        // This ensures that choosing a lower time (e.g. 10 mins) results in a higher speed
+        // and that the entire Juz (20 pages) scrolls in exactly the chosen time.
+        return totalTimeMs > 0 ? (totalPixels / totalTimeMs) : 0;
     }, [mushafContentRef, settings.scrollMinutes, isHorizontal]);
 
     const isRTLRef = useRef<boolean | null>(null);
@@ -188,12 +187,10 @@ export const useAutoScroll = ({
         ) {
             prevSettingsRef.current = { fontSize: settings.fontSize, scrollMinutes: settings.scrollMinutes };
             
-            if (autoScrollStateRef.current.isActive && !autoScrollStateRef.current.isPaused) {
-                // Recalculate speed immediately based on new settings
-                speedRef.current = calculateSpeed();
-            }
+            // Recalculate speed immediately based on new settings, even if paused
+            speedRef.current = calculateSpeed();
         }
-    }, [settings.fontSize, settings.scrollMinutes, calculateSpeed, autoScrollStateRef]);
+    }, [settings.fontSize, settings.scrollMinutes, calculateSpeed]);
 
     const toggleAutoScroll = useCallback(() => {
         if (autoScrollStateRef.current.isActive) stopAutoScroll();

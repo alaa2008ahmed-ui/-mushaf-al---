@@ -12,6 +12,7 @@ import AdkarSabahMasaa from '../pages/AdkarSabahMasaa';
 import Adia from '../pages/Adia';
 import Nawawi from '../pages/Nawawi';
 import QuranReader from '../pages/QuranReader';
+import QuranReaderHorizontal from '../pages/QuranReaderHorizontal';
 import Calculators from '../pages/Calculators';
 
 interface AppRouterProps {
@@ -25,6 +26,8 @@ const AppRouter: React.FC<AppRouterProps> = ({ page, onBack, onNavigate, onOpenT
     switch(page) {
       case 'quran':
         return <QuranReader onBack={onBack} />;
+      case 'quran-horizontal':
+        return <QuranReaderHorizontal onBack={onBack} />;
       case 'salah-adhkar':
         return <AthkarAlSalah onBack={onBack} />;
       case 'calendar':

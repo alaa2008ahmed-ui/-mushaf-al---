@@ -10,6 +10,7 @@ import MenuCustomizationModal from '../components/MenuCustomizationModal';
 
 const DEFAULT_MENU_ITEMS = [
     { id: 'quran', label: "📖 القرآن الكريم", className: "col-span-2 h-12", colorIndex: 0 },
+    { id: 'quran-horizontal', label: "📖 القرآن الكريم - أفقي", className: "col-span-2 h-12", colorIndex: 0 },
     { id: 'listen', label: "🎧 الاستماع للقرآن", className: "col-span-2 h-10", colorIndex: 0 },
     { id: 'salah-adhkar', label: "🕌 أذكار الصلاة", className: "col-span-2 h-10", colorIndex: 0 },
     { id: 'adia', label: "🤲 الأدعية", className: "h-10", colorIndex: 1 },
@@ -86,14 +87,20 @@ function MainMenu({ onNavigate, onOpenThemes }) {
     // Load saved preferences
     const savedVisible = localStorage.getItem('visibleMenuItems');
     if (savedVisible) {
-        setVisibleItems(JSON.parse(savedVisible));
+        const parsedVisible = JSON.parse(savedVisible);
+        // Ensure new items are added if not present
+        const defaultIds = DEFAULT_MENU_ITEMS.map(i => i.id);
+        const missingIds = defaultIds.filter(id => !parsedVisible.includes(id) && id === 'quran-horizontal');
+        setVisibleItems([...parsedVisible, ...missingIds]);
     } else {
         setVisibleItems(DEFAULT_MENU_ITEMS.map(i => i.id));
     }
 
     const savedLayout = localStorage.getItem('menuLayout');
     if (savedLayout) {
-        setMenuItems(JSON.parse(savedLayout));
+        const parsedLayout = JSON.parse(savedLayout);
+        const missingItems = DEFAULT_MENU_ITEMS.filter(item => !parsedLayout.find((p: any) => p.id === item.id));
+        setMenuItems([...parsedLayout, ...missingItems]);
     }
   }, []);
 
@@ -291,19 +298,47 @@ function MainMenu({ onNavigate, onOpenThemes }) {
 
               {/* Title Section */}
               <div 
-                  className="text-center mt-6 select-none"
+                  className="text-center mt-6 select-none relative min-h-[80px] flex flex-col justify-center"
                   onTouchStart={startTitlePress}
                   onTouchEnd={cancelTitlePress}
                   onMouseDown={startTitlePress}
                   onMouseUp={cancelTitlePress}
                   onMouseLeave={cancelTitlePress}
               >
-                  <h1 className={`text-4xl font-black tracking-tight transition-transform ${isEditMode ? 'scale-110 text-yellow-400' : ''}`} style={{ color: isEditMode ? undefined : theme.textColor }}>
+                  {isEditMode && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        className="absolute inset-0 flex items-center justify-center gap-2 z-50 bg-black/40 backdrop-blur-md rounded-2xl border border-white/20 shadow-2xl"
+                      >
+                          <button 
+                              onClick={handleSaveLayout}
+                              className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-xs active:scale-95 transition-transform border border-white/20"
+                          >
+                              حفظ
+                          </button>
+                          <button 
+                              onClick={handleResetLayout}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-xs active:scale-95 transition-transform border border-white/20"
+                          >
+                              الافتراضي
+                          </button>
+                          <button 
+                              onClick={handleCancelEdit}
+                              className="bg-red-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-xs active:scale-95 transition-transform border border-white/20"
+                          >
+                              إلغاء
+                          </button>
+                      </motion.div>
+                  )}
+                  <h1 className={`text-4xl font-black tracking-tight transition-all duration-300 ${isEditMode ? 'scale-90 opacity-30 blur-[1px]' : ''}`} style={{ color: theme.textColor }}>
                       مُصْحَفُ أَحْمَدَ وَلَيْلَى
                   </h1>
-                  <p className="text-[16px] font-black mt-3" style={{ color: theme.textColor }}>
-                      {isEditMode ? 'وضع تعديل التصميم' : 'نرجوا الدعاء لهم بالرحمة والمغفرة'}
-                  </p>
+                  {!isEditMode && (
+                      <p className="text-[16px] font-black mt-3" style={{ color: theme.textColor }}>
+                          نرجوا الدعاء لهم بالرحمة والمغفرة
+                      </p>
+                  )}
               </div>
 
               {/* Grid Section */}
@@ -315,9 +350,10 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                           data-item-id={item.id}
                           className={item.className}
                           drag={isEditMode}
-                          dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
-                          dragElastic={0.1}
+                          dragMomentum={false}
+                          dragSnapToOrigin={true}
                           whileDrag={{ scale: 1.1, zIndex: 50, cursor: 'grabbing' }}
+                          whileTap={{ scale: 1.05 }}
                           onDragStart={handleDragStart}
                           onDragEnd={(e, info) => handleDragEnd(e, info, item.id)}
                       >
@@ -335,34 +371,11 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                   ))}
               </div>
 
-              {/* Footer/Save Button */}
+              {/* Footer Section */}
               <div className="themed-card p-2.5 rounded-2xl text-center w-full max-w-sm mx-auto mt-4 mb-4 relative">
-                  {isEditMode ? (
-                      <div className="flex justify-center gap-2">
-                          <button 
-                              onClick={handleSaveLayout}
-                              className="bg-green-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm"
-                          >
-                              حفظ
-                          </button>
-                          <button 
-                              onClick={handleResetLayout}
-                              className="bg-blue-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm"
-                          >
-                              الافتراضي
-                          </button>
-                          <button 
-                              onClick={handleCancelEdit}
-                              className="bg-red-600 text-white px-4 py-2 rounded-xl font-bold shadow-lg text-sm"
-                          >
-                              إلغاء
-                          </button>
-                      </div>
-                  ) : (
-                      <p className="text-[14px] font-bold" style={{ color: theme.textColor }}>
-                          اللهم ارحمهما واغفر لهما واجعل مثواهما الجنة
-                      </p>
-                  )}
+                  <p className="text-[14px] font-bold" style={{ color: theme.textColor }}>
+                      اللهم ارحمهما واغفر لهما واجعل مثواهما الجنة
+                  </p>
               </div>
           </div>
         </div>

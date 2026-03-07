@@ -5,9 +5,26 @@ interface SettingsModalProps {
     onClose: () => void;
     onOpenModal: (modalName: string) => void;
     showToast: (msg: string) => void;
+    storageKeys?: {
+        quranSettings: string;
+        showSajdahCard: string;
+        hideUIOnScroll?: string;
+    };
+    features?: {
+        hideUIOnScroll: boolean;
+    };
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, showToast }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, showToast, 
+    storageKeys = {
+        quranSettings: 'quran_settings',
+        showSajdahCard: 'show_sajdah_card',
+        hideUIOnScroll: 'hide_ui_on_scroll'
+    },
+    features = {
+        hideUIOnScroll: true
+    }
+}) => {
     const [isClosing, setIsClosing] = useState(false);
 
     const handleClose = () => {
@@ -18,7 +35,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
     };
 
     const [settings, setSettings] = useState(() => {
-        const saved = localStorage.getItem('quran_settings');
+        const saved = localStorage.getItem(storageKeys.quranSettings);
         return saved ? JSON.parse(saved) : {
             fontSize: 1.7,
             fontFamily: "var(--font-noto)",
@@ -31,9 +48,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
         };
     });
     
-    const [hideUIOnScroll, setHideUIOnScroll] = useState(() => localStorage.getItem('hide_ui_on_scroll') === 'true');
+    const [hideUIOnScroll, setHideUIOnScroll] = useState(() => {
+        if (!features.hideUIOnScroll || !storageKeys.hideUIOnScroll) return false;
+        return localStorage.getItem(storageKeys.hideUIOnScroll) === 'true';
+    });
+    
     const [showSajdahCard, setShowSajdahCard] = useState(() => {
-        const saved = localStorage.getItem('show_sajdah_card');
+        const saved = localStorage.getItem(storageKeys.showSajdahCard);
         return saved !== null ? saved === 'true' : true;
     });
 
@@ -42,21 +63,22 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
     const updateSetting = (key: string, value: any) => {
         const newSettings = { ...settings, [key]: value };
         setSettings(newSettings);
-        localStorage.setItem('quran_settings', JSON.stringify(newSettings));
+        localStorage.setItem(storageKeys.quranSettings, JSON.stringify(newSettings));
         // Dispatch event for live updates
         window.dispatchEvent(new Event('settings-change'));
     };
 
     const handleHideUIToggle = (checked: boolean) => {
+        if (!features.hideUIOnScroll || !storageKeys.hideUIOnScroll) return;
         setHideUIOnScroll(checked);
-        localStorage.setItem('hide_ui_on_scroll', String(checked));
+        localStorage.setItem(storageKeys.hideUIOnScroll, String(checked));
         window.dispatchEvent(new Event('settings-change'));
         showToast(checked ? 'سيتم إخفاء الأزرار أثناء التمرير' : 'سيتم إبقاء الأزرار أثناء التمرير');
     };
 
     const handleSajdahCardToggle = (checked: boolean) => {
         setShowSajdahCard(checked);
-        localStorage.setItem('show_sajdah_card', String(checked));
+        localStorage.setItem(storageKeys.showSajdahCard, String(checked));
         window.dispatchEvent(new Event('settings-change'));
         showToast(checked ? 'تم تفعيل بطاقة السجدة الكبرى' : 'تم إيقاف بطاقة السجدة الكبرى');
     };
@@ -178,6 +200,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                                 {Array.from({length: 56}, (_, i) => i + 5).map(i => <option key={i} value={i}>{i} دقيقة</option>)}
                              </select>
                         </div>
+                        {features.hideUIOnScroll && (
                         <div className="pt-3">
                             <div className="flex items-center justify-between">
                                 <label className="text-sm font-bold opacity-80">إخفاء الأزرار أثناء التمرير</label>
@@ -187,6 +210,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                                 </div>
                             </div>
                         </div>
+                        )}
                         <div className="pt-3">
                             <div className="flex items-center justify-between">
                                 <label className="text-sm font-bold opacity-80">إظهار بطاقة السجدة</label>

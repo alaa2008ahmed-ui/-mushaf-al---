@@ -8,7 +8,6 @@ interface VideoSplashProps {
 const VideoSplash: React.FC<VideoSplashProps> = ({ onEnded }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isReady, setIsReady] = useState(false);
-  const [isFading, setIsFading] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -20,18 +19,18 @@ const VideoSplash: React.FC<VideoSplashProps> = ({ onEnded }) => {
   }, [onEnded]);
 
   const handleEnded = () => {
-    setIsFading(true);
-    setTimeout(onEnded, 500); // Match transition duration
+    onEnded();
   };
 
   return (
     <div 
-      className={`fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden transition-opacity duration-500 ${isFading ? 'opacity-0' : 'opacity-100'}`}
+      className="fixed inset-0 z-[9999] bg-black flex items-center justify-center overflow-hidden"
     >
       <video
         ref={videoRef}
         className={`w-full h-full object-cover pointer-events-none transition-opacity duration-500 ${isReady ? 'opacity-100' : 'opacity-0'}`}
         src="/splash.mp4"
+        poster="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
         autoPlay
         muted
         playsInline
@@ -39,15 +38,15 @@ const VideoSplash: React.FC<VideoSplashProps> = ({ onEnded }) => {
         preload="auto"
         disablePictureInPicture
         controls={false}
-        onLoadedData={() => setIsReady(true)}
+        onPlaying={() => setIsReady(true)}
         onEnded={handleEnded}
         style={{ WebkitMaskImage: '-webkit-radial-gradient(white, black)' }} // Fix for some mobile clipping issues
       />
       
-      {isReady && !isFading && (
+      {isReady && (
         <button 
           onClick={handleEnded}
-          className="absolute bottom-10 right-10 bg-black/40 text-white px-6 py-2 rounded-full text-sm backdrop-blur-md border border-white/10 hover:bg-black/60 transition-all animate-fadeIn"
+          className="absolute bottom-28 right-10 bg-black/40 text-white px-6 py-2 rounded-full text-sm backdrop-blur-md border border-white/10 hover:bg-black/60 transition-all animate-fadeIn"
         >
           تخطي
         </button>
