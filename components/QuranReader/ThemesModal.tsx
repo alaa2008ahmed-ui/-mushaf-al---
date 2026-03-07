@@ -83,7 +83,7 @@ const ThemesModal: React.FC<ThemesModalProps> = ({ onClose, showToast }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[190] bg-gray-900/90 flex justify-center items-center px-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+        <div className="fixed inset-0 z-[190] bg-black/30 flex justify-center items-center px-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
             <div className="modal-skinned w-full max-w-md rounded-2xl flex flex-col max-h-[85vh] shadow-2xl" onClick={e => e.stopPropagation()}>
                 <div className="p-4 rounded-t-2xl flex justify-between items-center shadow-md theme-header-bg">
                     <h3 className="font-bold text-lg">اختر الثيم</h3>

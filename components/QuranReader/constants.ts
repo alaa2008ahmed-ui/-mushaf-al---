@@ -29,7 +29,7 @@ export const THEMES = {
     royal_amber: { name: "عنبر ملكي", bg: "#451a03", text: "#fef3c7", font: "var(--font-gulzar)", barBg: "#78350f", barText: "#fbbf24", barBorder: "#92400e", btnBg: "#d97706", btnText: "#ffffff", accent: "#fbbf24", accentText: "#451a03", modalBg: "#451a03", modalText: "#fef3c7", headerBg: "#78350f", headerText: "#fbbf24", cardBg: "#78350f", cardText: "#fef3c7", cardBorder: "#d97706", sajdah: "#f59e0b", highlightText: "#fbbf24" }
 };
 export const READERS = [
-    { id: 'Alafasy_128kbps', name: 'مشاري العفاسي' },
+    { id: 'Alafasy_128kbps', name: 'مشاري راشد العفاسي' },
     { id: 'Minshawy_Murattal_128kbps', name: 'محمد صديق المنشاوي (مرتل)' },
     { id: 'Minshawy_Mujawwad_64kbps', name: 'محمد صديق المنشاوي (مجود)' },
     { id: 'Abdul_Basit_Murattal_192kbps', name: 'عبدالباسط عبدالصمد (مرتل)' },
