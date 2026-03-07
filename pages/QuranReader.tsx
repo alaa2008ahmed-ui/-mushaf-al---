@@ -658,6 +658,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         root.style.setProperty('--qr-card-text', t.cardText);
         root.style.setProperty('--qr-card-border', t.cardBorder);
         root.style.setProperty('--qr-sajdah', t.sajdah);
+        root.style.setProperty('--qr-highlight-text', (t as any).highlightText || t.accent);
 
         root.style.setProperty('--color-sajdah', t.sajdah);
         root.style.setProperty('--search-result-bg', t.cardBg);

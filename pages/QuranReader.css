@@ -158,12 +158,13 @@
 .ayah-text-block { display: inline; cursor: pointer; padding: 0; border-radius: 6px; transition: background-color 0.2s; }
 .ayah-text-block:hover { background-color: rgba(16, 185, 129, 0.1); }
 .ayah-text-block.highlighted { 
-    background-color: rgba(16, 185, 129, 0.25) !important;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.4);
+    background-color: transparent !important;
+    color: var(--qr-highlight-text, #d97706) !important;
+    text-shadow: 0 0 1px currentColor;
 }
 .dark .ayah-text-block.highlighted { 
-    background-color: rgba(139, 92, 246, 0.35) !important; 
-    color: #ffffff !important;
+    background-color: transparent !important; 
+    color: var(--qr-highlight-text, #fbbf24) !important;
 }
 
 .ayah-sajdah {
