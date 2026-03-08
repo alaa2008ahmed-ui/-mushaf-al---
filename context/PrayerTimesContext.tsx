@@ -40,11 +40,11 @@ const DEFAULT_CONFIG: PrayerConfig = {
 };
 
 const defaultTones = [
+    { name: "أذان 4 (الافتراضي)", path: "/assets/audio/adhan4.mp3" },
     { name: "أذان كامل", path: "/assets/audio/adhan_full.mp3" },
     { name: "أذان 1", path: "/assets/audio/adhan1.mp3" },
     { name: "أذان 2", path: "/assets/audio/adhan2.mp3" },
     { name: "أذان 3", path: "/assets/audio/adhan3.mp3" },
-    { name: "أذان 4", path: "/assets/audio/adhan4.mp3" },
 ];
 
 // --- Helper Functions ---
