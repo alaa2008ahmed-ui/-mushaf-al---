@@ -242,13 +242,16 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         soundPath = toneConfig.data;
                                     }
 
-                                    // Fix sound path for Android
+                                    // Fix sound path for Android (Capacitor)
                                     if (w.cordova.platformId === 'android') {
                                         // The plugin expects res:// or file://
-                                        // For assets in www, we need file:///android_asset/www/
+                                        // For Capacitor, assets are in public/
+                                        // But we need to check if it's Cordova or Capacitor.
+                                        // Usually Capacitor puts assets in public/
                                         if (soundPath && !soundPath.startsWith('file://') && !soundPath.startsWith('res://')) {
-                                             const path = soundPath.startsWith('/') ? soundPath : '/' + soundPath;
-                                             soundPath = 'file:///android_asset/www' + path;
+                                             let path = soundPath.startsWith('/') ? soundPath : '/' + soundPath;
+                                             // Try public first (Capacitor default)
+                                             soundPath = 'file:///android_asset/public' + encodeURI(path);
                                         }
                                     }
 

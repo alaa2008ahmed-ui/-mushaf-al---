@@ -52,16 +52,8 @@ const formatTime12_clean = (time) => {
 
 const getMediaURL = (s) => {
     if (!s) return '';
-    if (s.startsWith('data:') || s.startsWith('http')) {
-        return s;
-    }
-    // Check if running on Android device via Cordova
-    if (window.cordova && window.cordova.platformId === 'android') {
-        // For HTML5 Audio, we need the file:///android_asset/www prefix
-        // But if the path already starts with /, we need to be careful
-        const path = s.startsWith('/') ? s : '/' + s;
-        return "file:///android_asset/www" + path;
-    }
+    // For Capacitor/Web, relative paths starting with / work fine.
+    // We do NOT need file:///android_asset/ for HTML5 Audio in the WebView.
     return s;
 };
 
