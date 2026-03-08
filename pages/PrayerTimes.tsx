@@ -70,16 +70,30 @@ const getMediaURL = (s) => {
     return s;
 };
 
+// Global audio instance for previewing tones
+let previewAudio: HTMLAudioElement | null = null;
+
 const playNotificationSound = (source) => {
     if (!source || source === 'none') return;
     const mediaUrl = getMediaURL(source);
     console.log("Attempting to play sound from URL:", mediaUrl);
     
+    // Stop any currently playing preview
+    stopNotificationSound();
+
     try {
-        const audio = new Audio(mediaUrl);
-        audio.play().catch(e => console.error("Audio play failed:", e));
+        previewAudio = new Audio(mediaUrl);
+        previewAudio.play().catch(e => console.error("Audio play failed:", e));
     } catch (e) {
         console.error("Failed to play notification sound with HTML5 Audio:", e);
+    }
+};
+
+const stopNotificationSound = () => {
+    if (previewAudio) {
+        previewAudio.pause();
+        previewAudio.currentTime = 0;
+        previewAudio = null;
     }
 };
 
@@ -468,11 +482,17 @@ function PrayerTimes({ onBack }) {
     };
 
     const saveUserConfig = () => {
+        stopNotificationSound(); // Stop audio preview on save
         setConfig(prev => ({
             ...prev,
             prayerOffsets: { ...prev.prayerOffsets, [currentEditingKey]: tempOffset },
             iqamaOffsets: { ...prev.iqamaOffsets, [currentEditingKey]: tempIqama }
         }));
+        setIsModalOpen(false);
+    };
+
+    const closeModal = () => {
+        stopNotificationSound(); // Stop audio preview on close
         setIsModalOpen(false);
     };
 
@@ -649,7 +669,7 @@ function PrayerTimes({ onBack }) {
                     <div className="themed-card rounded-[2.5rem] w-full max-w-xs p-6 shadow-2xl">
                          <div className="flex justify-between items-center mb-6 pb-2 border-b themed-text-muted/20">
                             <h3 className="font-black text-sm" style={{ color: primaryColor }}>إعدادات صلاة {prayerNamesAr[currentEditingKey]}</h3>
-                            <button onClick={() => setIsModalOpen(false)} className="hover:text-red-500" style={{ color: secondaryColor }}><i className="fa-solid fa-circle-xmark text-2xl"></i></button>
+                            <button onClick={closeModal} className="hover:text-red-500" style={{ color: secondaryColor }}><i className="fa-solid fa-circle-xmark text-2xl"></i></button>
                         </div>
                         <div className="space-y-6">
                              <div>
