@@ -243,20 +243,24 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     }
 
                                     // Fix sound path for Android (Capacitor)
+                                    let androidSoundPath = soundPath;
                                     if (w.cordova.platformId === 'android') {
                                         // The plugin expects res:// or file://
                                         // For Capacitor, assets are in public/
-                                        // But we need to check if it's Cordova or Capacitor.
-                                        // Usually Capacitor puts assets in public/
                                         if (soundPath && !soundPath.startsWith('file://') && !soundPath.startsWith('res://')) {
                                              let path = soundPath.startsWith('/') ? soundPath : '/' + soundPath;
                                              // Try public first (Capacitor default)
-                                             soundPath = 'file:///android_asset/public' + encodeURI(path);
+                                             androidSoundPath = 'file:///android_asset/public' + encodeURI(path);
                                         }
                                     }
 
                                     // Unique ID: day index * 10 + prayer index
                                     const id = (day * 10) + prayerKeys.indexOf(key) + 1;
+                                    
+                                    // Dynamic Channel ID to force sound update on Android 8+
+                                    // If we use the same channel ID, Android will ignore the new sound
+                                    const soundName = androidSoundPath.split('/').pop() || 'default';
+                                    const channelId = `adhan_channel_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                                     notificationsToSchedule.push({
                                         id: id,
@@ -264,12 +268,18 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         text: 'لا تنس ذكر الله. قال رسول الله ﷺ: "أرحنا بها يا بلال"',
                                         trigger: { at: prayerDate },
                                         foreground: true,
-                                        sound: soundPath,
-                                        channel: 'adhan_channel', // Important for Android 8+
+                                        sound: androidSoundPath,
+                                        channel: channelId, // Unique channel per prayer/sound combo
                                         priority: 2, // High priority
                                         lockscreen: true,
                                         vibrate: true,
-                                        launch: true
+                                        launch: true,
+                                        // Explicitly define channel properties for Android 8+
+                                        // The plugin will create this channel if it doesn't exist
+                                        channelName: `Adhan ${prayerNamesAr[key]}`,
+                                        channelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
+                                        importance: 4, // High importance
+                                        visibility: 1 // Public
                                     });
                                 }
                             });
