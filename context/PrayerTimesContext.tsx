@@ -301,14 +301,20 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     // Fix sound path for Android (Capacitor)
                                     let androidSoundPath = soundPath;
                                     if (w.cordova.platformId === 'android') {
-                                        // For Android, we copy the asset to the device's data directory
-                                        // This ensures the notification system can access it as a real file
-                                        // bypassing asset restrictions on newer Android versions.
-                                        if (soundPath && !soundPath.startsWith('file://') && !soundPath.startsWith('res://')) {
-                                             // Ensure the path is correct for fetch
-                                             let assetUrl = soundPath.startsWith('/') ? soundPath : '/' + soundPath;
-                                             // Copy and get real file URI
-                                             androidSoundPath = await copyAssetToDevice(assetUrl);
+                                        // For Android, we use the res://raw/ scheme
+                                        // The file must be in res/raw (copied by our build script)
+                                        // And the filename must be lowercase with underscores only, no extension
+                                        const filename = soundPath.split('/').pop();
+                                        if (filename) {
+                                            const rawName = filename.toLowerCase()
+                                                .replace(/\.mp3|\.wav/g, '') // Remove extension
+                                                .replace(/\s+/g, '_')       // Replace spaces
+                                                .replace(/[^a-z0-9_]/g, ''); // Remove special chars
+                                            
+                                            // Ensure it doesn't start with a number
+                                            const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
+                                            
+                                            androidSoundPath = `res://raw/${finalName}`;
                                         }
                                     }
 
