@@ -245,7 +245,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     // --- Notification Scheduling ---
-    const scheduleNotifications = useCallback(() => {
+    const scheduleNotifications = useCallback((currentConfig: PrayerConfig) => {
         const w = window as any;
         if (w.cordova && w.cordova.plugins && w.cordova.plugins.notification && w.cordova.plugins.notification.local) {
             const localNotifier = w.cordova.plugins.notification.local;
@@ -254,10 +254,10 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
             localNotifier.hasPermission((granted: boolean) => {
                 const proceed = () => {
                     // --- ATOMIC OPERATION: CANCEL THEN RESCHEDULE ---
-                    // 1. Cancel ALL existing notifications immediately to clear system memory.
-                    console.log("Starting atomic reschedule: Canceling all existing notifications...");
+                    // 1. Force Cancel: Clear all previous schedules
+                    console.log("Starting atomic reschedule (v5)...");
                     localNotifier.cancelAll(async () => {
-                        console.log("Cancellation complete. Calculating new schedules...");
+                        console.log("Cancellation complete. Scheduling new alarms...");
                         const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
                         const notificationsToSchedule: any[] = [];
                         
@@ -267,7 +267,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                             date.setDate(date.getDate() + day);
                             
                             // Recalculate times for that specific day
-                            const coordinates = new Coordinates(config.location.lat, config.location.lng);
+                            const coordinates = new Coordinates(currentConfig.location.lat, currentConfig.location.lng);
                             const params = CalculationMethod.UmmAlQura();
                             const prayerTimes = new AdhanPrayerTimes(coordinates, date, params);
                             
@@ -280,49 +280,45 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                             };
 
                             // Use a for...of loop to handle async operations sequentially
-                            for (const key of prayerKeys) {
-                                if (!config.mutedPrayers[key]) {
+                            for (let i = 0; i < prayerKeys.length; i++) {
+                                const key = prayerKeys[i];
+                                if (!currentConfig.mutedPrayers[key]) {
                                     let prayerDate = dayTimings[key];
                                     // Apply offset
-                                    prayerDate.setMinutes(prayerDate.getMinutes() + (config.prayerOffsets[key] || 0));
+                                    prayerDate.setMinutes(prayerDate.getMinutes() + (currentConfig.prayerOffsets[key] || 0));
 
                                     // Skip if time passed
                                     if (prayerDate < new Date()) continue;
 
-                                    const toneConfig = config.tones[key];
-                                    let soundPath = defaultTones[0].path;
+                                    // 2. Extract Filename (The Key)
+                                    const toneConfig = currentConfig.tones[key];
+                                    let soundPath = defaultTones[0].path; // Default to adhan4
                                     
                                     if (toneConfig && toneConfig.data && toneConfig.data !== 'none' && !toneConfig.data.startsWith('data:')) {
                                         soundPath = toneConfig.data;
                                     }
 
-                                    // Fix sound path for Android (Capacitor)
+                                    // Extract pure filename: /assets/audio/adhan1.mp3 -> adhan1
+                                    const fileName = soundPath.split('/').pop()?.replace(/\.(mp3|wav)$/i, '') || 'adhan4';
+                                    
+                                    // Sanitize for Android resource name (lowercase, numbers, underscores only)
+                                    const safeFileName = fileName.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                                    // Ensure no starting number
+                                    const finalResName = /^\d/.test(safeFileName) ? 'sound_' + safeFileName : safeFileName;
+
+                                    // 3. Protocol: res:// + fileName
                                     let androidSoundPath = soundPath;
                                     if (w.cordova.platformId === 'android') {
-                                        // For Android, we use the res://filename scheme (no extension, no raw/)
-                                        // The file must be in res/raw (copied by our build script)
-                                        const filename = soundPath.split('/').pop();
-                                        if (filename) {
-                                            const rawName = filename.toLowerCase()
-                                                .replace(/\.mp3|\.wav/g, '') // Remove extension
-                                                .replace(/\s+/g, '_')       // Replace spaces
-                                                .replace(/[^a-z0-9_]/g, ''); // Remove special chars
-                                            
-                                            // Ensure it doesn't start with a number
-                                            const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
-                                            
-                                            // 3. Path Format: res://filename
-                                            androidSoundPath = `res://${finalName}`;
-                                        }
+                                        androidSoundPath = `res://${finalResName}`;
                                     }
 
-                                    // Unique ID: day index * 10 + prayer index
-                                    const id = (day * 10) + prayerKeys.indexOf(key) + 1;
-                                    
-                                    // 2. Dynamic Channel ID: prefix_filename
-                                    // We use a version prefix (v3) to invalidate old channels from previous builds
-                                    const soundName = androidSoundPath.split('/').pop() || 'default';
-                                    const channelId = `adhan_v3_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                                    // 4. Unique Channel ID: adhan_v5_${key}_${fileName}
+                                    // We include the key to ensure separate channels for separate prayers (e.g. Adhan Fajr vs Adhan Dhuhr)
+                                    const channelId = `adhan_v5_${key}_${finalResName}`;
+
+                                    // 5. Unique IDs for prayers
+                                    // Day 0: 101, 102... Day 1: 201, 202...
+                                    const id = ((day + 1) * 100) + (i + 1);
 
                                     notificationsToSchedule.push({
                                         id: id,
@@ -331,27 +327,25 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         trigger: { at: prayerDate },
                                         foreground: true,
                                         sound: androidSoundPath,
-                                        channel: channelId, // Unique channel per prayer/sound combo
+                                        channel: channelId,
                                         priority: 2, // High priority
                                         lockscreen: true,
                                         vibrate: true,
                                         launch: true,
-                                        wakeup: true, // 5. Ensure exact alarm behavior (wakes up device)
-                                        // Explicitly define channel properties for Android 8+
-                                        channelName: `Adhan ${prayerNamesAr[key]} (${soundName})`,
-                                        channelDescription: `Notifications for ${prayerNamesAr[key]} prayer with ${soundName}`,
+                                        wakeup: true, // Ensure exact alarm behavior
+                                        channelName: `Adhan ${prayerNamesAr[key]}`,
+                                        channelDescription: `Notifications for ${prayerNamesAr[key]}`,
                                         importance: 4, // High importance
                                         visibility: 1, // Public
-                                        playSound: true // Explicitly enable sound
+                                        playSound: true
                                     });
                                 }
                             }
                         }
 
-                        // 4. Immediate Reschedule
                         if (notificationsToSchedule.length > 0) {
                             localNotifier.schedule(notificationsToSchedule);
-                            console.log(`Scheduled ${notificationsToSchedule.length} notifications with new channels.`);
+                            console.log(`Scheduled ${notificationsToSchedule.length} notifications (v5).`);
                         }
                     });
                 };
@@ -365,12 +359,12 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                 }
             });
         }
-    }, [config]);
+    }, []);
 
     // Schedule whenever config changes (location, offsets, muted prayers)
     useEffect(() => {
-        scheduleNotifications();
-    }, [scheduleNotifications]);
+        scheduleNotifications(config);
+    }, [config, scheduleNotifications]);
 
     // --- Next Prayer & Countdown Logic ---
     useEffect(() => {
