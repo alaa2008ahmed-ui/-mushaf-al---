@@ -8,11 +8,11 @@ declare var window: any; // Allow cordova plugins
 
 // --- Default Tones Configuration ---
 const defaultTones = [
-    { name: "أذان كامل", path: "assets/audio/adhan_full.mp3" },
-    { name: "أذان 1", path: "assets/audio/adhan1.mp3" },
-    { name: "أذان 2", path: "assets/audio/adhan2.mp3" },
-    { name: "أذان 3", path: "assets/audio/adhan3.mp3" },
-    { name: "أذان 4", path: "assets/audio/adhan4.mp3" },
+    { name: "أذان كامل", path: "/assets/audio/adhan full.mp3" },
+    { name: "أذان 1", path: "/assets/audio/adhan1.mp3" },
+    { name: "أذان 2", path: "/assets/audio/adhan2.mp3" },
+    { name: "أذان 3", path: "/assets/audio/adhan3.mp3" },
+    { name: "أذان 4", path: "/assets/audio/adhan4.mp3" },
 ];
 
 // Helper Functions
@@ -60,42 +60,26 @@ const formatTime12_clean = (time) => {
 
 const getMediaURL = (s) => {
     if (!s) return '';
-    if (s.startsWith('data:')) {
-        return s; // Data URLs are absolute
+    if (s.startsWith('data:') || s.startsWith('http')) {
+        return s;
     }
     if (window.cordova && window.cordova.platformId === 'android') {
-        return "/android_asset/www/" + s;
+        // Remove leading slash for Android assets
+        return "/android_asset/www" + (s.startsWith('/') ? s : '/' + s);
     }
     return s;
 };
 
-// FIX: Use Cordova Media plugin for more reliable audio playback on devices.
 const playNotificationSound = (source) => {
-    if (!source) return;
+    if (!source || source === 'none') return;
     const mediaUrl = getMediaURL(source);
     console.log("Attempting to play sound from URL:", mediaUrl);
     
-    // Prioritize Cordova Media Plugin if available (on native device)
-    if ((window as any).Media) {
-        let media: any | null = new (window as any).Media(mediaUrl,
-            () => { // success callback
-                console.log("playNotificationSound(): Audio Success");
-                if (media) media.release();
-            },
-            (err: any) => { // error callback
-                console.error("playNotificationSound(): Audio Error: ", err);
-                if (media) media.release();
-            }
-        );
-        media.play();
-    } else {
-        // Fallback to HTML5 Audio for web/browser environments
-        try {
-            const audio = new Audio(mediaUrl);
-            audio.play().catch(e => console.error("Audio play failed:", e));
-        } catch (e) {
-            console.error("Failed to play notification sound with HTML5 Audio:", e);
-        }
+    try {
+        const audio = new Audio(mediaUrl);
+        audio.play().catch(e => console.error("Audio play failed:", e));
+    } catch (e) {
+        console.error("Failed to play notification sound with HTML5 Audio:", e);
     }
 };
 
@@ -178,7 +162,9 @@ function PrayerTimes({ onBack }) {
                         let soundPath: string | null = null;
     
                         // Determine the correct sound path.
-                        if (toneConfig && toneConfig.data && !toneConfig.data.startsWith('data:')) {
+                        if (toneConfig && toneConfig.data === 'none') {
+                            soundPath = null;
+                        } else if (toneConfig && toneConfig.data && !toneConfig.data.startsWith('data:')) {
                             soundPath = toneConfig.data;
                         } else if (toneConfig && toneConfig.data && toneConfig.data.startsWith('data:')) {
                              // Custom tones (data URLs) are not supported by the notification plugin
@@ -199,6 +185,8 @@ function PrayerTimes({ onBack }) {
                         // The plugin expects a path relative to the www folder for assets. No 'file://' prefix.
                         if (soundPath) {
                             notification.sound = soundPath;
+                        } else {
+                            notification.sound = false; // No sound
                         }
     
                         notificationsToSchedule.push(notification);
@@ -439,7 +427,31 @@ function PrayerTimes({ onBack }) {
                 setCountdown(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
             } else {
                 setCountdown("00:00:00");
-                // The native notification will handle the sound now. We just update the UI.
+                
+                // Play sound if not muted
+                if (nextPrayer && !config.mutedPrayers[nextPrayer.key]) {
+                    const toneConfig = config.tones[nextPrayer.key];
+                    let soundPath = defaultTones[0].path;
+                    if (toneConfig) {
+                        soundPath = toneConfig.data;
+                    }
+                    if (soundPath && soundPath !== 'none') {
+                        playNotificationSound(soundPath);
+                    }
+                    
+                    // Show web notification if supported
+                    if ("Notification" in window && Notification.permission === "granted") {
+                        try {
+                            new Notification(`حان الآن موعد أذان ${nextPrayer.name}`, {
+                                body: 'لا تنس ذكر الله. قال رسول الله ﷺ: "أرحنا بها يا بلال"',
+                                icon: '/icon.png'
+                            });
+                        } catch (e) {
+                            console.error("Failed to show web notification", e);
+                        }
+                    }
+                }
+                
                 setNextPrayer(findNext());
             }
         }, 1000);
@@ -476,11 +488,10 @@ function PrayerTimes({ onBack }) {
         if (value === 'custom') {
             document.getElementById('sound-file-input').click();
         } else if (value === 'none') {
-            setConfig(prev => {
-                const newTones = { ...prev.tones };
-                delete newTones[currentEditingKey];
-                return { ...prev, tones: newTones };
-            });
+            setConfig(prev => ({
+                ...prev,
+                tones: { ...prev.tones, [currentEditingKey]: { name: 'بدون تنبيه', data: 'none' } }
+            }));
         } else {
             const selectedTone = defaultTones.find(t => t.path === value);
             if (selectedTone) {
@@ -515,7 +526,9 @@ function PrayerTimes({ onBack }) {
         const currentTone = config.tones[currentEditingKey];
         let selectValue = 'none';
         if (currentTone) {
-            if (currentTone.data.startsWith('data:')) {
+            if (currentTone.data === 'none') {
+                selectValue = 'none';
+            } else if (currentTone.data.startsWith('data:')) {
                 selectValue = 'custom';
             } else {
                 selectValue = currentTone.data;
