@@ -1,27 +1,19 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.Ahmed11Laila.Quran',
-  appName: 'remix-mushaf-alaa',
+  appId: 'com.mushaf.ahmedandlayla',
+  appName: 'مصحف أحمد وليلى',
   webDir: 'dist',
-  bundledWebRuntime: false,
+  server: {
+    androidScheme: 'https'
+  },
   plugins: {
-    SplashScreen: {
-      // إخفاء الشاشة بأسرع وقت ممكن
-      launchShowDuration: 0, 
-      launchAutoHide: true,
-      
-      // نستخدم اللون الأسود ليتوافق مع بداية فيديو Splash الخاص بك
-      // ويمنع ظهور اللون الأبيض تماماً
-      backgroundColor: "#000000",
-      
-      androidScaleType: "CENTER_CROP", 
-      splashFullScreen: true,
-      splashImmersive: true,
-      launchFadeOutDuration: 0,
-      androidSplashScreenAnimationDuration: 0
-    }
-  }
+    LocalNotifications: {
+      smallIcon: "ic_stat_icon_config_sample",
+      iconColor: "#488AFF",
+      sound: "beep.wav",
+    },
+  },
 };
 
 export default config;

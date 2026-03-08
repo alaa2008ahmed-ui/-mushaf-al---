@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Coordinates, CalculationMethod, PrayerTimes as AdhanPrayerTimes } from 'adhan';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 import { prayerNamesAr } from '../data/prayerTimesData';
 
 // --- Types ---
@@ -50,6 +51,60 @@ const applyOffset = (timeStr: string, offsetMins: number) => {
     date.setHours(parseInt(h), parseInt(m), 0);
     date.setMinutes(date.getMinutes() + (offsetMins || 0));
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+};
+
+const copyAssetToDevice = async (assetPath: string): Promise<string> => {
+    try {
+        const filename = assetPath.split('/').pop();
+        if (!filename) return assetPath;
+
+        // Check if file already exists in Data directory
+        try {
+            const stat = await Filesystem.stat({
+                path: `sounds/${filename}`,
+                directory: Directory.Data
+            });
+            return stat.uri;
+        } catch (e) {
+            // File doesn't exist, proceed to copy
+        }
+
+        // Fetch the asset as a blob
+        const response = await fetch(assetPath);
+        const blob = await response.blob();
+
+        // Convert blob to base64
+        const base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                // Remove the data URL prefix (e.g., "data:audio/mp3;base64,")
+                const base64 = result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+        // Write file to Data directory
+        await Filesystem.writeFile({
+            path: `sounds/${filename}`,
+            data: base64Data,
+            directory: Directory.Data,
+            recursive: true
+        });
+
+        // Get the URI of the written file
+        const uriResult = await Filesystem.getUri({
+            path: `sounds/${filename}`,
+            directory: Directory.Data
+        });
+
+        return uriResult.uri;
+    } catch (error) {
+        console.error("Error copying asset to device:", error);
+        return assetPath; // Fallback to original path if copy fails
+    }
 };
 
 const PrayerTimesContext = createContext<PrayerTimesContextType | undefined>(undefined);
@@ -204,7 +259,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
             // Request permission first
             localNotifier.hasPermission((granted: boolean) => {
                 const proceed = () => {
-                    localNotifier.cancelAll(() => {
+                    localNotifier.cancelAll(async () => {
                         const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
                         const notificationsToSchedule: any[] = [];
                         
@@ -226,14 +281,15 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                 Isha: prayerTimes.isha,
                             };
 
-                            prayerKeys.forEach((key) => {
+                            // Use a for...of loop to handle async operations sequentially
+                            for (const key of prayerKeys) {
                                 if (!config.mutedPrayers[key]) {
                                     let prayerDate = dayTimings[key];
                                     // Apply offset
                                     prayerDate.setMinutes(prayerDate.getMinutes() + (config.prayerOffsets[key] || 0));
 
                                     // Skip if time passed
-                                    if (prayerDate < new Date()) return;
+                                    if (prayerDate < new Date()) continue;
 
                                     const toneConfig = config.tones[key];
                                     let soundPath = defaultTones[0].path;
@@ -245,12 +301,14 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     // Fix sound path for Android (Capacitor)
                                     let androidSoundPath = soundPath;
                                     if (w.cordova.platformId === 'android') {
-                                        // The plugin expects res:// or file://
-                                        // For Capacitor, assets are in public/
+                                        // For Android, we copy the asset to the device's data directory
+                                        // This ensures the notification system can access it as a real file
+                                        // bypassing asset restrictions on newer Android versions.
                                         if (soundPath && !soundPath.startsWith('file://') && !soundPath.startsWith('res://')) {
-                                             let path = soundPath.startsWith('/') ? soundPath : '/' + soundPath;
-                                             // Try public first (Capacitor default)
-                                             androidSoundPath = 'file:///android_asset/public' + path;
+                                             // Ensure the path is correct for fetch
+                                             let assetUrl = soundPath.startsWith('/') ? soundPath : '/' + soundPath;
+                                             // Copy and get real file URI
+                                             androidSoundPath = await copyAssetToDevice(assetUrl);
                                         }
                                     }
 
@@ -260,6 +318,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     // Dynamic Channel ID to force sound update on Android 8+
                                     // If we use the same channel ID, Android will ignore the new sound
                                     const soundName = androidSoundPath.split('/').pop() || 'default';
+                                    // Sanitize channel ID
                                     const channelId = `adhan_channel_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                                     notificationsToSchedule.push({
@@ -283,7 +342,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         playSound: true // Explicitly enable sound
                                     });
                                 }
-                            });
+                            }
                         }
 
                         if (notificationsToSchedule.length > 0) {
