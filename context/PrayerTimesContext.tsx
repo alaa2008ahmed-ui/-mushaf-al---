@@ -309,9 +309,8 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     // Fix sound path for Android (Capacitor)
                                     let androidSoundPath = soundPath;
                                     if (w.cordova.platformId === 'android') {
-                                        // For Android, we use the res://raw/ scheme
+                                        // For Android, we use the raw resource URI
                                         // The file must be in res/raw (copied by our build script)
-                                        // And the filename must be lowercase with underscores only, no extension
                                         const filename = soundPath.split('/').pop();
                                         if (filename) {
                                             const rawName = filename.toLowerCase()
@@ -322,9 +321,9 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                             // Ensure it doesn't start with a number
                                             const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
                                             
-                                            // For local notifications, just the resource name is often sufficient
-                                            // or res://resource_name
-                                            androidSoundPath = `res://${finalName}`;
+                                            // Use full resource URI which is more reliable
+                                            // Replace com.mushaf.ahmedandlayla with your actual package name if different
+                                            androidSoundPath = `android.resource://com.mushaf.ahmedandlayla/raw/${finalName}`;
                                         }
                                     }
 
@@ -332,10 +331,10 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     const id = (day * 10) + prayerKeys.indexOf(key) + 1;
                                     
                                     // Dynamic Channel ID to force sound update on Android 8+
-                                    // We use a version prefix (v2) to invalidate old channels from previous builds
+                                    // We use a version prefix (v3) to invalidate old channels
                                     const soundName = androidSoundPath.split('/').pop() || 'default';
                                     // Sanitize channel ID
-                                    const channelId = `adhan_v2_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                                    const channelId = `adhan_v3_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                                     // Try to delete the old channel if it exists (best effort)
                                     // This helps keep the channel list clean, though not strictly necessary if IDs are unique
