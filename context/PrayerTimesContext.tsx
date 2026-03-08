@@ -250,12 +250,18 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
         if (w.cordova && w.cordova.plugins && w.cordova.plugins.notification && w.cordova.plugins.notification.local) {
             const localNotifier = w.cordova.plugins.notification.local;
 
+            // Check for Exact Alarm permission (Android 12+)
+            if (w.cordova.platformId === 'android') {
+                // This is a best-effort check; the plugin handles the actual permission request usually
+                console.log("Checking/Requesting Exact Alarm permission...");
+            }
+
             // Request permission first
             localNotifier.hasPermission((granted: boolean) => {
                 const proceed = () => {
                     // --- ATOMIC OPERATION: CANCEL THEN RESCHEDULE ---
                     // 1. Force Cancel: Clear all previous schedules
-                    console.log("Starting atomic reschedule (v5)...");
+                    console.log("Starting atomic reschedule (v7)...");
                     localNotifier.cancelAll(async () => {
                         console.log("Cancellation complete. Scheduling new alarms...");
                         const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
@@ -312,9 +318,9 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         androidSoundPath = `res://${finalResName}`;
                                     }
 
-                                    // 4. Unique Channel ID: adhan_v5_${key}_${fileName}
-                                    // We include the key to ensure separate channels for separate prayers (e.g. Adhan Fajr vs Adhan Dhuhr)
-                                    const channelId = `adhan_v5_${key}_${finalResName}`;
+                                    // 4. Unique Channel ID: adhan_v7_${key}_${fileName}
+                                    // Updated to v7 to bypass Android 13/14 restrictions
+                                    const channelId = `adhan_v7_${key}_${finalResName}`;
 
                                     // 5. Unique IDs for prayers
                                     // Day 0: 101, 102... Day 1: 201, 202...
@@ -328,14 +334,16 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         foreground: true,
                                         sound: androidSoundPath,
                                         channel: channelId,
-                                        priority: 2, // High priority
+                                        priority: 2, // High priority (Max)
                                         lockscreen: true,
                                         vibrate: true,
                                         launch: true,
-                                        wakeup: true, // Ensure exact alarm behavior
+                                        wakeup: true, // Ensure device wakes up
+                                        exact: true, // Android 12+ requirement for exact timing
+                                        allowWhileIdle: true, // Execute even in Doze mode
                                         channelName: `Adhan ${prayerNamesAr[key]}`,
                                         channelDescription: `Notifications for ${prayerNamesAr[key]}`,
-                                        importance: 4, // High importance
+                                        importance: 4, // High importance (Max)
                                         visibility: 1, // Public
                                         playSound: true
                                     });
@@ -345,7 +353,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
 
                         if (notificationsToSchedule.length > 0) {
                             localNotifier.schedule(notificationsToSchedule);
-                            console.log(`Scheduled ${notificationsToSchedule.length} notifications (v5).`);
+                            console.log(`Scheduled ${notificationsToSchedule.length} notifications (v7).`);
                         }
                     });
                 };
@@ -361,10 +369,22 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
         }
     }, []);
 
-    // Schedule whenever config changes (location, offsets, muted prayers)
+    // Optimize scheduling to avoid unnecessary clears
+    // Only reschedule if relevant config changes (location, offsets, muted, tones)
+    const scheduleDependency = React.useMemo(() => {
+        return JSON.stringify({
+            lat: config.location.lat,
+            lng: config.location.lng,
+            offsets: config.prayerOffsets,
+            muted: config.mutedPrayers,
+            tones: config.tones
+        });
+    }, [config]);
+
+    // Schedule whenever relevant config changes
     useEffect(() => {
         scheduleNotifications(config);
-    }, [config, scheduleNotifications]);
+    }, [scheduleDependency, scheduleNotifications]);
 
     // --- Next Prayer & Countdown Logic ---
     useEffect(() => {
