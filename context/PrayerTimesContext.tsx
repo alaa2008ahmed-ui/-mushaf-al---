@@ -250,21 +250,11 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
         if (w.cordova && w.cordova.plugins && w.cordova.plugins.notification && w.cordova.plugins.notification.local) {
             const localNotifier = w.cordova.plugins.notification.local;
 
-            // Create Notification Channel for Android 8+
-            if (w.cordova.platformId === 'android') {
-                localNotifier.addActions('adhan_actions', [
-                    { id: 'dismiss', title: 'إيقاف' }
-                ]);
-                
-                // We need to ensure the channel exists before scheduling
-                // The plugin might create a default channel, but it's better to be explicit
-            }
-
             // Request permission first
             localNotifier.hasPermission((granted: boolean) => {
                 const proceed = () => {
                     // --- ATOMIC OPERATION: CANCEL THEN RESCHEDULE ---
-                    // 1. Cancel ALL existing notifications immediately.
+                    // 1. Cancel ALL existing notifications immediately to clear system memory.
                     console.log("Starting atomic reschedule: Canceling all existing notifications...");
                     localNotifier.cancelAll(async () => {
                         console.log("Cancellation complete. Calculating new schedules...");
@@ -309,7 +299,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     // Fix sound path for Android (Capacitor)
                                     let androidSoundPath = soundPath;
                                     if (w.cordova.platformId === 'android') {
-                                        // For Android, we use the raw resource URI
+                                        // For Android, we use the res://filename scheme (no extension, no raw/)
                                         // The file must be in res/raw (copied by our build script)
                                         const filename = soundPath.split('/').pop();
                                         if (filename) {
@@ -321,26 +311,18 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                             // Ensure it doesn't start with a number
                                             const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
                                             
-                                            // Use full resource URI which is more reliable
-                                            // Replace com.mushaf.ahmedandlayla with your actual package name if different
-                                            androidSoundPath = `android.resource://com.mushaf.ahmedandlayla/raw/${finalName}`;
+                                            // 3. Path Format: res://filename
+                                            androidSoundPath = `res://${finalName}`;
                                         }
                                     }
 
                                     // Unique ID: day index * 10 + prayer index
                                     const id = (day * 10) + prayerKeys.indexOf(key) + 1;
                                     
-                                    // Dynamic Channel ID to force sound update on Android 8+
-                                    // We use a version prefix (v3) to invalidate old channels
+                                    // 2. Dynamic Channel ID: prefix_filename
+                                    // We use a version prefix (v3) to invalidate old channels from previous builds
                                     const soundName = androidSoundPath.split('/').pop() || 'default';
-                                    // Sanitize channel ID
                                     const channelId = `adhan_v3_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
-
-                                    // Try to delete the old channel if it exists (best effort)
-                                    // This helps keep the channel list clean, though not strictly necessary if IDs are unique
-                                    // if (w.cordova.plugins.notification.local.deleteChannel) {
-                                    //    w.cordova.plugins.notification.local.deleteChannel(`adhan_channel_${key}_...`);
-                                    // }
 
                                     notificationsToSchedule.push({
                                         id: id,
@@ -354,8 +336,8 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         lockscreen: true,
                                         vibrate: true,
                                         launch: true,
+                                        wakeup: true, // 5. Ensure exact alarm behavior (wakes up device)
                                         // Explicitly define channel properties for Android 8+
-                                        // The plugin will create this channel if it doesn't exist
                                         channelName: `Adhan ${prayerNamesAr[key]} (${soundName})`,
                                         channelDescription: `Notifications for ${prayerNamesAr[key]} prayer with ${soundName}`,
                                         importance: 4, // High importance
@@ -366,9 +348,10 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                             }
                         }
 
+                        // 4. Immediate Reschedule
                         if (notificationsToSchedule.length > 0) {
                             localNotifier.schedule(notificationsToSchedule);
-                            console.log(`Scheduled ${notificationsToSchedule.length} notifications.`);
+                            console.log(`Scheduled ${notificationsToSchedule.length} notifications with new channels.`);
                         }
                     });
                 };
