@@ -7,6 +7,7 @@ import VideoSplash from './components/VideoSplash';
 import { useWakeLock } from './hooks/useWakeLock';
 import { useBackButton } from './hooks/useBackButton';
 import { App as CapacitorApp } from '@capacitor/app';
+import { PrayerTimesProvider } from './context/PrayerTimesContext';
 
 // --- Main App Component ---
 function App() {
@@ -58,28 +59,30 @@ function App() {
   }
 
   return (
-    <div className="animate-fadeIn">
-      <AppRouter 
-        page={page} 
-        onBack={navigateBack} 
-        onNavigate={handleNavigate} 
-        onOpenThemes={toggleThemeSelector}
-      />
-
-      {isThemeSelectorOpen && (
-        <ThemeSelector 
-          onClose={closeThemeSelector} 
+    <PrayerTimesProvider>
+      <div className="animate-fadeIn">
+        <AppRouter 
+          page={page} 
+          onBack={navigateBack} 
+          onNavigate={handleNavigate} 
+          onOpenThemes={toggleThemeSelector}
         />
-      )}
 
-      {showExitConfirm && (
-          <ExitConfirmModal
-              isOpen={showExitConfirm}
-              onConfirm={handleConfirmExit}
-              onClose={() => setShowExitConfirm(false)}
+        {isThemeSelectorOpen && (
+          <ThemeSelector 
+            onClose={closeThemeSelector} 
           />
-      )}
-    </div>
+        )}
+
+        {showExitConfirm && (
+            <ExitConfirmModal
+                isOpen={showExitConfirm}
+                onConfirm={handleConfirmExit}
+                onClose={() => setShowExitConfirm(false)}
+            />
+        )}
+      </div>
+    </PrayerTimesProvider>
   );
 }
 

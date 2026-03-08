@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 import { prayerNamesAr } from '../data/prayerTimesData';
-import { Coordinates, CalculationMethod, PrayerTimes as AdhanPrayerTimes } from 'adhan';
-
-declare var window: any; // Allow cordova plugins
+import { usePrayerTimes } from '../context/PrayerTimesContext';
 
 // --- Default Tones Configuration ---
 const defaultTones = [
@@ -16,12 +14,6 @@ const defaultTones = [
 ];
 
 // Helper Functions
-const toArDigits = (num) => {
-    if (num === null || num === undefined) return '';
-    const id = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return num.toString().replace(/[0-9]/g, w => id[+w]);
-};
-
 const applyOffset = (timeStr, offsetMins) => {
     if (!timeStr || timeStr.includes('--')) return "--:--";
     let [h, m] = timeStr.split(':');
@@ -76,7 +68,6 @@ let previewAudio: HTMLAudioElement | null = null;
 const playNotificationSound = (source) => {
     if (!source || source === 'none') return;
     const mediaUrl = getMediaURL(source);
-    console.log("Attempting to play sound from URL:", mediaUrl);
     
     // Stop any currently playing preview
     stopNotificationSound();
@@ -101,41 +92,17 @@ const stopNotificationSound = () => {
 // Main Component
 function PrayerTimes({ onBack }) {
     const { theme, themeKey } = useTheme();
+    const { times, dates, nextPrayer, countdown, config, refreshLocation, manualSearch, updateConfig } = usePrayerTimes();
+
     const isBlackAndWhite = themeKey === 'black_and_white';
     const primaryColor = isBlackAndWhite ? '#FFFFFF' : theme.palette[0];
     const secondaryColor = isBlackAndWhite ? '#FFFFFF' : theme.palette[1];
 
-    const [config, setConfig] = useState(() => {
-        try {
-            const saved = localStorage.getItem('prayerFinal_v33');
-            return saved ? JSON.parse(saved) : {
-                iqamaOffsets: { Fajr: 20, Dhuhr: 15, Asr: 15, Maghrib: 10, Isha: 15 },
-                prayerOffsets: { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0 },
-                tones: {},
-                mutedPrayers: { Sunrise: true },
-                location: { cityGov: "الدمام - الشرقية", fullCountry: "المملكة العربية السعودية", combinedCode: "+966013", lat: 26.4207, lng: 50.0888 }
-            };
-        } catch (e) {
-            return {
-                iqamaOffsets: { Fajr: 20, Dhuhr: 15, Asr: 15, Maghrib: 10, Isha: 15 },
-                prayerOffsets: { Fajr: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0 },
-                tones: {},
-                mutedPrayers: { Sunrise: true },
-                location: { cityGov: "الدمام - الشرقية", fullCountry: "المملكة العربية السعودية", combinedCode: "+966013", lat: 26.4207, lng: 50.0888 }
-            };
-        }
-    });
-
-    const [times, setTimes] = useState<Record<string, string>>({});
-    const [dates, setDates] = useState({ hijri: "-- -- --", gregorian: "-- -- --" });
-    const [nextPrayer, setNextPrayer] = useState(null);
-    const [countdown, setCountdown] = useState("00:00:00");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentEditingKey, setCurrentEditingKey] = useState(null);
     const [tempOffset, setTempOffset] = useState(0);
     const [tempIqama, setTempIqama] = useState(0);
     const [searchInput, setSearchInput] = useState("");
-    const countdownRef = useRef(null);
     const searchIconRef = useRef(null);
     const [toastMessage, setToastMessage] = useState('');
     
@@ -148,331 +115,17 @@ function PrayerTimes({ onBack }) {
     
     const showToast = useCallback((msg) => setToastMessage(msg), []);
 
-    const scheduleAllNotifications = useCallback(() => {
-        if (window.cordova && window.cordova.plugins && window.cordova.plugins.notification && window.cordova.plugins.notification.local) {
-            
-            const localNotifier = window.cordova.plugins.notification.local;
-
-            localNotifier.cancelAll(() => {
-                console.log("Cleared all previous notifications.");
-
-                const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-                const notificationsToSchedule: any[] = [];
-
-                prayerKeys.forEach((key, index) => {
-                    if (!config.mutedPrayers[key] && times[key]) {
-                        const baseTime = applyOffset(times[key], config.prayerOffsets[key]);
-                        if (!baseTime || baseTime.includes('--')) return;
-
-                        const [h, m] = baseTime.split(':');
-                        let prayerDate = new Date();
-                        prayerDate.setHours(parseInt(h), parseInt(m), 0, 0);
-                        
-                        if (prayerDate < new Date()) {
-                            prayerDate.setDate(prayerDate.getDate() + 1);
-                        }
-                        
-                        const toneConfig = config.tones[key];
-                        let soundPath: string | null = null;
-    
-                        // Determine the correct sound path.
-                        if (toneConfig && toneConfig.data === 'none') {
-                            soundPath = null;
-                        } else if (toneConfig && toneConfig.data && !toneConfig.data.startsWith('data:')) {
-                            soundPath = toneConfig.data;
-                        } else if (toneConfig && toneConfig.data && toneConfig.data.startsWith('data:')) {
-                             // Custom tones (data URLs) are not supported by the notification plugin
-                             console.warn(`Notifications do not support custom audio files (data URLs). Falling back to default adhan for ${key}.`);
-                             soundPath = defaultTones[0].path;
-                        } else {
-                            soundPath = defaultTones[0].path;
-                        }
-    
-                        const notification: any = {
-                            id: index + 1,
-                            title: `حان الآن موعد أذان ${prayerNamesAr[key]}`,
-                            text: 'لا تنس ذكر الله. قال رسول الله ﷺ: "أرحنا بها يا بلال"',
-                            trigger: { at: prayerDate },
-                            foreground: true,
-                        };
-    
-                        // The plugin expects a path relative to the www folder for assets. No 'file://' prefix.
-                        if (soundPath) {
-                            notification.sound = soundPath;
-                        } else {
-                            notification.sound = false; // No sound
-                        }
-    
-                        notificationsToSchedule.push(notification);
-                    }
-                });
-
-                if (notificationsToSchedule.length > 0) {
-                    localNotifier.schedule(notificationsToSchedule, () => {
-                        console.log(`Scheduled ${notificationsToSchedule.length} prayer notifications.`);
-                        showToast(`تم جدولة ${notificationsToSchedule.length} من تنبيهات الصلاة.`);
-                    });
-                }
-            });
-        }
-    }, [times, config, showToast]);
-    
-    useEffect(() => {
-        const onDeviceReady = () => {
-            if (Object.keys(times).length > 0) {
-                if (window.cordova && window.cordova.plugins && window.cordova.plugins.notification.local) {
-                    const localNotifier = window.cordova.plugins.notification.local;
-                    localNotifier.hasPermission((granted) => {
-                        if (granted) {
-                            scheduleAllNotifications();
-                        } else {
-                            localNotifier.requestPermission((granted) => {
-                                if (granted) {
-                                    scheduleAllNotifications();
-                                } else {
-                                    showToast("تم رفض إذن الإشعارات. لن تعمل التنبيهات.");
-                                }
-                            });
-                        }
-                    });
-                }
-            }
-        };
-
-        document.addEventListener('deviceready', onDeviceReady, false);
-        return () => {
-            document.removeEventListener('deviceready', onDeviceReady, false);
-        };
-    }, [times, config, scheduleAllNotifications]);
-
-
-    const updateAllData = (timings, datesData, locationData) => {
-        setTimes(timings);
-        setDates(datesData);
-        setConfig(prev => ({...prev, location: locationData}));
-    };
-
-    const fetchTimesForLocation = async (locationData) => {
-        const { lat, lng } = locationData;
-        try {
-            const coordinates = new Coordinates(lat, lng);
-            const params = CalculationMethod.UmmAlQura();
-            const date = new Date();
-            const prayerTimes = new AdhanPrayerTimes(coordinates, date, params);
-
-            const formatTime = (d) => {
-                return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-            };
-
-            const timings = {
-                Fajr: formatTime(prayerTimes.fajr),
-                Sunrise: formatTime(prayerTimes.sunrise),
-                Dhuhr: formatTime(prayerTimes.dhuhr),
-                Asr: formatTime(prayerTimes.asr),
-                Maghrib: formatTime(prayerTimes.maghrib),
-                Isha: formatTime(prayerTimes.isha),
-            };
-
-            const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-            const hijriDate = hijriFormatter.format(date);
-            
-            const gregorianFormatter = new Intl.DateTimeFormat('ar-EG', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric'
-            });
-            const gregorianDate = gregorianFormatter.format(date);
-
-            const datesData = {
-                hijri: hijriDate,
-                gregorian: gregorianDate
-            };
-
-            localStorage.setItem('grandPrayersCache', JSON.stringify({ timings, dates: datesData }));
-            updateAllData(timings, datesData, locationData);
-        } catch(e) { console.error("Failed to calculate prayer times:", e); }
-    };
-
-    const fetchByIP = async () => {
-        // Fallback to default location if offline
-        await fetchTimesForLocation(config.location);
-    };
-    
-    const refreshLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                async (pos) => {
-                    const { latitude, longitude } = pos.coords;
-                    let newLoc = {
-                        lat: latitude, lng: longitude,
-                        cityGov: 'موقعي الحالي', fullCountry: '', combinedCode: ''
-                    };
-                    // Try reverse geocoding if online, otherwise just use coordinates
-                     try {
-                        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ar`);
-                        const data = await res.json();
-                        const addr = data.address;
-                        const city = addr.village || addr.town || addr.city || "موقعي";
-                        newLoc = {
-                            ...newLoc,
-                            cityGov: `${city} - ${addr.state || ""}`,
-                            fullCountry: addr.country,
-                            combinedCode: "+966"
-                        };
-                    } catch(e) {
-                        newLoc.cityGov = "موقعي الحالي (بدون اتصال)";
-                    }
-                    await fetchTimesForLocation(newLoc);
-                },
-                () => fetchByIP(),
-                { enableHighAccuracy: true, timeout: 6000 }
-            );
-        } else {
-            fetchByIP();
-        }
-    };
-    
-    const manualSearch = async () => {
+    const handleManualSearch = async () => {
         if(!searchInput) return;
         if (searchIconRef.current) searchIconRef.current.className = 'fa-solid fa-spinner fa-spin';
         try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchInput)}&format=json&addressdetails=1&accept-language=ar&limit=1`);
-            const data = await res.json();
-            if(data && data.length > 0) {
-                const addr = data[0].address;
-                const name = addr.city || addr.town || addr.village || searchInput;
-                const province = addr.state || "";
-                const newLocation = {
-                    cityGov: `${name} - ${province}`,
-                    fullCountry: addr.country,
-                    combinedCode: "+966",
-                    lat: data[0].lat, lng: data[0].lon
-                };
-                await fetchTimesForLocation(newLocation);
-            } else {
-                showToast("لم يتم العثور على نتائج. تأكد من اتصالك بالإنترنت.");
-            }
+            await manualSearch(searchInput);
         } catch(e) { 
             console.error(e); 
-            showToast("حدث خطأ أثناء البحث. تأكد من اتصالك بالإنترنت.");
+            showToast("حدث خطأ أثناء البحث أو لم يتم العثور على نتائج.");
         } 
         finally { if (searchIconRef.current) searchIconRef.current.className = 'fa-solid fa-magnifying-glass'; }
     }
-
-    useEffect(() => {
-        const onDeviceReady = () => {
-            if ("Notification" in window) Notification.requestPermission();
-        };
-        document.addEventListener('deviceready', onDeviceReady, false);
-        
-        const cached = localStorage.getItem('grandPrayersCache');
-        if (cached) {
-            try {
-                const prayerData = JSON.parse(cached);
-                updateAllData(prayerData.timings, prayerData.dates, config.location);
-            } catch(e) {
-                 localStorage.removeItem('grandPrayersCache');
-            }
-        }
-        refreshLocation();
-
-        return () => document.removeEventListener('deviceready', onDeviceReady, false);
-    }, []);
-
-    useEffect(() => {
-        localStorage.setItem('prayerFinal_v33', JSON.stringify(config));
-    }, [config]);
-
-    useEffect(() => {
-        const findNext = () => {
-            if (!Object.keys(times).length) return null;
-
-            const now = new Date();
-            const keys = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-            let found = null;
-
-            for (const key of keys) {
-                const adjustedTime = applyOffset(times[key], config.prayerOffsets[key]);
-                if (adjustedTime && !adjustedTime.includes('--')) {
-                    const [h, m] = adjustedTime.split(':');
-                    const pDate = new Date();
-                    pDate.setHours(parseInt(h), parseInt(m), 0, 0);
-                    if (pDate > now) {
-                        found = { key, date: pDate, name: prayerNamesAr[key] };
-                        break;
-                    }
-                }
-            }
-
-            if (!found && times.Fajr) {
-                const fajrTime = applyOffset(times.Fajr, config.prayerOffsets.Fajr);
-                if (fajrTime && !fajrTime.includes('--')) {
-                    const [h, m] = fajrTime.split(':');
-                    const pDate = new Date();
-                    pDate.setDate(pDate.getDate() + 1);
-                    pDate.setHours(parseInt(h), parseInt(m), 0, 0);
-                    found = { key: 'Fajr', date: pDate, name: prayerNamesAr['Fajr'] };
-                }
-            }
-            return found;
-        };
-
-        if (!Object.keys(times).length) return;
-        
-        if (!nextPrayer || new Date() >= nextPrayer.date) {
-            setNextPrayer(findNext());
-            return;
-        }
-
-        if (countdownRef.current) clearInterval(countdownRef.current);
-        
-        countdownRef.current = setInterval(() => {
-            if (!nextPrayer || !nextPrayer.date) return;
-            const diff = nextPrayer.date.getTime() - new Date().getTime();
-            
-            if (diff > 0) {
-                const h = Math.floor(diff / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                const s = Math.floor((diff % 60000) / 1000);
-                setCountdown(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
-            } else {
-                setCountdown("00:00:00");
-                
-                // Play sound if not muted
-                if (nextPrayer && !config.mutedPrayers[nextPrayer.key]) {
-                    const toneConfig = config.tones[nextPrayer.key];
-                    let soundPath = defaultTones[0].path;
-                    if (toneConfig) {
-                        soundPath = toneConfig.data;
-                    }
-                    if (soundPath && soundPath !== 'none') {
-                        playNotificationSound(soundPath);
-                    }
-                    
-                    // Show web notification if supported
-                    if ("Notification" in window && Notification.permission === "granted") {
-                        try {
-                            new Notification(`حان الآن موعد أذان ${nextPrayer.name}`, {
-                                body: 'لا تنس ذكر الله. قال رسول الله ﷺ: "أرحنا بها يا بلال"',
-                                icon: '/icon.png'
-                            });
-                        } catch (e) {
-                            console.error("Failed to show web notification", e);
-                        }
-                    }
-                }
-                
-                setNextPrayer(findNext());
-            }
-        }, 1000);
-
-        return () => clearInterval(countdownRef.current);
-
-    }, [times, nextPrayer, config]);
     
     const openSettings = (key) => {
         setCurrentEditingKey(key);
@@ -483,11 +136,10 @@ function PrayerTimes({ onBack }) {
 
     const saveUserConfig = () => {
         stopNotificationSound(); // Stop audio preview on save
-        setConfig(prev => ({
-            ...prev,
-            prayerOffsets: { ...prev.prayerOffsets, [currentEditingKey]: tempOffset },
-            iqamaOffsets: { ...prev.iqamaOffsets, [currentEditingKey]: tempIqama }
-        }));
+        updateConfig({
+            prayerOffsets: { ...config.prayerOffsets, [currentEditingKey]: tempOffset },
+            iqamaOffsets: { ...config.iqamaOffsets, [currentEditingKey]: tempIqama }
+        });
         setIsModalOpen(false);
     };
 
@@ -497,10 +149,9 @@ function PrayerTimes({ onBack }) {
     };
 
     const togglePrayerSound = (key) => {
-        setConfig(prev => ({
-            ...prev,
-            mutedPrayers: {...prev.mutedPrayers, [key]: !prev.mutedPrayers[key] }
-        }));
+        updateConfig({
+            mutedPrayers: {...config.mutedPrayers, [key]: !config.mutedPrayers[key] }
+        });
     }
 
     const handleToneSelection = (e) => {
@@ -508,18 +159,16 @@ function PrayerTimes({ onBack }) {
         if (value === 'custom') {
             document.getElementById('sound-file-input').click();
         } else if (value === 'none') {
-            setConfig(prev => ({
-                ...prev,
-                tones: { ...prev.tones, [currentEditingKey]: { name: 'بدون تنبيه', data: 'none' } }
-            }));
+            updateConfig({
+                tones: { ...config.tones, [currentEditingKey]: { name: 'بدون تنبيه', data: 'none' } }
+            });
         } else {
             const selectedTone = defaultTones.find(t => t.path === value);
             if (selectedTone) {
                 playNotificationSound(selectedTone.path); // Play preview
-                setConfig(prev => ({
-                    ...prev,
-                    tones: { ...prev.tones, [currentEditingKey]: { name: selectedTone.name, data: selectedTone.path }}
-                }));
+                updateConfig({
+                    tones: { ...config.tones, [currentEditingKey]: { name: selectedTone.name, data: selectedTone.path }}
+                });
             }
         }
     };
@@ -531,10 +180,9 @@ function PrayerTimes({ onBack }) {
             reader.onload = (event) => {
                 const audioDataUrl = event.target.result as string;
                 playNotificationSound(audioDataUrl); // Play preview
-                setConfig(prev => ({
-                    ...prev,
-                    tones: { ...prev.tones, [currentEditingKey]: { name: file.name, data: audioDataUrl }}
-                }));
+                updateConfig({
+                    tones: { ...config.tones, [currentEditingKey]: { name: file.name, data: audioDataUrl }}
+                });
             };
             reader.readAsDataURL(file);
         }
@@ -603,11 +251,11 @@ function PrayerTimes({ onBack }) {
                     </div>
 
                      <div className="flex items-center justify-center gap-3 mb-5 px-1">
-                        <button onClick={manualSearch} className="themed-card text-sm font-black px-3 py-1.5 rounded-lg shadow-sm active:scale-95" style={{ color: primaryColor }}>بحث</button>
+                        <button onClick={handleManualSearch} className="themed-card text-sm font-black px-3 py-1.5 rounded-lg shadow-sm active:scale-95" style={{ color: primaryColor }}>بحث</button>
                         <div className="flex-1 relative themed-card rounded-xl overflow-hidden shadow-sm">
-                            <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && manualSearch()} placeholder="عن مدينة أو محافظة..." 
+                            <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleManualSearch()} placeholder="عن مدينة أو محافظة..." 
                                 className="w-full bg-transparent py-2.5 px-4 pr-10 text-xs outline-none transition-all" style={{ color: primaryColor }}/>
-                            <button onClick={manualSearch} className="absolute right-3 top-2.5" style={{color: secondaryColor}}>
+                            <button onClick={handleManualSearch} className="absolute right-3 top-2.5" style={{color: secondaryColor}}>
                                 <i ref={searchIconRef} className="fa-solid fa-magnifying-glass"></i>
                             </button>
                         </div>
