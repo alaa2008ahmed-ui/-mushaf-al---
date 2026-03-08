@@ -39,7 +39,7 @@ const DEFAULT_CONFIG: PrayerConfig = {
 };
 
 const defaultTones = [
-    { name: "أذان كامل", path: "/assets/audio/adhan full.mp3" },
+    { name: "أذان كامل", path: "/assets/audio/adhan_full.mp3" },
 ];
 
 // --- Helper Functions ---
@@ -250,7 +250,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         if (soundPath && !soundPath.startsWith('file://') && !soundPath.startsWith('res://')) {
                                              let path = soundPath.startsWith('/') ? soundPath : '/' + soundPath;
                                              // Try public first (Capacitor default)
-                                             androidSoundPath = 'file:///android_asset/public' + encodeURI(path);
+                                             androidSoundPath = 'file:///android_asset/public' + path;
                                         }
                                     }
 
@@ -279,7 +279,8 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         channelName: `Adhan ${prayerNamesAr[key]}`,
                                         channelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
                                         importance: 4, // High importance
-                                        visibility: 1 // Public
+                                        visibility: 1, // Public
+                                        playSound: true // Explicitly enable sound
                                     });
                                 }
                             });
