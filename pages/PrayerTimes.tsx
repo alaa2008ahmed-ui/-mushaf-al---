@@ -55,9 +55,12 @@ const getMediaURL = (s) => {
     if (s.startsWith('data:') || s.startsWith('http')) {
         return s;
     }
+    // Check if running on Android device via Cordova
     if (window.cordova && window.cordova.platformId === 'android') {
-        // Remove leading slash for Android assets
-        return "/android_asset/www" + (s.startsWith('/') ? s : '/' + s);
+        // For HTML5 Audio, we need the file:///android_asset/www prefix
+        // But if the path already starts with /, we need to be careful
+        const path = s.startsWith('/') ? s : '/' + s;
+        return "file:///android_asset/www" + path;
     }
     return s;
 };

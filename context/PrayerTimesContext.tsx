@@ -243,8 +243,13 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     }
 
                                     // Fix sound path for Android
-                                    if (w.cordova.platformId === 'android' && soundPath.startsWith('/')) {
-                                        soundPath = 'file:///android_asset/www' + soundPath;
+                                    if (w.cordova.platformId === 'android') {
+                                        // The plugin expects res:// or file://
+                                        // For assets in www, we need file:///android_asset/www/
+                                        if (soundPath && !soundPath.startsWith('file://') && !soundPath.startsWith('res://')) {
+                                             const path = soundPath.startsWith('/') ? soundPath : '/' + soundPath;
+                                             soundPath = 'file:///android_asset/www' + path;
+                                        }
                                     }
 
                                     // Unique ID: day index * 10 + prayer index
