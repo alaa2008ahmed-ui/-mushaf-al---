@@ -82,7 +82,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
             "var(--font-noto)": "نسخ حديث", "var(--font-cairo)": "القاهرة", "var(--font-messiri)": "المسيري",
             "var(--font-rakkas)": "رقاص", "var(--font-lalezar)": "لالزار", "var(--font-katibeh)": "قطيبة",
             "var(--font-tajawal)": "تجوّل", "var(--font-changa)": "شنقة", "var(--font-mirza)": "ميرزا",
-            "var(--font-qalam)": "قلم", "var(--font-thuluth)": "ثلوث", "var(--font-digital)": "رقمي"
+            "var(--font-qalam)": "قلم", "var(--font-thuluth)": "ثلوث", "var(--font-digital)": "رقمي",
+            "'KFGQPC Uthman Taha Naskh'": "مجمع الملك فهد", "'Me Quran'": "خط المصحف"
         };
         return fontMap[val] || "افتراضي";
     };
@@ -151,6 +152,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                                     <option value="var(--font-qalam)">قلم</option>
                                     <option value="var(--font-thuluth)">ثلوث</option>
                                     <option value="var(--font-digital)">رقمي</option>
+                                    <option value="'KFGQPC Uthman Taha Naskh'">مجمع الملك فهد (عثماني)</option>
+                                    <option value="'Me Quran'">خط المصحف (عثماني)</option>
                                 </select>
                             </div>
                         </div>

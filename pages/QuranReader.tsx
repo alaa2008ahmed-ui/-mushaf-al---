@@ -138,6 +138,37 @@ const TafseerSelectionModal: FC<{
     );
 };
 
+const MushafSelectionModal: FC<{
+    isOpen: boolean,
+    onClose: () => void,
+    onSelect: (type: 'uthmani' | 'tajweed') => void,
+    currentType: 'uthmani' | 'tajweed'
+}> = ({ isOpen, onClose, onSelect, currentType }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 z-[300] bg-black/30 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
+            <div className="modal-skinned w-full max-w-sm rounded-2xl shadow-2xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
+                <div className="p-4 theme-header-bg rounded-t-2xl text-center">
+                    <h3 className="font-bold text-lg">اختر نوع المصحف</h3>
+                </div>
+                <div className="p-2 overflow-y-auto space-y-2">
+                    <button onClick={() => onSelect('uthmani')} className={`w-full p-3 rounded-xl text-right font-bold transition flex justify-between items-center ${currentType === 'uthmani' ? 'theme-accent-btn' : 'hover:opacity-80'}`} style={currentType !== 'uthmani' ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', border: '1px solid var(--qr-card-border)' } : {}}>
+                        <span>المصحف العثماني</span>
+                        {currentType === 'uthmani' && <i className="fa-solid fa-check"></i>}
+                    </button>
+                    <button onClick={() => onSelect('tajweed')} className={`w-full p-3 rounded-xl text-right font-bold transition flex justify-between items-center ${currentType === 'tajweed' ? 'theme-accent-btn' : 'hover:opacity-80'}`} style={currentType !== 'tajweed' ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', border: '1px solid var(--qr-card-border)' } : {}}>
+                        <span>المصحف المجود</span>
+                        {currentType === 'tajweed' && <i className="fa-solid fa-check"></i>}
+                    </button>
+                </div>
+                <div className="p-3 border-t themed-card-bg rounded-b-2xl">
+                    <button onClick={onClose} className="w-full py-2 rounded-xl font-bold theme-btn-bg">إلغاء</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 
 const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const [useTajweed, setUseTajweed] = useState(() => localStorage.getItem('use_tajweed_quran') === 'true');
@@ -617,6 +648,39 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         }
     };
 
+    const surahButtonTimerRef = useRef<number | null>(null);
+    const handleSurahButtonPointerDown = () => {
+        surahButtonTimerRef.current = window.setTimeout(() => {
+            surahButtonTimerRef.current = null;
+            openModal('mushaf-selection-modal');
+        }, 600);
+    };
+
+    const handleSurahButtonPointerUp = () => {
+        if (surahButtonTimerRef.current) {
+            clearTimeout(surahButtonTimerRef.current);
+            surahButtonTimerRef.current = null;
+            openModal('surah-modal');
+        }
+    };
+
+    const handleSurahButtonPointerLeave = () => {
+        if (surahButtonTimerRef.current) {
+            clearTimeout(surahButtonTimerRef.current);
+            surahButtonTimerRef.current = null;
+        }
+    };
+
+    const handleMushafTypeSelect = (type: 'uthmani' | 'tajweed') => {
+        const isTajweed = type === 'tajweed';
+        localStorage.setItem('use_tajweed_quran', String(isTajweed));
+        setUseTajweed(isTajweed);
+        setQuranData(isTajweed ? quranTajweedJson.data : quranUthmaniJson.data);
+        closeModal('mushaf-selection-modal');
+        showToast(isTajweed ? 'تم تفعيل المصحف المجود' : 'تم تفعيل المصحف العثماني');
+        window.dispatchEvent(new Event('settings-change'));
+    };
+
     useEffect(() => {
         const handleThemeChange = () => {
             const themeId = localStorage.getItem('current_theme_id') || 'default';
@@ -1040,7 +1104,16 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     return (
         <div className={`quran-reader-container ${autoScrollState.isActive && !autoScrollState.isPaused && hideUIOnScroll && !isPageInputActive ? 'fullscreen-active' : ''} ${isPageInputActive ? 'force-ui-visible' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
             <header id="header" className="header-default flex-none z-50 flex items-center px-4 justify-between border-b shadow-xl w-full gap-2" style={getToolbarStyle('top-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
-                <button id="surah-name-header" onClick={() => openModal('surah-modal')} className="top-bar-text-button" style={getToolbarStyle('surah', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}><span>{surahName} - آية {toArabic(currentAyah.a)}</span></button>
+                <button 
+                    id="surah-name-header" 
+                    onPointerDown={handleSurahButtonPointerDown}
+                    onPointerUp={handleSurahButtonPointerUp}
+                    onPointerLeave={handleSurahButtonPointerLeave}
+                    className="top-bar-text-button" 
+                    style={{...getToolbarStyle('surah', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder), touchAction: 'none'}}
+                >
+                    <span>{surahName} - آية {toArabic(currentAyah.a)}</span>
+                </button>
                 <button id="juz-number-header" onClick={() => openModal('juz-modal')} className="top-bar-text-button" style={getToolbarStyle('juz', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>الجزء {toArabic(juz)}</button>
                 {isPageInputActive ? (
                     <input
@@ -1156,6 +1229,12 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 }} 
                 onSelect={handleTafseerSelect} 
                 currentTafseerId={settings.tafseer} 
+            />
+            <MushafSelectionModal
+                isOpen={activeModals['mushaf-selection-modal']}
+                onClose={() => closeModal('mushaf-selection-modal')}
+                onSelect={handleMushafTypeSelect}
+                currentType={useTajweed ? 'tajweed' : 'uthmani'}
             />
             <SajdahCardModal info={sajdahCardInfo} onClose={handleCloseSajdahCard} />
             <Toast message={toast.message} show={toast.show} onClose={handleToastClose} />

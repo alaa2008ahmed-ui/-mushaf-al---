@@ -49,6 +49,18 @@
 @import "@fontsource/kufam/400.css";
 @import "@fontsource/kufam/700.css";
 
+@font-face {
+  font-family: 'KFGQPC Uthman Taha Naskh';
+  src: url('https://cdn.jsdelivr.net/gh/Guepard/quran-fonts@master/fonts/KFGQPC-HAFS.woff2') format('woff2');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Me Quran';
+  src: url('https://cdn.jsdelivr.net/gh/Guepard/quran-fonts@master/fonts/me_quran.woff2') format('woff2');
+  font-display: swap;
+}
+
 @theme {
   --color-primary: var(--color-primary, #10b981);
   --color-secondary: var(--color-secondary, #8b5cf6);

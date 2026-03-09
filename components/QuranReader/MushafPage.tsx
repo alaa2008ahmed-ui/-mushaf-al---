@@ -19,24 +19,30 @@ interface MushafPageProps {
 }
 
 const renderTajweedText = (text: string) => {
-    if (!text || !text.includes('[')) return text;
+    if (!text) return text;
+    
+    // Fix for disconnected characters like Small High Ya (U+06E6) and Small High Waw (U+06E5)
+    // We wrap them with Zero Width Joiner (U+200D) to force connection with surrounding letters.
+    const fixedText = text.replace(/([\u06E5\u06E6])/g, '\u200D$1\u200D');
+
+    if (!fixedText.includes('[')) return fixedText;
     
     const parts = [];
     let lastIndex = 0;
     const regex = /\[([a-z])(?::\d+)?\[([^\]]+)\]/g;
     let match;
     
-    while ((match = regex.exec(text)) !== null) {
+    while ((match = regex.exec(fixedText)) !== null) {
         if (match.index > lastIndex) {
-            parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex, match.index)}</span>);
+            parts.push(<span key={`text-${lastIndex}`}>{fixedText.substring(lastIndex, match.index)}</span>);
         }
         const colorClass = `tajweed-${match[1]}`;
         parts.push(<span key={`tag-${match.index}`} className={colorClass}>{match[2]}</span>);
         lastIndex = regex.lastIndex;
     }
     
-    if (lastIndex < text.length) {
-        parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex)}</span>);
+    if (lastIndex < fixedText.length) {
+        parts.push(<span key={`text-${lastIndex}`}>{fixedText.substring(lastIndex)}</span>);
     }
     
     return parts;
@@ -141,7 +147,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                                 data-surah={ayah.sName.replace('سورة','').trim()} 
                                 data-ayah={ayah.numberInSurah}
                             >
-                                {renderTajweedText(text.replace(/[\s\u200B-\u200D\uFEFF]+/g, ' ').trim())}
+                                {renderTajweedText(text.replace(/\s+/g, ' ').trim())}
                                 <span className="verse-container" 
                                     onClick={(e) => {
                                         if (!isLongPressTriggered.current) {

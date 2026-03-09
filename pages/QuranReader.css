@@ -23,6 +23,8 @@
     --font-naskh: 'Noto Naskh Arabic', serif;
     --font-digital: 'Cairo', sans-serif;
     --font-hafs: 'Amiri Quran', serif;
+    --font-hafs-new: 'KFGQPC Uthman Taha Naskh', serif;
+    --font-me-quran: 'Me Quran', serif;
     --font-warsh: 'Amiri', serif;
     --font-default: var(--font-noto);
     --font-ui: var(--font-cairo);
@@ -155,7 +157,16 @@
 .page-number-text { color: #1d4ed8; font-weight: bold; font-size: 1.3rem; font-family: var(--font-default); position: relative; top: 4px; margin: 0 2px;}
 .dark .page-number-text { color: #60a5fa; }
 
-.ayah-text-block { display: inline; cursor: pointer; padding: 0; border-radius: 6px; transition: background-color 0.2s; }
+.ayah-text-block { 
+    display: inline; 
+    cursor: pointer; 
+    padding: 0; 
+    border-radius: 6px; 
+    transition: background-color 0.2s; 
+    font-variant-ligatures: common-ligatures discretionary-ligatures;
+    -webkit-font-variant-ligatures: common-ligatures discretionary-ligatures;
+    text-rendering: optimizeLegibility;
+}
 .ayah-text-block:hover { background-color: rgba(16, 185, 129, 0.1); }
 .ayah-text-block.highlighted { 
     background-color: transparent !important;

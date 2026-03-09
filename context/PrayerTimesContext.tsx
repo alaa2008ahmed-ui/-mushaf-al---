@@ -7,7 +7,7 @@ import { prayerNamesAr } from '../data/prayerTimesData';
 interface PrayerConfig {
     iqamaOffsets: Record<string, number>;
     prayerOffsets: Record<string, number>;
-    tones: Record<string, { name: string; data: string }>;
+    tones: Record<string, { name: string; data: string; originalUrl?: string }>;
     mutedPrayers: Record<string, boolean>;
     location: {
         cityGov: string;
@@ -40,7 +40,7 @@ const DEFAULT_CONFIG: PrayerConfig = {
 };
 
 const defaultTones = [
-    { name: "أذان كامل", path: "/assets/audio/adhan_full.mp3" },
+    { name: "أذان 4", path: "/assets/audio/adhan4.mp3" },
 ];
 
 // --- Helper Functions ---
@@ -53,7 +53,7 @@ const applyOffset = (timeStr: string, offsetMins: number) => {
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 };
 
-const copyAssetToDevice = async (assetPath: string): Promise<string> => {
+export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
     try {
         const filename = assetPath.split('/').pop();
         if (!filename) return assetPath;
