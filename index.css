@@ -18,21 +18,6 @@
 @import "@fontsource/cairo/600.css";
 @import "@fontsource/cairo/700.css";
 @import "@fontsource/el-messiri/400.css";
-
-/* Tajweed Colors */
-.tajweed-n { color: #16a34a; } /* Ghunna (Green) */
-.tajweed-q { color: #2563eb; } /* Qalqalah (Blue) */
-.tajweed-m { color: #16a34a; } /* Idgham (Green) */
-.tajweed-i { color: #16a34a; } /* Ikhfa (Green) */
-.tajweed-w { color: #9ca3af; } /* Idgham without Ghunna (Gray) */
-.tajweed-f { color: #16a34a; } /* Ikhfa Shafawi (Green) */
-.tajweed-a { color: #2563eb; } /* Iqlab (Blue) */
-.tajweed-p { color: #dc2626; } /* Madd (Red) */
-.tajweed-o { color: #dc2626; } /* Madd (Red) */
-.tajweed-c { color: #16a34a; } /* Ikhfa (Green) */
-.tajweed-s { color: #9ca3af; } /* Silent (Gray) */
-.tajweed-h { color: #9ca3af; } /* Hamzat Wasl (Gray) */
-.tajweed-l { color: #9ca3af; } /* Lam Shamsiyyah (Gray) */
 @import "@fontsource/el-messiri/700.css";
 @import "@fontsource/lalezar/400.css";
 @import "@fontsource/rakkas/400.css";
@@ -48,6 +33,21 @@
 @import "@fontsource/gulzar/400.css";
 @import "@fontsource/kufam/400.css";
 @import "@fontsource/kufam/700.css";
+
+/* Tajweed Colors */
+.tajweed-n { color: #16a34a; } /* Ghunna (Green) */
+.tajweed-q { color: #2563eb; } /* Qalqalah (Blue) */
+.tajweed-m { color: #16a34a; } /* Idgham (Green) */
+.tajweed-i { color: #16a34a; } /* Ikhfa (Green) */
+.tajweed-w { color: #9ca3af; } /* Idgham without Ghunna (Gray) */
+.tajweed-f { color: #16a34a; } /* Ikhfa Shafawi (Green) */
+.tajweed-a { color: #2563eb; } /* Iqlab (Blue) */
+.tajweed-p { color: #dc2626; } /* Madd (Red) */
+.tajweed-o { color: #dc2626; } /* Madd (Red) */
+.tajweed-c { color: #16a34a; } /* Ikhfa (Green) */
+.tajweed-s { color: #9ca3af; } /* Silent (Gray) */
+.tajweed-h { color: #9ca3af; } /* Hamzat Wasl (Gray) */
+.tajweed-l { color: #9ca3af; } /* Lam Shamsiyyah (Gray) */
 
 @font-face {
   font-family: 'KFGQPC Uthman Taha Naskh';

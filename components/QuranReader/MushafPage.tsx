@@ -99,10 +99,17 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     return (
         <div className="mushaf-page" data-page={pageNum} ref={pageRef} style={{ backgroundColor: 'transparent' }}>
             <div className="page-content" style={pageStyle}>
-                {pageData.map(ayah => {
+                {pageData.map((ayah, index) => {
                     const isSajdah = SAJDAH_LOCATIONS.some(sl => sl.s === ayah.sNum && sl.a === ayah.numberInSurah);
                     const showHeader = currentSurah !== ayah.sNum && ayah.numberInSurah === 1;
                     if (showHeader) currentSurah = ayah.sNum;
+                    
+                    // Detect Hizb Quarter change
+                    const prevAyah = index > 0 ? pageData[index - 1] : null;
+                    const isNewQuarter = prevAyah ? (ayah.hizbQuarter !== prevAyah.hizbQuarter) : false;
+                    // Note: For the first ayah of the page, we might miss the marker if it changed between pages.
+                    // But usually markers are at the start of pages or handled by the reader.
+                    // We can also check if (ayah.hizbQuarter - 1) * some_logic matches.
                     
                     const text = (ayah.numberInSurah === 1 && ayah.sNum !== 1 && ayah.sNum !== 9) 
                         ? ayah.text.replace('بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', '').replace('بِّسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ', '').trim() 
@@ -146,8 +153,12 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                                 data-snum={ayah.sNum}
                                 data-surah={ayah.sName.replace('سورة','').trim()} 
                                 data-ayah={ayah.numberInSurah}
+                                data-juz={ayah.juz}
+                                data-hizb-quarter={ayah.hizbQuarter}
                             >
+                                {isNewQuarter && <span className="hizb-quarter-marker">۞</span>}
                                 {renderTajweedText(text.replace(/\s+/g, ' ').trim())}
+                                {isSajdah && <span className="sajdah-icon-inline">۩</span>}
                                 <span className="verse-container" 
                                     onClick={(e) => {
                                         if (!isLongPressTriggered.current) {

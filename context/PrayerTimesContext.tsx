@@ -53,60 +53,6 @@ const applyOffset = (timeStr: string, offsetMins: number) => {
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 };
 
-export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
-    try {
-        const filename = assetPath.split('/').pop();
-        if (!filename) return assetPath;
-
-        // Check if file already exists in Data directory
-        try {
-            const stat = await Filesystem.stat({
-                path: `sounds/${filename}`,
-                directory: Directory.Data
-            });
-            return stat.uri;
-        } catch (e) {
-            // File doesn't exist, proceed to copy
-        }
-
-        // Fetch the asset as a blob
-        const response = await fetch(assetPath);
-        const blob = await response.blob();
-
-        // Convert blob to base64
-        const base64Data = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const result = reader.result as string;
-                // Remove the data URL prefix (e.g., "data:audio/mp3;base64,")
-                const base64 = result.split(',')[1];
-                resolve(base64);
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-        });
-
-        // Write file to Data directory
-        await Filesystem.writeFile({
-            path: `sounds/${filename}`,
-            data: base64Data,
-            directory: Directory.Data,
-            recursive: true
-        });
-
-        // Get the URI of the written file
-        const uriResult = await Filesystem.getUri({
-            path: `sounds/${filename}`,
-            directory: Directory.Data
-        });
-
-        return uriResult.uri;
-    } catch (error) {
-        console.error("Error copying asset to device:", error);
-        return assetPath; // Fallback to original path if copy fails
-    }
-};
-
 const PrayerTimesContext = createContext<PrayerTimesContextType | undefined>(undefined);
 
 export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
@@ -471,4 +417,58 @@ export const usePrayerTimes = () => {
         throw new Error('usePrayerTimes must be used within a PrayerTimesProvider');
     }
     return context;
+};
+
+export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
+    try {
+        const filename = assetPath.split('/').pop();
+        if (!filename) return assetPath;
+
+        // Check if file already exists in Data directory
+        try {
+            const stat = await Filesystem.stat({
+                path: `sounds/${filename}`,
+                directory: Directory.Data
+            });
+            return stat.uri;
+        } catch (e) {
+            // File doesn't exist, proceed to copy
+        }
+
+        // Fetch the asset as a blob
+        const response = await fetch(assetPath);
+        const blob = await response.blob();
+
+        // Convert blob to base64
+        const base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                // Remove the data URL prefix (e.g., "data:audio/mp3;base64,")
+                const base64 = result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+        // Write file to Data directory
+        await Filesystem.writeFile({
+            path: `sounds/${filename}`,
+            data: base64Data,
+            directory: Directory.Data,
+            recursive: true
+        });
+
+        // Get the URI of the written file
+        const uriResult = await Filesystem.getUri({
+            path: `sounds/${filename}`,
+            directory: Directory.Data
+        });
+
+        return uriResult.uri;
+    } catch (error) {
+        console.error("Error copying asset to device:", error);
+        return assetPath; // Fallback to original path if copy fails
+    }
 };

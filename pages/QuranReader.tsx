@@ -186,6 +186,9 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     
     const [toast, setToast] = useState({ show: false, message: '' });
     const [reciterToast, setReciterToast] = useState({ show: false, name: '' });
+    const [markerNotification, setMarkerNotification] = useState<{ show: boolean, type: 'juz' | 'quarter' | 'sajda' | 'surah', text: string }>({ show: false, type: 'juz', text: '' });
+    const lastNotifiedQuarter = useRef<number | null>(null);
+    const lastNotifiedJuz = useRef<number | null>(null);
     const [bookmarks, setBookmarks] = useState([]);
 
     const [sajdahInfo, setSajdahInfo] = useState<{ show: boolean; surah?: string; ayah?: number }>({ show: false });
@@ -336,16 +339,15 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             stopAudio();
         };
     }, [stopAudio]);
-    const showSajdahNotification = useCallback((surah, ayah) => {
-        setSajdahInfo({ show: true, surah, ayah });
-        const timeout = autoScrollStateRef.current.isActive ? 2000 : 4000;
-        setTimeout(() => setSajdahInfo(prev => ({...prev, show: false})), timeout);
+    const showMarkerNotification = useCallback((type: 'juz' | 'quarter' | 'sajda' | 'surah', text: string) => {
+        setMarkerNotification({ show: true, type, text });
+        setTimeout(() => setMarkerNotification(prev => ({ ...prev, show: false })), 2000);
     }, []);
 
     const handleSajdahVisible = useCallback((surahName: string, sNum: number, ayahNum: number) => {
-        if (sajdahInfoRef.current.show || sajdahCardInfoRef.current.show) return;
+        if (markerNotification.show || sajdahCardInfoRef.current.show) return;
 
-        showSajdahNotification(surahName, ayahNum);
+        showMarkerNotification('sajda', `سجدة تلاوة: سورة ${surahName} - آية ${toArabic(ayahNum)}`);
 
         if (showSajdahCard) {
             if (!quranData) return;
@@ -373,7 +375,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 wasPlaying
             });
         }
-    }, [quranData, showSajdahNotification, stopAudio, showSajdahCard]);
+    }, [quranData, showMarkerNotification, stopAudio, showSajdahCard]);
 
     const handleCloseSajdahCard = () => {
         if (sajdahCardInfo.wasAutoscrolling) {
@@ -382,6 +384,56 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         }
         setSajdahCardInfo({ show: false, surah: '', ayah: 0, juz: 0, page: 0, wasAutoscrolling: false, wasPlaying: false });
     };
+
+    const handleAyahVisible = useCallback((ayahBlock: HTMLElement) => {
+        const parts = ayahBlock.id.split('-');
+        if (parts.length !== 3) return;
+        const s = parseInt(parts[1], 10);
+        const a = parseInt(parts[2], 10);
+
+        if (s !== currentAyahRef.current.s || a !== currentAyahRef.current.a) {
+            setCurrentAyah({ s, a });
+            currentAyahRef.current = { s, a };
+
+            const juzAttr = ayahBlock.dataset.juz;
+            const quarterAttr = ayahBlock.dataset.hizbQuarter;
+
+            // Detect Juz change
+            if (juzAttr) {
+                const newJuz = parseInt(juzAttr, 10);
+                if (lastNotifiedJuz.current !== null && newJuz !== lastNotifiedJuz.current) {
+                    showMarkerNotification('juz', `بداية الجزء ${toArabic(newJuz)}`);
+                }
+                lastNotifiedJuz.current = newJuz;
+            }
+
+            // Detect Quarter change
+            if (quarterAttr) {
+                const newQuarter = parseInt(quarterAttr, 10);
+                if (lastNotifiedQuarter.current !== null && newQuarter !== lastNotifiedQuarter.current) {
+                    let label = '';
+                    const qInHizb = ((newQuarter - 1) % 4) + 1;
+                    const hizbNum = Math.ceil(newQuarter / 4);
+                    if (qInHizb === 1) label = `بداية الحزب ${toArabic(hizbNum)}`;
+                    else if (qInHizb === 2) label = `ربع الحزب ${toArabic(hizbNum)}`;
+                    else if (qInHizb === 3) label = `نصف الحزب ${toArabic(hizbNum)}`;
+                    else if (qInHizb === 4) label = `ثلاثة أرباع الحزب ${toArabic(hizbNum)}`;
+
+                    showMarkerNotification('quarter', label);
+                }
+                lastNotifiedQuarter.current = newQuarter;
+            }
+
+            if (ayahBlock.getAttribute('data-sajdah') === 'true') {
+                const surahName = ayahBlock.dataset.surah || '';
+                const sNum = parseInt(ayahBlock.dataset.snum || '0', 10);
+                const ayahNum = parseInt(ayahBlock.dataset.ayah || '0', 10);
+                if (surahName && sNum && ayahNum) {
+                    handleSajdahVisible(surahName, sNum, ayahNum);
+                }
+            }
+        }
+    }, [handleSajdahVisible, showMarkerNotification]);
 
     const playNextAyah = useCallback(() => {
         if (!quranData || !playingAyah) return stopAudio();
@@ -796,13 +848,45 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             
             const ayahBlock = el.closest('.ayah-text-block');
             if (ayahBlock && ayahBlock.id) {
+                handleAyahVisible(ayahBlock as HTMLElement);
+                return;
                 const parts = ayahBlock.id.split('-');
                 if (parts.length === 3) {
                     const s = parseInt(parts[1], 10);
                     const a = parseInt(parts[2], 10);
     
                     if (s !== currentAyahRef.current.s || a !== currentAyahRef.current.a) {
+                        const prevAyah = currentAyahRef.current;
                         setCurrentAyah({ s, a });
+
+                        const juzAttr = (ayahBlock as HTMLElement).dataset.juz;
+                        const quarterAttr = (ayahBlock as HTMLElement).dataset.hizbQuarter;
+                        
+                        // Detect Juz change
+                        if (juzAttr) {
+                            const newJuz = parseInt(juzAttr, 10);
+                            if (lastNotifiedJuz.current !== null && newJuz !== lastNotifiedJuz.current) {
+                                showMarkerNotification('juz', `بداية الجزء ${toArabic(newJuz)}`);
+                            }
+                            lastNotifiedJuz.current = newJuz;
+                        }
+
+                        // Detect Quarter change
+                        if (quarterAttr) {
+                            const newQuarter = parseInt(quarterAttr, 10);
+                            if (lastNotifiedQuarter.current !== null && newQuarter !== lastNotifiedQuarter.current) {
+                                let label = '';
+                                const qInHizb = ((newQuarter - 1) % 4) + 1;
+                                const hizbNum = Math.ceil(newQuarter / 4);
+                                if (qInHizb === 1) label = `بداية الحزب ${toArabic(hizbNum)}`;
+                                else if (qInHizb === 2) label = `ربع الحزب ${toArabic(hizbNum)}`;
+                                else if (qInHizb === 3) label = `نصف الحزب ${toArabic(hizbNum)}`;
+                                else if (qInHizb === 4) label = `ثلاثة أرباع الحزب ${toArabic(hizbNum)}`;
+                                
+                                showMarkerNotification('quarter', label);
+                            }
+                            lastNotifiedQuarter.current = newQuarter;
+                        }
 
                         if (ayahBlock.getAttribute('data-sajdah') === 'true') {
                             const surahName = (ayahBlock as HTMLElement).dataset.surah || '';
@@ -840,6 +924,8 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         if (!ayah) return;
         
         isJumpingRef.current = true;
+        lastNotifiedJuz.current = null;
+        lastNotifiedQuarter.current = null;
         const p = Number(ayah.page);
         setVisiblePages([...new Set([p, p + 1, p + 2, p - 1, p - 2])].filter(n => n > 0 && n <= 604).sort((a: number, b: number) => a - b));
         
@@ -944,6 +1030,11 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         initialPinchFontSizeRef.current = null;
     };
 
+    const handleAyahVisibleRef = useRef(handleAyahVisible);
+    useEffect(() => {
+        handleAyahVisibleRef.current = handleAyahVisible;
+    }, [handleAyahVisible]);
+
     const updateHeadersDuringAutoScroll = () => {
         const content = mushafContentRef.current;
         if (!content) return;
@@ -951,22 +1042,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         if (!el) return;
         const ayahBlock = el.closest('.ayah-text-block');
         if (ayahBlock && ayahBlock.id) {
-            const parts = ayahBlock.id.split('-'); 
-            if (parts.length === 3) {
-                const s = parseInt(parts[1]); const a = parseInt(parts[2]);
-                if (s !== currentAyahRef.current.s || a !== currentAyahRef.current.a) {
-                    setCurrentAyah({ s, a });
-                    currentAyahRef.current = { s, a };
-                    if (ayahBlock.getAttribute('data-sajdah') === 'true') {
-                        const surahName = (ayahBlock as HTMLElement).dataset.surah || '';
-                        const sNum = parseInt((ayahBlock as HTMLElement).dataset.snum || '0', 10);
-                        const ayahNum = parseInt((ayahBlock as HTMLElement).dataset.ayah || '0', 10);
-                        if(surahName && sNum && ayahNum){
-                            handleSajdahVisible(surahName, sNum, ayahNum);
-                        }
-                    }
-                }
-            }
+            handleAyahVisibleRef.current(ayahBlock as HTMLElement);
         }
     };
 
@@ -1163,7 +1239,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                    {[...new Set(visiblePages)].sort((a: number, b: number) => a - b).map(pageNum => (<MushafPage key={pageNum} pageNum={pageNum} pageData={getPageData(pageNum)} highlightedAyahId={highlightedAyahId} onAyahClick={handleAyahClick} onVerseClick={handleVerseClick} onVerseLongPress={handleVerseLongPress} onInteractionStart={handleInteractionStart} onInteractionEnd={handleInteractionEnd} settings={settings} />))}
                 </div>
             </div>
-            <SajdahNotification isVisible={sajdahInfo.show} surah={sajdahInfo.surah} ayah={sajdahInfo.ayah} />
+            <MarkerNotification isVisible={markerNotification.show} type={markerNotification.type} text={markerNotification.text} />
             <div id="floating-menu" className={isFloatingMenuOpen ? 'open' : ''} ref={floatingMenuRef}>
                  <button onClick={() => { openModal('bookmarks-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-bookmarks-list', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>قائمة الإشارات</span><i className="fa-solid fa-list"></i></button>
                  <button onClick={() => { openModal('search-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-purple w-full justify-between mb-2" style={getToolbarStyle('btn-search', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>البحث</span><i className="fa-solid fa-search"></i></button>
@@ -1248,14 +1324,23 @@ const ReadingTimer: FC<{isVisible: boolean, elapsedTime: number}> = ({isVisible,
     return (<div className={`reading-timer ${isVisible ? 'show' : ''}`} style={{ backgroundColor: 'var(--qr-modal-bg)', color: 'var(--qr-modal-text)', border: '1px solid var(--qr-card-border)' }}>{toArabic(`${minutes}:${seconds}`)}</div>);
 };
 
-const SajdahNotification: FC<{isVisible: boolean, surah?: string, ayah?: number}> = ({isVisible, surah, ayah}) => (
-    <div className={`sajdah-notification ${isVisible ? 'show' : ''}`} style={{ backgroundColor: 'var(--qr-modal-bg)', color: 'var(--qr-modal-text)', border: '2px solid var(--qr-card-border)' }}>
-        <div className="p-2 rounded-full theme-header-bg"><i className="fa-solid fa-mosque"></i></div>
-        <div>
-            <div className="font-bold text-sm">سجدة تلاوة</div>
-            <div className="text-xs mt-0.5 opacity-80">سورة {surah} - آية {toArabic(ayah || '')}</div>
+const MarkerNotification: FC<{isVisible: boolean, type: string, text: string}> = ({isVisible, type, text}) => {
+    const getIcon = () => {
+        switch(type) {
+            case 'juz': return 'fa-book-open';
+            case 'quarter': return 'fa-star';
+            case 'sajda': return 'fa-mosque';
+            case 'surah': return 'fa-scroll';
+            default: return 'fa-info-circle';
+        }
+    };
+
+    return (
+        <div className={`marker-notification ${isVisible ? 'show' : ''}`} style={{ backgroundColor: 'var(--qr-modal-bg)', color: 'var(--qr-modal-text)', border: '1px solid var(--qr-card-border)' }}>
+            <div className="marker-icon theme-header-bg"><i className={`fa-solid ${getIcon()}`}></i></div>
+            <div className="marker-text">{text}</div>
         </div>
-    </div>
-);
+    );
+};
 
 export default QuranReader;
