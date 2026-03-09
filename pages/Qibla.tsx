@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
+import { usePrayerTimes } from '../context/PrayerTimesContext';
 
 // --- Helper Functions ---
 const toRad = (deg) => deg * Math.PI / 180;
@@ -9,6 +10,7 @@ const toDeg = (rad) => rad * 180 / Math.PI;
 
 function Qibla({ onBack }) {
     const { theme } = useTheme();
+    const { config } = usePrayerTimes();
     const [heading, setHeading] = useState(0);
     const [qiblaDirection, setQiblaDirection] = useState(null);
     const [isAligned, setIsAligned] = useState(false);
@@ -18,18 +20,11 @@ function Qibla({ onBack }) {
     const qiblaPointerRef = useRef(null);
 
     useEffect(() => {
-        // Get user location
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    calculateQiblaDirection(latitude, longitude);
-                },
-                () => setError('لا يمكن الوصول للموقع. يرجى تفعيل خدمة GPS.'),
-                { enableHighAccuracy: true }
-            );
+        // Use location from PrayerTimesContext
+        if (config && config.location) {
+            calculateQiblaDirection(config.location.lat, config.location.lng);
         } else {
-            setError('خاصية تحديد الموقع غير مدعومة في هذا المتصفح.');
+            setError('تعذر تحديد الموقع من إعدادات مواقيت الصلاة.');
         }
 
         // Device orientation listener
@@ -92,7 +87,9 @@ function Qibla({ onBack }) {
             <header className="app-top-bar">
                 <div className="app-top-bar__inner">
                     <h1 className="app-top-bar__title text-2xl font-kufi">اتجاه القبلة</h1>
-                    <p className="app-top-bar__subtitle">استخدم البوصلة لتحديد اتجاه الكعبة المشرفة</p>
+                    <p className="app-top-bar__subtitle">
+                        {config?.location?.cityGov ? `حسب موقعك في: ${config.location.cityGov}` : 'استخدم البوصلة لتحديد اتجاه الكعبة المشرفة'}
+                    </p>
                 </div>
             </header>
 
