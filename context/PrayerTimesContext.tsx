@@ -40,7 +40,9 @@ const DEFAULT_CONFIG: PrayerConfig = {
 };
 
 const defaultTones = [
-    { name: "أذان 4", path: "/assets/audio/adhan4.mp3" },
+    { name: "أذان المدينة", path: "https://www.islamicfinder.org/adhan/adhan-madina.mp3" },
+    { name: "أذان مكة", path: "https://www.islamicfinder.org/adhan/adhan-makkah.mp3" },
+    { name: "أذان العفاسي", path: "https://www.islamicfinder.org/adhan/adhan-alafasy.mp3" },
 ];
 
 // --- Helper Functions ---
@@ -51,6 +53,60 @@ const applyOffset = (timeStr: string, offsetMins: number) => {
     date.setHours(parseInt(h), parseInt(m), 0);
     date.setMinutes(date.getMinutes() + (offsetMins || 0));
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+};
+
+export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
+    try {
+        const filename = assetPath.split('/').pop();
+        if (!filename) return assetPath;
+
+        // Check if file already exists in Data directory
+        try {
+            const stat = await Filesystem.stat({
+                path: `sounds/${filename}`,
+                directory: Directory.Data
+            });
+            return stat.uri;
+        } catch (e) {
+            // File doesn't exist, proceed to copy
+        }
+
+        // Fetch the asset as a blob
+        const response = await fetch(assetPath);
+        const blob = await response.blob();
+
+        // Convert blob to base64
+        const base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                // Remove the data URL prefix (e.g., "data:audio/mp3;base64,")
+                const base64 = result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+        // Write file to Data directory
+        await Filesystem.writeFile({
+            path: `sounds/${filename}`,
+            data: base64Data,
+            directory: Directory.Data,
+            recursive: true
+        });
+
+        // Get the URI of the written file
+        const uriResult = await Filesystem.getUri({
+            path: `sounds/${filename}`,
+            directory: Directory.Data
+        });
+
+        return uriResult.uri;
+    } catch (error) {
+        console.error("Error copying asset to device:", error);
+        return assetPath; // Fallback to original path if copy fails
+    }
 };
 
 const PrayerTimesContext = createContext<PrayerTimesContextType | undefined>(undefined);
@@ -244,25 +300,29 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         soundPath = toneConfig.data;
                                     }
 
+                                    // Ensure sound is available locally
+                                    let localSoundPath = await copyAssetToDevice(soundPath);
+
                                     // Fix sound path for Android (Capacitor)
-                                    let androidSoundPath = soundPath;
+                                    let androidSoundPath = localSoundPath;
                                     const isAndroidNative = w.cordova && (w.cordova.platformId === 'android' || (w.device && w.device.platform === 'Android') || /android/i.test(navigator.userAgent));
                                     
                                     if (isAndroidNative) {
-                                        // For Android, we use the res://raw/ scheme
-                                        // The file must be in res/raw (copied by our build script)
-                                        // And the filename must be lowercase with underscores only, no extension
-                                        const filename = soundPath.split('/').pop();
-                                        if (filename) {
-                                            const rawName = filename.toLowerCase()
-                                                .replace(/\.mp3|\.wav/g, '') // Remove extension
-                                                .replace(/\s+/g, '_')       // Replace spaces
-                                                .replace(/[^a-z0-9_]/g, ''); // Remove special chars
-                                            
-                                            // Ensure it doesn't start with a number
-                                            const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
-                                            
-                                            androidSoundPath = `res://raw/${finalName}`;
+                                        // For Android, we use the res://raw/ scheme if it's a bundled asset
+                                        if (localSoundPath.startsWith('/assets/')) {
+                                            const filename = localSoundPath.split('/').pop();
+                                            if (filename) {
+                                                const rawName = filename.toLowerCase()
+                                                    .replace(/\.mp3|\.wav/g, '')
+                                                    .replace(/\s+/g, '_')
+                                                    .replace(/[^a-z0-9_]/g, '');
+                                                
+                                                const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
+                                                androidSoundPath = `res://raw/${finalName}`;
+                                            }
+                                        } else {
+                                            // For downloaded files, use the local file URI
+                                            androidSoundPath = localSoundPath;
                                         }
                                     }
 
@@ -417,58 +477,4 @@ export const usePrayerTimes = () => {
         throw new Error('usePrayerTimes must be used within a PrayerTimesProvider');
     }
     return context;
-};
-
-export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
-    try {
-        const filename = assetPath.split('/').pop();
-        if (!filename) return assetPath;
-
-        // Check if file already exists in Data directory
-        try {
-            const stat = await Filesystem.stat({
-                path: `sounds/${filename}`,
-                directory: Directory.Data
-            });
-            return stat.uri;
-        } catch (e) {
-            // File doesn't exist, proceed to copy
-        }
-
-        // Fetch the asset as a blob
-        const response = await fetch(assetPath);
-        const blob = await response.blob();
-
-        // Convert blob to base64
-        const base64Data = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const result = reader.result as string;
-                // Remove the data URL prefix (e.g., "data:audio/mp3;base64,")
-                const base64 = result.split(',')[1];
-                resolve(base64);
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-        });
-
-        // Write file to Data directory
-        await Filesystem.writeFile({
-            path: `sounds/${filename}`,
-            data: base64Data,
-            directory: Directory.Data,
-            recursive: true
-        });
-
-        // Get the URI of the written file
-        const uriResult = await Filesystem.getUri({
-            path: `sounds/${filename}`,
-            directory: Directory.Data
-        });
-
-        return uriResult.uri;
-    } catch (error) {
-        console.error("Error copying asset to device:", error);
-        return assetPath; // Fallback to original path if copy fails
-    }
 };

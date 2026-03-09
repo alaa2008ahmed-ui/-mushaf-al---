@@ -13,162 +13,15 @@ import MushafPage from '../components/QuranReader/MushafPage';
 import Toast from '../components/QuranReader/Toast';
 import TafseerModal from '../components/QuranReader/TafseerModal';
 import ReciterSelectModal from '../components/QuranReader/ReciterSelectModal';
+import SajdahCardModal from '../components/QuranReader/SajdahCardModal';
+import TafseerSelectionModal from '../components/QuranReader/TafseerSelectionModal';
+import MushafSelectionModal from '../components/QuranReader/MushafSelectionModal';
+import ReadingTimer from '../components/QuranReader/ReadingTimer';
+import MarkerNotification from '../components/QuranReader/MarkerNotification';
 import quranUthmaniJson from '../data/quran-uthmani.json';
 import quranTajweedJson from '../data/quran-tajweed.json';
 
 declare var window: any;
-
-const SajdahCardModal: FC<{
-    info: { show: boolean, surah: string, ayah: number, juz: number, page: number },
-    onClose: () => void
-}> = ({ info, onClose }) => {
-    if (!info.show) return null;
-
-    return (
-        <div className="fixed inset-0 z-[250] bg-black/30 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-                <div className="p-4 theme-header-bg rounded-t-2xl text-center">
-                    <h3 className="font-bold text-lg">أحكام سجود التلاوة</h3>
-                    <p className="text-xs opacity-80 mt-1">
-                        عند آية سجدة: سورة {info.surah} - آية {toArabic(info.ayah)}
-                    </p>
-                </div>
-                <div className="p-5 overflow-y-auto text-right leading-relaxed space-y-4 text-sm">
-                    <div>
-                        <p><b>1. تعريف سجود التلاوة</b></p>
-                        <p className="mt-1">هو سجود يؤديه القارئ أو المستمع عند قراءة آية من آيات السجود في القرآن الكريم، تعظيماً لله تعالى وإظهاراً للعبودية. وقد ثبت في صحيح مسلم عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:</p>
-                        <blockquote className="mt-2 p-2 border-r-4 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 text-sm italic themed-card-bg">"إذَا قَرَأَ ابنُ آدَمَ السَّجْدَةَ فَسَجَدَ، اعْتَزَلَ الشَّيْطَانُ يَبْكِي، يقولُ: يا وَيْلَهُ، أُمِرَ ابنُ آدَمَ بالسُّجُودِ فَسَجَدَ فَلَهُ الجَنَّةُ، وأُمِرْتُ بالسُّجُودِ فأبَيْتُ فَلِيَ النَّارُ".</blockquote>
-                    </div>
-
-                    <div>
-                        <p><b>2. عدد آيات السجدة ومواضعها</b></p>
-                        <p className="mt-1 mb-2">اتفق جمهور العلماء على وجود آيات السجود في القرآن، وأشهر الآراء أنها 15 سجدة، وهي موزعة كالآتي:</p>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs p-3 rounded-lg themed-card-bg">
-                            <div className="text-right">الأعراف: <b>{toArabic(206)}</b></div>
-                            <div className="text-right">النمل: <b>{toArabic(26)}</b></div>
-                            <div className="text-right">الرعد: <b>{toArabic(15)}</b></div>
-                            <div className="text-right">السجدة: <b>{toArabic(15)}</b></div>
-                            <div className="text-right">النحل: <b>{toArabic(50)}</b></div>
-                            <div className="text-right">ص: <b>{toArabic(24)}</b></div>
-                            <div className="text-right">الإسراء: <b>{toArabic(109)}</b></div>
-                            <div className="text-right">فصلت: <b>{toArabic(38)}</b></div>
-                            <div className="text-right">مريم: <b>{toArabic(58)}</b></div>
-                            <div className="text-right">النجم: <b>{toArabic(62)}</b></div>
-                            <div className="text-right">الحج (سجدتان): <b>{toArabic(18)} و {toArabic(77)}</b></div>
-                            <div className="text-right">الانشقاق: <b>{toArabic(21)}</b></div>
-                            <div className="text-right">الفرقان: <b>{toArabic(60)}</b></div>
-                            <div className="text-right">العلق: <b>{toArabic(19)}</b></div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <p><b>3. حكم سجود التلاوة</b></p>
-                        <p className="mt-1 mb-2">اختلف الفقهاء في حكمها على قولين مشهورين:</p>
-                        <ul className="list-disc pr-5 space-y-2">
-                            <li><b>جمهور العلماء (الشافعية والمالكية والحنابلة):</b> أنها سُنّة مؤكدة وليست واجبة؛ واستدلوا بأن عمر بن الخطاب رضي الله عنه قرأ السجدة يوم الجمعة على المنبر فنزل وسجد، ثم قرأها في الجمعة التالية فلم يسجد وقال: "إن الله لم يفرض علينا السجود إلا أن نشاء".</li>
-                            <li><b>الحنفية:</b> ذهبوا إلى أنها واجبة على القارئ والمستمع.</li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <p><b>4. شروط وكيفية سجود التلاوة</b></p>
-                        <div className="space-y-3 mt-1">
-                            <p><b>الشروط:</b><br/>يشترط لها عند جمهور الفقهاء ما يشترط للصلاة (الطهارة، استقبال القبلة، ستر العورة)، بينما ذهب بعض العلماء (مثل ابن تيمية والشوكاني) إلى أنه يجوز السجود دون طهارة (مثل سجود الشكر) لأنها ليست صلاة كاملة، لكن الأفضل والأحوط هو التطهر.</p>
-                            <div>
-                                <p><b>الكيفية:</b></p>
-                                <ul className="list-disc pr-5 space-y-2 mt-1">
-                                    <li><b>التكبير:</b> يُكبر الساجد عند الهويّ للسجود (وعند الرفع منه إذا كان داخل الصلاة).</li>
-                                    <li><b>السجود:</b> سجدة واحدة كسجدة الصلاة.</li>
-                                    <li>
-                                        <b>الدعاء:</b> يُشرع فيها ما يقال في سجود الصلاة "سبحان ربي الأعلى"، ويُستحب الدعاء المأثور:
-                                        <blockquote className="mt-2 p-2 border-r-2 border-emerald-500 text-sm italic themed-card-bg">"سَجَدَ وَجْهِي لِلَّذِي خَلَقَهُ، وَشَقَّ سَمْعَهُ وَبَصَرَهُ، بِحَوْلِهِ وَقُوَّتِهِ".</blockquote>
-                                        <blockquote className="mt-2 p-2 border-r-2 border-emerald-500 text-sm italic themed-card-bg">"اللَّهُمَّ اكْتُبْ لِي بِهَا عِنْدَكَ أَجْرًا، وَضَعْ عَنِّي بِهَا وِزْرًا، وَاجْعَلْهَا لِي عِنْدَكَ ذُخْرًا، وَتَقَبَّلْهَا مِنِّي كَمَا تَقَبَّلْتَهَا مِنْ عَبْدِكَ دَاوُدَ".</blockquote>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <p><b>5. ملاحظات هامة</b></p>
-                        <ul className="list-disc pr-5 space-y-2 mt-1">
-                            <li><b>داخل الصلاة:</b> إذا قرأ الإمام آية سجدة، يسجد ويسجد المأمومون معه.</li>
-                            <li><b>للمستمع:</b> يشرع السجود للمستمع الذي يقصد سماع القرآن، أما "السامع" (من مرّ صدفة أو سمعها في مكان عام دون قصد) فلا يجب عليه السجود عند كثير من الفقهاء.</li>
-                            <li><b>العجز عن السجود:</b> من لم يستطع السجود لسبب ما (كأن يكون في وسيلة مواصلات)، يمكنه الإيماء برأسه أو الاكتفاء بالذكر.</li>
-                        </ul>
-                    </div>
-                </div>
-                <div className="p-3 border-t themed-card-bg rounded-b-2xl">
-                    <button onClick={onClose} className="w-full theme-accent-btn py-2.5 rounded-xl font-bold transition">
-                        إغلاق
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-
-const TafseerSelectionModal: FC<{
-    isOpen: boolean,
-    onClose: () => void,
-    onSelect: (tafseerId: string) => void,
-    currentTafseerId: string
-}> = ({ isOpen, onClose, onSelect, currentTafseerId }) => {
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 z-[300] bg-black/30 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-sm rounded-2xl shadow-2xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
-                <div className="p-4 theme-header-bg rounded-t-2xl text-center">
-                    <h3 className="font-bold text-lg">اختر التفسير</h3>
-                </div>
-                <div className="p-2 overflow-y-auto space-y-2">
-                    {TAFSEERS.map(t => (
-                        <button key={t.id} onClick={() => onSelect(t.id)} className={`w-full p-3 rounded-xl text-right font-bold transition flex justify-between items-center ${currentTafseerId === t.id ? 'theme-accent-btn' : 'hover:opacity-80'}`} style={currentTafseerId !== t.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', border: '1px solid var(--qr-card-border)' } : {}}>
-                            <span>{t.name}</span>
-                            {currentTafseerId === t.id && <i className="fa-solid fa-check"></i>}
-                        </button>
-                    ))}
-                </div>
-                <div className="p-3 border-t themed-card-bg rounded-b-2xl">
-                    <button onClick={onClose} className="w-full py-2 rounded-xl font-bold theme-btn-bg">إلغاء</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const MushafSelectionModal: FC<{
-    isOpen: boolean,
-    onClose: () => void,
-    onSelect: (type: 'uthmani' | 'tajweed') => void,
-    currentType: 'uthmani' | 'tajweed'
-}> = ({ isOpen, onClose, onSelect, currentType }) => {
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 z-[300] bg-black/30 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-sm rounded-2xl shadow-2xl flex flex-col max-h-[80vh]" onClick={e => e.stopPropagation()}>
-                <div className="p-4 theme-header-bg rounded-t-2xl text-center">
-                    <h3 className="font-bold text-lg">اختر نوع المصحف</h3>
-                </div>
-                <div className="p-2 overflow-y-auto space-y-2">
-                    <button onClick={() => onSelect('uthmani')} className={`w-full p-3 rounded-xl text-right font-bold transition flex justify-between items-center ${currentType === 'uthmani' ? 'theme-accent-btn' : 'hover:opacity-80'}`} style={currentType !== 'uthmani' ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', border: '1px solid var(--qr-card-border)' } : {}}>
-                        <span>المصحف العثماني</span>
-                        {currentType === 'uthmani' && <i className="fa-solid fa-check"></i>}
-                    </button>
-                    <button onClick={() => onSelect('tajweed')} className={`w-full p-3 rounded-xl text-right font-bold transition flex justify-between items-center ${currentType === 'tajweed' ? 'theme-accent-btn' : 'hover:opacity-80'}`} style={currentType !== 'tajweed' ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', border: '1px solid var(--qr-card-border)' } : {}}>
-                        <span>المصحف المجود</span>
-                        {currentType === 'tajweed' && <i className="fa-solid fa-check"></i>}
-                    </button>
-                </div>
-                <div className="p-3 border-t themed-card-bg rounded-b-2xl">
-                    <button onClick={onClose} className="w-full py-2 rounded-xl font-bold theme-btn-bg">إلغاء</button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 
 const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const [useTajweed, setUseTajweed] = useState(() => localStorage.getItem('use_tajweed_quran') === 'true');
@@ -384,56 +237,6 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         }
         setSajdahCardInfo({ show: false, surah: '', ayah: 0, juz: 0, page: 0, wasAutoscrolling: false, wasPlaying: false });
     };
-
-    const handleAyahVisible = useCallback((ayahBlock: HTMLElement) => {
-        const parts = ayahBlock.id.split('-');
-        if (parts.length !== 3) return;
-        const s = parseInt(parts[1], 10);
-        const a = parseInt(parts[2], 10);
-
-        if (s !== currentAyahRef.current.s || a !== currentAyahRef.current.a) {
-            setCurrentAyah({ s, a });
-            currentAyahRef.current = { s, a };
-
-            const juzAttr = ayahBlock.dataset.juz;
-            const quarterAttr = ayahBlock.dataset.hizbQuarter;
-
-            // Detect Juz change
-            if (juzAttr) {
-                const newJuz = parseInt(juzAttr, 10);
-                if (lastNotifiedJuz.current !== null && newJuz !== lastNotifiedJuz.current) {
-                    showMarkerNotification('juz', `بداية الجزء ${toArabic(newJuz)}`);
-                }
-                lastNotifiedJuz.current = newJuz;
-            }
-
-            // Detect Quarter change
-            if (quarterAttr) {
-                const newQuarter = parseInt(quarterAttr, 10);
-                if (lastNotifiedQuarter.current !== null && newQuarter !== lastNotifiedQuarter.current) {
-                    let label = '';
-                    const qInHizb = ((newQuarter - 1) % 4) + 1;
-                    const hizbNum = Math.ceil(newQuarter / 4);
-                    if (qInHizb === 1) label = `بداية الحزب ${toArabic(hizbNum)}`;
-                    else if (qInHizb === 2) label = `ربع الحزب ${toArabic(hizbNum)}`;
-                    else if (qInHizb === 3) label = `نصف الحزب ${toArabic(hizbNum)}`;
-                    else if (qInHizb === 4) label = `ثلاثة أرباع الحزب ${toArabic(hizbNum)}`;
-
-                    showMarkerNotification('quarter', label);
-                }
-                lastNotifiedQuarter.current = newQuarter;
-            }
-
-            if (ayahBlock.getAttribute('data-sajdah') === 'true') {
-                const surahName = ayahBlock.dataset.surah || '';
-                const sNum = parseInt(ayahBlock.dataset.snum || '0', 10);
-                const ayahNum = parseInt(ayahBlock.dataset.ayah || '0', 10);
-                if (surahName && sNum && ayahNum) {
-                    handleSajdahVisible(surahName, sNum, ayahNum);
-                }
-            }
-        }
-    }, [handleSajdahVisible, showMarkerNotification]);
 
     const playNextAyah = useCallback(() => {
         if (!quranData || !playingAyah) return stopAudio();
@@ -848,8 +651,6 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             
             const ayahBlock = el.closest('.ayah-text-block');
             if (ayahBlock && ayahBlock.id) {
-                handleAyahVisible(ayahBlock as HTMLElement);
-                return;
                 const parts = ayahBlock.id.split('-');
                 if (parts.length === 3) {
                     const s = parseInt(parts[1], 10);
@@ -1030,11 +831,6 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         initialPinchFontSizeRef.current = null;
     };
 
-    const handleAyahVisibleRef = useRef(handleAyahVisible);
-    useEffect(() => {
-        handleAyahVisibleRef.current = handleAyahVisible;
-    }, [handleAyahVisible]);
-
     const updateHeadersDuringAutoScroll = () => {
         const content = mushafContentRef.current;
         if (!content) return;
@@ -1042,7 +838,22 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         if (!el) return;
         const ayahBlock = el.closest('.ayah-text-block');
         if (ayahBlock && ayahBlock.id) {
-            handleAyahVisibleRef.current(ayahBlock as HTMLElement);
+            const parts = ayahBlock.id.split('-'); 
+            if (parts.length === 3) {
+                const s = parseInt(parts[1]); const a = parseInt(parts[2]);
+                if (s !== currentAyahRef.current.s || a !== currentAyahRef.current.a) {
+                    setCurrentAyah({ s, a });
+                    currentAyahRef.current = { s, a };
+                    if (ayahBlock.getAttribute('data-sajdah') === 'true') {
+                        const surahName = (ayahBlock as HTMLElement).dataset.surah || '';
+                        const sNum = parseInt((ayahBlock as HTMLElement).dataset.snum || '0', 10);
+                        const ayahNum = parseInt((ayahBlock as HTMLElement).dataset.ayah || '0', 10);
+                        if(surahName && sNum && ayahNum){
+                            handleSajdahVisible(surahName, sNum, ayahNum);
+                        }
+                    }
+                }
+            }
         }
     };
 
@@ -1314,31 +1125,6 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             />
             <SajdahCardModal info={sajdahCardInfo} onClose={handleCloseSajdahCard} />
             <Toast message={toast.message} show={toast.show} onClose={handleToastClose} />
-        </div>
-    );
-};
-
-const ReadingTimer: FC<{isVisible: boolean, elapsedTime: number}> = ({isVisible, elapsedTime}) => {
-    const minutes = Math.floor(Number(elapsedTime) / 60).toString().padStart(2, '0');
-    const seconds = (Number(elapsedTime) % 60).toString().padStart(2, '0');
-    return (<div className={`reading-timer ${isVisible ? 'show' : ''}`} style={{ backgroundColor: 'var(--qr-modal-bg)', color: 'var(--qr-modal-text)', border: '1px solid var(--qr-card-border)' }}>{toArabic(`${minutes}:${seconds}`)}</div>);
-};
-
-const MarkerNotification: FC<{isVisible: boolean, type: string, text: string}> = ({isVisible, type, text}) => {
-    const getIcon = () => {
-        switch(type) {
-            case 'juz': return 'fa-book-open';
-            case 'quarter': return 'fa-star';
-            case 'sajda': return 'fa-mosque';
-            case 'surah': return 'fa-scroll';
-            default: return 'fa-info-circle';
-        }
-    };
-
-    return (
-        <div className={`marker-notification ${isVisible ? 'show' : ''}`} style={{ backgroundColor: 'var(--qr-modal-bg)', color: 'var(--qr-modal-text)', border: '1px solid var(--qr-card-border)' }}>
-            <div className="marker-icon theme-header-bg"><i className={`fa-solid ${getIcon()}`}></i></div>
-            <div className="marker-text">{text}</div>
         </div>
     );
 };
