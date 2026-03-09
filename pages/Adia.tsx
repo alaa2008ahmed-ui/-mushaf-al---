@@ -50,16 +50,19 @@ function Adia({ onBack }) {
             <BottomBar onHomeClick={onBack} onThemesClick={() => {}} showThemes={false} />
 
             {zoomedDuaa && (
-                <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center p-4" onClick={closeZoomModal}>
-                    <div className="themed-card p-6 rounded-2xl w-full max-w-2xl text-center relative" onClick={e => e.stopPropagation()}>
-                        <p className="text-4xl md:text-5xl leading-relaxed font-amiri">
+                <div className="fixed inset-0 bg-black/80 z-[100] flex justify-center items-center p-4 backdrop-blur-sm" onClick={closeZoomModal}>
+                    <div className="bg-white text-gray-900 p-8 rounded-3xl w-full max-w-2xl text-center relative scale-in shadow-2xl border-2" style={{ borderColor: theme.palette[0], fontFamily: theme.font }} onClick={e => e.stopPropagation()}>
+                        <p className="text-3xl md:text-4xl leading-relaxed">
                             {zoomedDuaa.text}
                         </p>
-                        <p className="text-lg mt-4 themed-text-muted opacity-80">
+                        <p className="text-lg mt-6 font-bold" style={{ color: theme.palette[1] }}>
                             المصدر: {zoomedDuaa.source}
                         </p>
-                        <button onClick={closeZoomModal} className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
-                            <i className="fa-solid fa-times text-2xl"></i>
+                        <button 
+                            onClick={closeZoomModal} 
+                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-600"
+                        >
+                            <i className="fa-solid fa-xmark text-xl"></i>
                         </button>
                     </div>
                 </div>

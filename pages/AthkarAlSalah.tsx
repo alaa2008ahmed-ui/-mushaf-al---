@@ -257,10 +257,10 @@ function AthkarAlSalah({ onBack }) {
 
             {zoomedZikr && (
                 <div className="fixed inset-0 bg-black/80 z-[100] flex justify-center items-center p-4 backdrop-blur-sm" onClick={() => setZoomedZikr(null)}>
-                    <div className="themed-card p-8 rounded-3xl w-full max-w-2xl text-center relative scale-in shadow-2xl border-2" style={{ borderColor: theme.palette[0] }} onClick={e => e.stopPropagation()}>
+                    <div className="bg-white text-gray-900 p-8 rounded-3xl w-full max-w-2xl text-center relative scale-in shadow-2xl border-2" style={{ borderColor: theme.palette[0], fontFamily: theme.font }} onClick={e => e.stopPropagation()}>
                         {zoomedZikr.title && <h3 className="text-xl font-bold mb-4" style={{ color: theme.palette[1] }}>{zoomedZikr.title}</h3>}
                         <div 
-                            className="text-3xl md:text-4xl leading-relaxed font-amiri"
+                            className="text-3xl md:text-4xl leading-relaxed"
                             dangerouslySetInnerHTML={{ __html: zoomedZikr.text }}
                         ></div>
                         <p className="text-lg mt-6 font-bold" style={{ color: theme.palette[0] }}>
@@ -268,7 +268,7 @@ function AthkarAlSalah({ onBack }) {
                         </p>
                         <button 
                             onClick={() => setZoomedZikr(null)} 
-                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-600"
                         >
                             <i className="fa-solid fa-xmark text-xl"></i>
                         </button>

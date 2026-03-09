@@ -40,11 +40,7 @@ const DEFAULT_CONFIG: PrayerConfig = {
 };
 
 const defaultTones = [
-    { name: "أذان 4 (الافتراضي)", path: "/assets/audio/adhan4.mp3" },
     { name: "أذان كامل", path: "/assets/audio/adhan_full.mp3" },
-    { name: "أذان 1", path: "/assets/audio/adhan1.mp3" },
-    { name: "أذان 2", path: "/assets/audio/adhan2.mp3" },
-    { name: "أذان 3", path: "/assets/audio/adhan3.mp3" },
 ];
 
 // --- Helper Functions ---
@@ -245,25 +241,25 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     // --- Notification Scheduling ---
-    const scheduleNotifications = useCallback((currentConfig: PrayerConfig) => {
+    const scheduleNotifications = useCallback(() => {
         const w = window as any;
         if (w.cordova && w.cordova.plugins && w.cordova.plugins.notification && w.cordova.plugins.notification.local) {
             const localNotifier = w.cordova.plugins.notification.local;
 
-            // Check for Exact Alarm permission (Android 12+)
+            // Create Notification Channel for Android 8+
             if (w.cordova.platformId === 'android') {
-                // This is a best-effort check; the plugin handles the actual permission request usually
-                console.log("Checking/Requesting Exact Alarm permission...");
+                localNotifier.addActions('adhan_actions', [
+                    { id: 'dismiss', title: 'إيقاف' }
+                ]);
+                
+                // We need to ensure the channel exists before scheduling
+                // The plugin might create a default channel, but it's better to be explicit
             }
 
             // Request permission first
             localNotifier.hasPermission((granted: boolean) => {
                 const proceed = () => {
-                    // --- ATOMIC OPERATION: CANCEL THEN RESCHEDULE ---
-                    // 1. Force Cancel: Clear all previous schedules
-                    console.log("Starting atomic reschedule (v7)...");
                     localNotifier.cancelAll(async () => {
-                        console.log("Cancellation complete. Scheduling new alarms...");
                         const prayerKeys = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
                         const notificationsToSchedule: any[] = [];
                         
@@ -273,7 +269,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                             date.setDate(date.getDate() + day);
                             
                             // Recalculate times for that specific day
-                            const coordinates = new Coordinates(currentConfig.location.lat, currentConfig.location.lng);
+                            const coordinates = new Coordinates(config.location.lat, config.location.lng);
                             const params = CalculationMethod.UmmAlQura();
                             const prayerTimes = new AdhanPrayerTimes(coordinates, date, params);
                             
@@ -286,45 +282,64 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                             };
 
                             // Use a for...of loop to handle async operations sequentially
-                            for (let i = 0; i < prayerKeys.length; i++) {
-                                const key = prayerKeys[i];
-                                if (!currentConfig.mutedPrayers[key]) {
+                            for (const key of prayerKeys) {
+                                if (!config.mutedPrayers[key]) {
                                     let prayerDate = dayTimings[key];
                                     // Apply offset
-                                    prayerDate.setMinutes(prayerDate.getMinutes() + (currentConfig.prayerOffsets[key] || 0));
+                                    prayerDate.setMinutes(prayerDate.getMinutes() + (config.prayerOffsets[key] || 0));
 
                                     // Skip if time passed
                                     if (prayerDate < new Date()) continue;
 
-                                    // 2. Extract Filename (The Key)
-                                    const toneConfig = currentConfig.tones[key];
-                                    let soundPath = defaultTones[0].path; // Default to adhan4
+                                    const toneConfig = config.tones[key];
+                                    let soundPath = defaultTones[0].path;
                                     
                                     if (toneConfig && toneConfig.data && toneConfig.data !== 'none' && !toneConfig.data.startsWith('data:')) {
                                         soundPath = toneConfig.data;
                                     }
 
-                                    // Extract pure filename: /assets/audio/adhan1.mp3 -> adhan1
-                                    const fileName = soundPath.split('/').pop()?.replace(/\.(mp3|wav)$/i, '') || 'adhan4';
-                                    
-                                    // Sanitize for Android resource name (lowercase, numbers, underscores only)
-                                    const safeFileName = fileName.toLowerCase().replace(/[^a-z0-9_]/g, '');
-                                    // Ensure no starting number
-                                    const finalResName = /^\d/.test(safeFileName) ? 'sound_' + safeFileName : safeFileName;
-
-                                    // 3. Protocol: res:// + fileName
+                                    // Fix sound path for Android (Capacitor)
                                     let androidSoundPath = soundPath;
-                                    if (w.cordova.platformId === 'android') {
-                                        androidSoundPath = `res://${finalResName}`;
+                                    const isAndroidNative = w.cordova && (w.cordova.platformId === 'android' || (w.device && w.device.platform === 'Android') || /android/i.test(navigator.userAgent));
+                                    
+                                    if (isAndroidNative) {
+                                        // For Android, we use the res://raw/ scheme
+                                        // The file must be in res/raw (copied by our build script)
+                                        // And the filename must be lowercase with underscores only, no extension
+                                        const filename = soundPath.split('/').pop();
+                                        if (filename) {
+                                            const rawName = filename.toLowerCase()
+                                                .replace(/\.mp3|\.wav/g, '') // Remove extension
+                                                .replace(/\s+/g, '_')       // Replace spaces
+                                                .replace(/[^a-z0-9_]/g, ''); // Remove special chars
+                                            
+                                            // Ensure it doesn't start with a number
+                                            const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
+                                            
+                                            androidSoundPath = `res://raw/${finalName}`;
+                                        }
                                     }
 
-                                    // 4. Unique Channel ID: adhan_v7_${key}_${fileName}
-                                    // Updated to v7 to bypass Android 13/14 restrictions
-                                    const channelId = `adhan_v7_${key}_${finalResName}`;
+                                    // Unique ID: day index * 10 + prayer index
+                                    const id = (day * 10) + prayerKeys.indexOf(key) + 1;
+                                    
+                                    // Dynamic Channel ID to force sound update on Android 8+
+                                    // If we use the same channel ID, Android will ignore the new sound
+                                    const soundName = androidSoundPath.split('/').pop() || 'default';
+                                    // Sanitize channel ID
+                                    const channelId = `adhan_channel_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
-                                    // 5. Unique IDs for prayers
-                                    // Day 0: 101, 102... Day 1: 201, 202...
-                                    const id = ((day + 1) * 100) + (i + 1);
+                                    // Explicitly create the channel to ensure the custom sound is applied
+                                    if (isAndroidNative && localNotifier.addChannel) {
+                                        localNotifier.addChannel({
+                                            id: channelId,
+                                            name: `Adhan ${prayerNamesAr[key]}`,
+                                            description: `Notifications for ${prayerNamesAr[key]} prayer`,
+                                            sound: androidSoundPath,
+                                            importance: 4,
+                                            vibration: true
+                                        });
+                                    }
 
                                     notificationsToSchedule.push({
                                         id: id,
@@ -333,19 +348,18 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         trigger: { at: prayerDate },
                                         foreground: true,
                                         sound: androidSoundPath,
-                                        channel: channelId,
-                                        priority: 2, // High priority (Max)
+                                        channel: channelId, // Unique channel per prayer/sound combo
+                                        priority: 2, // High priority
                                         lockscreen: true,
                                         vibrate: true,
                                         launch: true,
-                                        wakeup: true, // Ensure device wakes up
-                                        exact: true, // Android 12+ requirement for exact timing
-                                        allowWhileIdle: true, // Execute even in Doze mode
+                                        // Explicitly define channel properties for Android 8+
+                                        // The plugin will create this channel if it doesn't exist
                                         channelName: `Adhan ${prayerNamesAr[key]}`,
-                                        channelDescription: `Notifications for ${prayerNamesAr[key]}`,
-                                        importance: 4, // High importance (Max)
+                                        channelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
+                                        importance: 4, // High importance
                                         visibility: 1, // Public
-                                        playSound: true
+                                        playSound: true // Explicitly enable sound
                                     });
                                 }
                             }
@@ -353,7 +367,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
 
                         if (notificationsToSchedule.length > 0) {
                             localNotifier.schedule(notificationsToSchedule);
-                            console.log(`Scheduled ${notificationsToSchedule.length} notifications (v7).`);
+                            console.log(`Scheduled ${notificationsToSchedule.length} notifications.`);
                         }
                     });
                 };
@@ -367,24 +381,12 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                 }
             });
         }
-    }, []);
-
-    // Optimize scheduling to avoid unnecessary clears
-    // Only reschedule if relevant config changes (location, offsets, muted, tones)
-    const scheduleDependency = React.useMemo(() => {
-        return JSON.stringify({
-            lat: config.location.lat,
-            lng: config.location.lng,
-            offsets: config.prayerOffsets,
-            muted: config.mutedPrayers,
-            tones: config.tones
-        });
     }, [config]);
 
-    // Schedule whenever relevant config changes
+    // Schedule whenever config changes (location, offsets, muted prayers)
     useEffect(() => {
-        scheduleNotifications(config);
-    }, [scheduleDependency, scheduleNotifications]);
+        scheduleNotifications();
+    }, [scheduleNotifications]);
 
     // --- Next Prayer & Countdown Logic ---
     useEffect(() => {
