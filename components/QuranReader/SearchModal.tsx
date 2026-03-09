@@ -15,8 +15,14 @@ const SearchModal: React.FC<SearchModalProps> = ({ quranData, onSelect, onClose 
     const [searchJobId, setSearchJobId] = useState(0);
     const searchTimeoutRef = useRef<any>(null);
 
+    const stripTajweedTags = (text: string) => {
+        if (!text) return '';
+        return text.replace(/\[([a-z])(?::\d+)?\[([^\]]+)\]/g, '$2');
+    };
+
     const normalizeArabic = (text: string) => {
-        return text.replace(/[\u064B-\u065F\u0670]/g, "")
+        const stripped = stripTajweedTags(text);
+        return stripped.replace(/[\u064B-\u065F\u0670]/g, "")
                    .replace(/\u0640/g, "")
                    .replace(/[أإآٱ]/g, "ا")
                    .replace(/ة/g, "ه")
@@ -76,9 +82,10 @@ const SearchModal: React.FC<SearchModalProps> = ({ quranData, onSelect, onClose 
                 const surah = quranData.surahs[sIdx];
                 while (aIdx < surah.ayahs.length) {
                     const ayah = surah.ayahs[aIdx];
-                    if (normalizeArabic(ayah.text).includes(normQ)) {
+                    const cleanText = stripTajweedTags(ayah.text);
+                    if (normalizeArabic(cleanText).includes(normQ)) {
                         foundResults.push({ 
-                            text: ayah.text, 
+                            text: cleanText, 
                             surah: surah.number, 
                             surahName: surah.name, 
                             ayah: ayah.numberInSurah, 

@@ -18,6 +18,30 @@ interface MushafPageProps {
     };
 }
 
+const renderTajweedText = (text: string) => {
+    if (!text || !text.includes('[')) return text;
+    
+    const parts = [];
+    let lastIndex = 0;
+    const regex = /\[([a-z])(?::\d+)?\[([^\]]+)\]/g;
+    let match;
+    
+    while ((match = regex.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+            parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex, match.index)}</span>);
+        }
+        const colorClass = `tajweed-${match[1]}`;
+        parts.push(<span key={`tag-${match.index}`} className={colorClass}>{match[2]}</span>);
+        lastIndex = regex.lastIndex;
+    }
+    
+    if (lastIndex < text.length) {
+        parts.push(<span key={`text-${lastIndex}`}>{text.substring(lastIndex)}</span>);
+    }
+    
+    return parts;
+};
+
 const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, highlightedAyahId, onAyahClick, onVerseClick, onVerseLongPress, onInteractionStart, onInteractionEnd, settings }) => {
     const pageRef = useRef<HTMLDivElement | null>(null);
     const longPressTimer = useRef<number | null>(null);
@@ -117,7 +141,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                                 data-surah={ayah.sName.replace('سورة','').trim()} 
                                 data-ayah={ayah.numberInSurah}
                             >
-                                {text.replace(/[\s\u200B-\u200D\uFEFF]+/g, ' ').trim()}
+                                {renderTajweedText(text.replace(/[\s\u200B-\u200D\uFEFF]+/g, ' ').trim())}
                                 <span className="verse-container" 
                                     onClick={(e) => {
                                         if (!isLongPressTriggered.current) {

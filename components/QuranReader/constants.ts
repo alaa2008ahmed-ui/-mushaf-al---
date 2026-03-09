@@ -68,7 +68,7 @@ export const READERS = [
     { id: 'Minshawy_Teacher_128kbps', name: 'المنشاوي (معلم)' },
     { id: 'Mahmoud_Ali_Al_Banna_32kbps', name: 'محمود علي البنا' }
 ];
-export const TAFSEERS = [{ id: 'ar.muyassar', name: 'التفسير الميسر' }, { id: 'ar.baghawi', name: 'تفسير البغوي' }, { id: 'ar.qurtubi', name: 'تفسير القرطبي' }, { id: 'ar.jalalayn', name: 'تفسير الجلالين' }, { id: 'ar.waseet', name: 'التفسير الوسيط' }];
+export const TAFSEERS = [{ id: 'ar.jalalayn', name: 'تفسير الجلالين' }, { id: 'ar.muyassar', name: 'التفسير الميسر' }, { id: 'ar.baghawi', name: 'تفسير البغوي' }, { id: 'ar.qurtubi', name: 'تفسير القرطبي' }, { id: 'ar.waseet', name: 'التفسير الوسيط' }];
 
 export const SURAH_INFO: Record<number, { ayahs: number, type: string }> = {
     1: { ayahs: 7, type: "مكية" },

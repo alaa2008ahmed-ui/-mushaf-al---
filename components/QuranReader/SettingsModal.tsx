@@ -27,7 +27,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
             reader: 'Alafasy_128kbps',
             theme: 'light',
             scrollMinutes: 20,
-            tafseer: 'ar.muyassar'
+            tafseer: 'ar.jalalayn'
         };
     });
     
@@ -36,6 +36,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
         const saved = localStorage.getItem('show_sajdah_card');
         return saved !== null ? saved === 'true' : true;
     });
+    const [useTajweed, setUseTajweed] = useState(() => localStorage.getItem('use_tajweed_quran') === 'true');
 
 
 
@@ -59,6 +60,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
         localStorage.setItem('show_sajdah_card', String(checked));
         window.dispatchEvent(new Event('settings-change'));
         showToast(checked ? 'تم تفعيل بطاقة السجدة الكبرى' : 'تم إيقاف بطاقة السجدة الكبرى');
+    };
+
+    const handleTajweedToggle = (checked: boolean) => {
+        setUseTajweed(checked);
+        localStorage.setItem('use_tajweed_quran', String(checked));
+        window.dispatchEvent(new Event('settings-change'));
+        showToast(checked ? 'تم تفعيل المصحف المجود' : 'تم إيقاف المصحف المجود');
     };
 
 
@@ -193,6 +201,15 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                                 <div className="relative inline-block w-10 align-middle select-none">
                                     <input type="checkbox" id="show-sajdah-card" checked={showSajdahCard} onChange={(e) => handleSajdahCardToggle(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer"/>
                                     <label htmlFor="show-sajdah-card" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${showSajdahCard ? 'bg-emerald-500' : 'bg-gray-300'}`}></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="pt-3">
+                            <div className="flex items-center justify-between">
+                                <label className="text-sm font-bold opacity-80">تفعيل المصحف المجود (ملون)</label>
+                                <div className="relative inline-block w-10 align-middle select-none">
+                                    <input type="checkbox" id="use-tajweed" checked={useTajweed} onChange={(e) => handleTajweedToggle(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer"/>
+                                    <label htmlFor="use-tajweed" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${useTajweed ? 'bg-emerald-500' : 'bg-gray-300'}`}></label>
                                 </div>
                             </div>
                         </div>

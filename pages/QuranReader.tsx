@@ -13,7 +13,8 @@ import MushafPage from '../components/QuranReader/MushafPage';
 import Toast from '../components/QuranReader/Toast';
 import TafseerModal from '../components/QuranReader/TafseerModal';
 import ReciterSelectModal from '../components/QuranReader/ReciterSelectModal';
-import quranDataJson from '../data/quran-uthmani.json';
+import quranUthmaniJson from '../data/quran-uthmani.json';
+import quranTajweedJson from '../data/quran-tajweed.json';
 
 declare var window: any;
 
@@ -139,7 +140,8 @@ const TafseerSelectionModal: FC<{
 
 
 const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
-    const [quranData, setQuranData] = useState<any>(quranDataJson.data);
+    const [useTajweed, setUseTajweed] = useState(() => localStorage.getItem('use_tajweed_quran') === 'true');
+    const [quranData, setQuranData] = useState<any>(useTajweed ? quranTajweedJson.data : quranUthmaniJson.data);
     const [isLoading, setIsLoading] = useState(false);
     const [loadingStatus, setLoadingStatus] = useState('');
     const [loadingProgress, setLoadingProgress] = useState(100);
@@ -185,7 +187,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         const saved = localStorage.getItem('quran_settings');
         return saved ? JSON.parse(saved) : {
             fontSize: 1.7, fontFamily: "var(--font-noto)", textColor: '#1f2937', bgColor: '#ffffff',
-            reader: 'Alafasy_128kbps', theme: 'light', scrollMinutes: 20, tafseer: 'ar.muyassar'
+            reader: 'Alafasy_128kbps', theme: 'light', scrollMinutes: 20, tafseer: 'ar.jalalayn'
         };
     });
 
@@ -551,14 +553,26 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     useEffect(() => {
         const fetchTafseer = async () => {
             if (!tafseerInfo.isOpen) return;
-            const currentTafseerId = settings.tafseer || 'ar.muyassar';
+            const currentTafseerId = settings.tafseer || 'ar.jalalayn';
             const cacheKey = `${tafseerInfo.s}_${currentTafseerId}`;
             try {
                 if (!tafseerCache.current[cacheKey]) {
-                    const res = await fetch(`https://api.alquran.cloud/v1/surah/${tafseerInfo.s}/${currentTafseerId}`);
-                    const data = await res.json();
-                    if (data.code === 200) tafseerCache.current[cacheKey] = data.data.ayahs;
-                    else throw new Error('Failed to fetch tafseer data');
+                    if (currentTafseerId === 'ar.jalalayn') {
+                        const res = await fetch('/assets/data/ar.jalalayn.json');
+                        const data = await res.json();
+                        if (data.code === 200 && data.data && data.data.surahs) {
+                            data.data.surahs.forEach((surah: any) => {
+                                tafseerCache.current[`${surah.number}_ar.jalalayn`] = surah.ayahs;
+                            });
+                        } else {
+                            throw new Error('Failed to parse local tafseer data');
+                        }
+                    } else {
+                        const res = await fetch(`https://api.alquran.cloud/v1/surah/${tafseerInfo.s}/${currentTafseerId}`);
+                        const data = await res.json();
+                        if (data.code === 200) tafseerCache.current[cacheKey] = data.data.ayahs;
+                        else throw new Error('Failed to fetch tafseer data');
+                    }
                 }
                 const ayahTafseer = tafseerCache.current[cacheKey]?.[tafseerInfo.a - 1];
                 setTafseerInfo(prev => ({ ...prev, text: ayahTafseer?.text || "التفسير غير متوفر لهذه الآية." }));
@@ -627,6 +641,10 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             const savedSajdah = localStorage.getItem('show_sajdah_card');
             setShowSajdahCard(savedSajdah !== null ? savedSajdah === 'true' : true);
             setIsTransparentMode(localStorage.getItem('transparent_mode') === 'true');
+            
+            const tajweedSetting = localStorage.getItem('use_tajweed_quran') === 'true';
+            setUseTajweed(tajweedSetting);
+            setQuranData(tajweedSetting ? quranTajweedJson.data : quranUthmaniJson.data);
         };
         window.addEventListener('theme-change', handleThemeChange);
         window.addEventListener('settings-change', handleSettingsChange);
