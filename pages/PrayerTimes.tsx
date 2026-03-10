@@ -6,16 +6,16 @@ import { prayerNamesAr } from '../data/prayerTimesData';
 import { usePrayerTimes, copyAssetToDevice } from '../context/PrayerTimesContext';
 
 const internetTones = [
-    { name: "أذان 1 (مكة المكرمة)", path: "https://www.islamcan.com/audio/adhan/azan1.mp3" },
-    { name: "أذان 2 (المدينة المنورة)", path: "https://www.islamcan.com/audio/adhan/azan2.mp3" },
-    { name: "أذان 3 (المسجد الأقصى)", path: "https://www.islamcan.com/audio/adhan/azan3.mp3" },
-    { name: "أذان 4", path: "https://www.islamcan.com/audio/adhan/azan4.mp3" },
-    { name: "أذان 5", path: "https://www.islamcan.com/audio/adhan/azan5.mp3" },
-    { name: "أذان 6", path: "https://www.islamcan.com/audio/adhan/azan6.mp3" },
-    { name: "أذان 7", path: "https://www.islamcan.com/audio/adhan/azan7.mp3" },
-    { name: "أذان 8", path: "https://www.islamcan.com/audio/adhan/azan8.mp3" },
-    { name: "أذان 9", path: "https://www.islamcan.com/audio/adhan/azan9.mp3" },
-    { name: "أذان 10", path: "https://www.islamcan.com/audio/adhan/azan10.mp3" },
+    { name: "أذان 1 (مكة المكرمة)", path: "/assets/audio/azan1.mp3" },
+    { name: "أذان 2 (المدينة المنورة)", path: "/assets/audio/azan2.mp3" },
+    { name: "أذان 3 (المسجد الأقصى)", path: "/assets/audio/azan3.mp3" },
+    { name: "أذان 4", path: "/assets/audio/azan4.mp3" },
+    { name: "أذان 5", path: "/assets/audio/azan5.mp3" },
+    { name: "أذان 6", path: "/assets/audio/azan6.mp3" },
+    { name: "أذان 7", path: "/assets/audio/azan7.mp3" },
+    { name: "أذان 8", path: "/assets/audio/azan8.mp3" },
+    { name: "أذان 9", path: "/assets/audio/azan9.mp3" },
+    { name: "أذان 10", path: "/assets/audio/azan10.mp3" },
     { name: "تنبيه ساعة رقمية", path: "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" },
     { name: "تنبيه رنين قصير", path: "https://actions.google.com/sounds/v1/alarms/beep_short.ogg" },
     { name: "تنبيه هادئ", path: "https://actions.google.com/sounds/v1/alarms/dosimeter_alarm.ogg" },
@@ -173,13 +173,18 @@ function PrayerTimes({ onBack }) {
             const selectedInternet = internetTones.find(t => t.path === value);
             if (selectedInternet) {
                 try {
-                    showToast("جاري تحميل الصوت للمعاينة...");
-                    const localUri = await copyAssetToDevice(selectedInternet.path);
+                    let localUri = selectedInternet.path;
+                    if (localUri.startsWith('http')) {
+                        showToast("جاري تحميل الصوت للمعاينة...");
+                        localUri = await copyAssetToDevice(selectedInternet.path);
+                    }
                     playNotificationSound(localUri); // Play preview
                     updateConfig({
                         tones: { ...config.tones, [currentEditingKey]: { name: selectedInternet.name, data: localUri, originalUrl: selectedInternet.path }}
                     });
-                    showToast("تم اختيار الصوت بنجاح");
+                    if (localUri.startsWith('http')) {
+                        showToast("تم اختيار الصوت بنجاح");
+                    }
                 } catch (err) {
                     console.error("Failed to download tone:", err);
                     showToast("فشل في تحميل الملف الصوتي. يرجى التحقق من اتصالك بالإنترنت.");

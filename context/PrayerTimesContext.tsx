@@ -506,32 +506,50 @@ export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
         }
 
         if (assetPath.startsWith('http')) {
-            // Use native downloadFile for much faster downloads and no CORS issues
-            const downloadResult = await Filesystem.downloadFile({
-                url: assetPath,
-                path: `sounds/${filename}`,
-                directory: targetDirectory,
-                recursive: true
-            });
-            
-            if (downloadResult.path) {
-                // Return the proper file:// URI
-                const stat = await Filesystem.stat({
+            try {
+                // Use native downloadFile for much faster downloads and no CORS issues
+                const downloadResult = await Filesystem.downloadFile({
+                    url: assetPath,
                     path: `sounds/${filename}`,
-                    directory: targetDirectory
+                    directory: targetDirectory,
+                    recursive: true
                 });
-                return stat.uri;
+                
+                if (downloadResult.path) {
+                    // Return the proper file:// URI
+                    const stat = await Filesystem.stat({
+                        path: `sounds/${filename}`,
+                        directory: targetDirectory
+                    });
+                    return stat.uri;
+                }
+            } catch (downloadError) {
+                console.warn("Native downloadFile failed (likely on web), falling back to fetch:", downloadError);
             }
         }
 
         // Fallback for non-http or if downloadFile fails
-        let fetchUrl = assetPath;
-        if (assetPath.startsWith('http')) {
-             fetchUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(assetPath)}`;
+        let response;
+        try {
+            response = await fetch(assetPath);
+            if (!response.ok) throw new Error("Direct fetch failed");
+        } catch (e) {
+            if (assetPath.startsWith('http')) {
+                console.warn("Direct fetch failed, trying proxy...", e);
+                // Try corsproxy.io as a reliable fallback
+                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(assetPath)}`;
+                response = await fetch(proxyUrl);
+                if (!response.ok) {
+                    // Try allorigins as a second fallback
+                    const proxyUrl2 = `https://api.allorigins.win/raw?url=${encodeURIComponent(assetPath)}`;
+                    response = await fetch(proxyUrl2);
+                    if (!response.ok) throw new Error("All proxy fetches failed");
+                }
+            } else {
+                throw e;
+            }
         }
         
-        const response = await fetch(fetchUrl);
-        if (!response.ok) throw new Error("Network response was not ok");
         const blob = await response.blob();
 
         const base64Data = await new Promise<string>((resolve, reject) => {
