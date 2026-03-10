@@ -341,14 +341,14 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     const channelId = `adhan_channel_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                                     // Explicitly create the channel to ensure the custom sound is applied
-                                    if (isAndroidNative && localNotifier.addChannel) {
-                                        localNotifier.addChannel({
-                                            id: channelId,
-                                            name: `Adhan ${prayerNamesAr[key]}`,
-                                            description: `Notifications for ${prayerNamesAr[key]} prayer`,
+                                    if (isAndroidNative && localNotifier.createChannel) {
+                                        localNotifier.createChannel({
+                                            androidChannelId: channelId,
+                                            androidChannelName: `Adhan ${prayerNamesAr[key]}`,
+                                            androidChannelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
                                             sound: androidSoundPath,
-                                            importance: 4,
-                                            vibration: true
+                                            androidChannelImportance: 4,
+                                            androidChannelEnableVibration: true
                                         });
                                     }
 
@@ -359,16 +359,16 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         trigger: { at: prayerDate },
                                         foreground: true,
                                         sound: androidSoundPath,
-                                        channel: channelId, // Unique channel per prayer/sound combo
+                                        androidChannelId: channelId, // Unique channel per prayer/sound combo
                                         priority: 2, // High priority
-                                        lockscreen: true,
-                                        vibrate: true,
+                                        androidLockscreen: true,
+                                        androidChannelEnableVibration: true,
                                         launch: true,
                                         // Explicitly define channel properties for Android 8+
                                         // The plugin will create this channel if it doesn't exist
-                                        channelName: `Adhan ${prayerNamesAr[key]}`,
-                                        channelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
-                                        importance: 4, // High importance
+                                        androidChannelName: `Adhan ${prayerNamesAr[key]}`,
+                                        androidChannelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
+                                        androidChannelImportance: 4, // High importance
                                         visibility: 1, // Public
                                         playSound: true // Explicitly enable sound
                                     });
