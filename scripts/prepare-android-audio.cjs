@@ -10,8 +10,8 @@ console.log('--- Starting Audio Preparation for Android ---');
 
 // 1. Check if Source Exists
 if (!fs.existsSync(SOURCE_DIR)) {
-    console.error(`Error: Source directory not found at ${SOURCE_DIR}`);
-    process.exit(1);
+    console.warn(`Warning: Source directory not found at ${SOURCE_DIR}. Skipping audio preparation.`);
+    process.exit(0);
 }
 
 // 2. Create Destination Directory if it doesn't exist

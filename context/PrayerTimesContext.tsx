@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { Coordinates, CalculationMethod, PrayerTimes as AdhanPrayerTimes } from 'adhan';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Capacitor } from '@capacitor/core';
 import { prayerNamesAr } from '../data/prayerTimesData';
 
 // --- Types ---
@@ -310,20 +311,26 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     const isAndroidNative = w.cordova && (w.cordova.platformId === 'android' || (w.device && w.device.platform === 'Android') || /android/i.test(navigator.userAgent));
                                     
                                     if (isAndroidNative) {
-                                        // For Android, we use the res://raw/ scheme
-                                        // The file must be in res/raw (copied by our build script)
-                                        // And the filename must be lowercase with underscores only, no extension
-                                        const filename = soundPath.split('/').pop();
-                                        if (filename) {
-                                            const rawName = filename.toLowerCase()
-                                                .replace(/\.mp3|\.wav/g, '') // Remove extension
-                                                .replace(/\s+/g, '_')       // Replace spaces
-                                                .replace(/[^a-z0-9_]/g, ''); // Remove special chars
-                                            
-                                            // Ensure it doesn't start with a number
-                                            const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
-                                            
-                                            androidSoundPath = `res://raw/${finalName}`;
+                                        if (soundPath.startsWith('file://')) {
+                                            // It's a downloaded file on the device, use it directly
+                                            androidSoundPath = soundPath;
+                                        } else if (soundPath.startsWith('http')) {
+                                            // External URL, keep it
+                                            androidSoundPath = soundPath;
+                                        } else {
+                                            // For Android, we use the res://raw/ scheme for bundled assets
+                                            const filename = soundPath.split('/').pop();
+                                            if (filename) {
+                                                const rawName = filename.toLowerCase()
+                                                    .replace(/\.mp3|\.wav|\.ogg/g, '') // Remove extension
+                                                    .replace(/\s+/g, '_')       // Replace spaces
+                                                    .replace(/[^a-z0-9_]/g, ''); // Remove special chars
+                                                
+                                                // Ensure it doesn't start with a number
+                                                const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
+                                                
+                                                androidSoundPath = `res://raw/${finalName}`;
+                                            }
                                         }
                                     }
 
@@ -485,18 +492,39 @@ export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
         const filename = assetPath.split('/').pop()?.split('?')[0] || 'audio.mp3';
         if (!filename) return assetPath;
 
-        // Check if file already exists in Data directory
+        const targetDirectory = Capacitor.getPlatform() === 'android' ? Directory.External : Directory.Data;
+
+        // Check if file already exists in the target directory
         try {
             const stat = await Filesystem.stat({
                 path: `sounds/${filename}`,
-                directory: Directory.Data
+                directory: targetDirectory
             });
             return stat.uri;
         } catch (e) {
             // File doesn't exist, proceed to copy
         }
 
-        // Fetch the asset as a blob, using a CORS proxy for external URLs
+        if (assetPath.startsWith('http')) {
+            // Use native downloadFile for much faster downloads and no CORS issues
+            const downloadResult = await Filesystem.downloadFile({
+                url: assetPath,
+                path: `sounds/${filename}`,
+                directory: targetDirectory,
+                recursive: true
+            });
+            
+            if (downloadResult.path) {
+                // Return the proper file:// URI
+                const stat = await Filesystem.stat({
+                    path: `sounds/${filename}`,
+                    directory: targetDirectory
+                });
+                return stat.uri;
+            }
+        }
+
+        // Fallback for non-http or if downloadFile fails
         let fetchUrl = assetPath;
         if (assetPath.startsWith('http')) {
              fetchUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(assetPath)}`;
@@ -506,12 +534,10 @@ export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
         if (!response.ok) throw new Error("Network response was not ok");
         const blob = await response.blob();
 
-        // Convert blob to base64
         const base64Data = await new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => {
                 const result = reader.result as string;
-                // Remove the data URL prefix (e.g., "data:audio/mp3;base64,")
                 const base64 = result.split(',')[1];
                 resolve(base64);
             };
@@ -519,18 +545,16 @@ export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
             reader.readAsDataURL(blob);
         });
 
-        // Write file to Data directory
         await Filesystem.writeFile({
             path: `sounds/${filename}`,
             data: base64Data,
-            directory: Directory.Data,
+            directory: targetDirectory,
             recursive: true
         });
 
-        // Get the URI of the written file
         const uriResult = await Filesystem.getUri({
             path: `sounds/${filename}`,
-            directory: Directory.Data
+            directory: targetDirectory
         });
 
         return uriResult.uri;
