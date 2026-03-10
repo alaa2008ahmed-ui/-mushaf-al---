@@ -1,7 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mushaf.ahmedandlayla',
+  // التعديل هنا: يجب أن يطابق اسم الحزمة القديم على جوجل بلاي بالضبط
+  appId: 'com.AhmedLaila.Quran', 
   appName: 'مصحف أحمد وليلى',
   webDir: 'dist',
   server: {

@@ -1,4 +1,4 @@
-package com.Ahmed11Laila.Quran;
+package com.AhmedLaila.Quran;
 
 import com.getcapacitor.BridgeActivity;
 
