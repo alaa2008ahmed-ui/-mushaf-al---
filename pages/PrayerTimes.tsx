@@ -51,9 +51,21 @@ const formatTime12_clean = (time) => {
     return `${h}:${m.toString().padStart(2, '0')} ${ap}`;
 }
 
-const getMediaURL = (s) => {
+const getMediaURL = async (s) => {
     if (!s) return '';
-    if (s.startsWith('file://')) {
+    if (s.startsWith('shared://')) {
+        try {
+            const filename = s.replace('shared://', '');
+            const stat = await Filesystem.stat({
+                path: `shared_files/${filename}`,
+                directory: Directory.Data
+            });
+            return Capacitor.convertFileSrc(stat.uri);
+        } catch (e) {
+            console.error("Failed to resolve shared:// uri", e);
+            return s;
+        }
+    } else if (s.startsWith('file://')) {
         return Capacitor.convertFileSrc(s);
     }
     // For bundled assets starting with '/', return as is so the WebView loads them from its local server
@@ -63,9 +75,9 @@ const getMediaURL = (s) => {
 // Global audio instance for previewing tones
 let previewAudio: HTMLAudioElement | null = null;
 
-const playNotificationSound = (source) => {
+const playNotificationSound = async (source) => {
     if (!source || source === 'none') return;
-    const mediaUrl = getMediaURL(source);
+    const mediaUrl = await getMediaURL(source);
     
     // Stop any currently playing preview
     stopNotificationSound();
@@ -185,18 +197,34 @@ function PrayerTimes({ onBack }) {
         }
     };
     
-    const handleToneUpload = (e) => {
+    const handleToneUpload = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const audioDataUrl = event.target.result as string;
-                playNotificationSound(audioDataUrl); // Play preview
-                updateConfig({
-                    tones: { ...config.tones, [currentEditingKey]: { name: file.name, data: audioDataUrl }}
-                });
-            };
-            reader.readAsDataURL(file);
+            try {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const audioDataUrl = event.target.result as string;
+                    const base64Data = audioDataUrl.split(',')[1];
+                    const filename = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_'); // Sanitize filename
+                    
+                    await Filesystem.writeFile({
+                        path: `shared_files/${filename}`,
+                        data: base64Data,
+                        directory: Directory.Data,
+                        recursive: true
+                    });
+                    
+                    const sharedUri = `shared://${filename}`;
+                    playNotificationSound(sharedUri); // Play preview
+                    updateConfig({
+                        tones: { ...config.tones, [currentEditingKey]: { name: file.name, data: sharedUri }}
+                    });
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                console.error("Failed to save custom tone:", err);
+                showToast("فشل في حفظ الملف الصوتي.");
+            }
         }
     };
 

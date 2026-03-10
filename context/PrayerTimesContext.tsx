@@ -325,9 +325,15 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                                 
                                                 androidSoundPath = `res://raw/${finalName}`;
                                             }
-                                        } else if (soundPath.startsWith('file://') || soundPath.startsWith('http')) {
-                                            // It's a downloaded custom file or external URL
+                                        } else if (soundPath.startsWith('file://')) {
+                                            // Old config used file:// which is not supported by the plugin for external files
+                                            const filename = soundPath.split('/').pop();
+                                            androidSoundPath = `shared://${filename}`;
+                                        } else if (soundPath.startsWith('shared://')) {
                                             androidSoundPath = soundPath;
+                                        } else if (soundPath.startsWith('http')) {
+                                            // http URLs are not supported by the plugin for sound, fallback to default
+                                            androidSoundPath = 'res://raw/azan1';
                                         }
                                     }
 
@@ -337,25 +343,19 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     // Dynamic Channel ID to force sound update on Android 8+
                                     // If we use the same channel ID, Android will ignore the new sound
                                     const soundName = androidSoundPath.split('/').pop() || 'default';
-                                    // Sanitize channel ID - Added v2 prefix to force recreation with new settings
+                                    // Sanitize channel ID and add v2 to force recreation with MAX importance
                                     const channelId = `adhan_channel_v2_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                                     // Explicitly create the channel to ensure the custom sound is applied
                                     if (isAndroidNative && localNotifier.createChannel) {
                                         localNotifier.createChannel({
-                                            id: channelId,
                                             androidChannelId: channelId,
                                             androidChannelName: `Adhan ${prayerNamesAr[key]}`,
                                             androidChannelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
                                             sound: androidSoundPath,
-                                            androidChannelImportance: 4, // HIGH importance (4 is max)
+                                            androidChannelImportance: 5, // 5 = MAX importance
                                             androidChannelEnableVibration: true,
-                                            androidChannelEnableLights: true,
-                                            androidChannelSoundUsage: 4, // USAGE_ALARM
-                                            androidLockscreen: true,
-                                            visibility: 1 // Public
-                                        }, () => {
-                                            console.log(`Channel created/verified for ${key}`);
+                                            androidChannelSoundUsage: 4 // USAGE_ALARM
                                         });
                                     }
 
@@ -364,25 +364,22 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         title: `حان الآن موعد أذان ${prayerNamesAr[key]}`,
                                         text: 'لا تنس ذكر الله. قال رسول الله ﷺ: "أرحنا بها يا بلال"',
                                         trigger: { at: prayerDate },
-                                        foreground: true,
+                                        foreground: true, // Show/play sound even if app is in foreground
                                         sound: androidSoundPath,
                                         androidChannelId: channelId, // Unique channel per prayer/sound combo
-                                        priority: 2, // High priority for older Android
                                         androidLockscreen: true,
                                         androidChannelEnableVibration: true,
+                                        androidWakeUpScreen: true, // Wakes up the device when screen is off
+                                        androidAllowWhileIdle: true, // Bypass Doze mode
+                                        androidAlarmType: 0, // RTC_WAKEUP
                                         launch: true,
                                         // Explicitly define channel properties for Android 8+
+                                        // The plugin will create this channel if it doesn't exist
                                         androidChannelName: `Adhan ${prayerNamesAr[key]}`,
                                         androidChannelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
-                                        androidChannelImportance: 4, // HIGH importance
-                                        androidAllowWhileIdle: true, // CRITICAL: Bypass Doze mode
-                                        androidWakeUpScreen: true,   // Wake up screen
-                                        androidAutoCancel: true,     // Auto cancel when clicked
-                                        androidShowWhen: true,       // Show time in notification
-                                        androidAlarmType: 0,         // RTC_WAKEUP
+                                        androidChannelImportance: 5, // MAX importance
                                         androidChannelSoundUsage: 4, // USAGE_ALARM
-                                        visibility: 1,               // Public
-                                        playSound: true              // Explicitly enable sound
+                                        visibility: 1 // Public
                                     });
                                 }
                             }
@@ -501,15 +498,18 @@ export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
         const filename = assetPath.split('/').pop()?.split('?')[0] || 'audio.mp3';
         if (!filename) return assetPath;
 
-        const targetDirectory = Capacitor.getPlatform() === 'android' ? Directory.External : Directory.Data;
+        // cordova-plugin-local-notification requires files to be in the "shared_files" 
+        // directory within the app's internal data directory to use the shared:// protocol.
+        const targetDirectory = Directory.Data;
+        const relativePath = `shared_files/${filename}`;
 
         // Check if file already exists in the target directory
         try {
             const stat = await Filesystem.stat({
-                path: `sounds/${filename}`,
+                path: relativePath,
                 directory: targetDirectory
             });
-            return stat.uri;
+            return `shared://${filename}`;
         } catch (e) {
             // File doesn't exist, proceed to copy
         }
@@ -519,18 +519,13 @@ export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
                 // Use native downloadFile for much faster downloads and no CORS issues
                 const downloadResult = await Filesystem.downloadFile({
                     url: assetPath,
-                    path: `sounds/${filename}`,
+                    path: relativePath,
                     directory: targetDirectory,
                     recursive: true
                 });
                 
                 if (downloadResult.path) {
-                    // Return the proper file:// URI
-                    const stat = await Filesystem.stat({
-                        path: `sounds/${filename}`,
-                        directory: targetDirectory
-                    });
-                    return stat.uri;
+                    return `shared://${filename}`;
                 }
             } catch (downloadError) {
                 console.warn("Native downloadFile failed (likely on web), falling back to fetch:", downloadError);
@@ -573,18 +568,13 @@ export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
         });
 
         await Filesystem.writeFile({
-            path: `sounds/${filename}`,
+            path: relativePath,
             data: base64Data,
             directory: targetDirectory,
             recursive: true
         });
 
-        const uriResult = await Filesystem.getUri({
-            path: `sounds/${filename}`,
-            directory: targetDirectory
-        });
-
-        return uriResult.uri;
+        return `shared://${filename}`;
     } catch (error) {
         console.error("Error copying asset to device:", error);
         return assetPath; // Fallback to original path if copy fails
