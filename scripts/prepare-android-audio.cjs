@@ -7,16 +7,23 @@ const SOURCE_DIR = path.join(__dirname, '../public/assets/audio');
 const DEST_DIR = path.join(__dirname, '../android/app/src/main/res/raw');
 
 const internetTones = [
-    "https://www.islamcan.com/audio/adhan/azan1.mp3",
-    "https://www.islamcan.com/audio/adhan/azan2.mp3",
-    "https://www.islamcan.com/audio/adhan/azan3.mp3",
-    "https://www.islamcan.com/audio/adhan/azan4.mp3",
-    "https://www.islamcan.com/audio/adhan/azan5.mp3",
-    "https://www.islamcan.com/audio/adhan/azan6.mp3",
-    "https://www.islamcan.com/audio/adhan/azan7.mp3",
-    "https://www.islamcan.com/audio/adhan/azan8.mp3",
-    "https://www.islamcan.com/audio/adhan/azan9.mp3",
-    "https://www.islamcan.com/audio/adhan/azan10.mp3"
+    { url: "https://www.islamcan.com/audio/adhan/azan1.mp3", name: "azan1.mp3" },
+    { url: "https://www.islamcan.com/audio/adhan/azan2.mp3", name: "azan2.mp3" },
+    { url: "https://www.islamcan.com/audio/adhan/azan3.mp3", name: "azan3.mp3" },
+    { url: "https://www.islamcan.com/audio/adhan/azan4.mp3", name: "azan4.mp3" },
+    { url: "https://www.islamcan.com/audio/adhan/azan5.mp3", name: "azan5.mp3" },
+    { url: "https://www.islamcan.com/audio/adhan/azan6.mp3", name: "azan6.mp3" },
+    { url: "https://www.islamcan.com/audio/adhan/azan7.mp3", name: "azan7.mp3" },
+    { url: "https://www.islamcan.com/audio/adhan/azan8.mp3", name: "azan8.mp3" },
+    { url: "https://www.islamcan.com/audio/adhan/azan9.mp3", name: "azan9.mp3" },
+    { url: "https://www.islamcan.com/audio/adhan/azan10.mp3", name: "azan10.mp3" },
+    { url: "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg", name: "digital_watch_alarm_long.ogg" },
+    { url: "https://actions.google.com/sounds/v1/alarms/beep_short.ogg", name: "beep_short.ogg" },
+    { url: "https://actions.google.com/sounds/v1/alarms/dosimeter_alarm.ogg", name: "dosimeter_alarm.ogg" },
+    { url: "https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg", name: "bugle_tune.ogg" },
+    { url: "https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg", name: "mechanical_clock_ring.ogg" },
+    { url: "https://actions.google.com/sounds/v1/alarms/beep_short.ogg", name: "takbeer1.ogg" },
+    { url: "https://actions.google.com/sounds/v1/alarms/dosimeter_alarm.ogg", name: "takbeer2.ogg" }
 ];
 
 const downloadFile = (url, dest) => {
@@ -50,14 +57,13 @@ async function prepareAudio() {
     }
 
     console.log('Downloading missing audio files (this may take a moment)...');
-    for (const url of internetTones) {
-        const filename = url.split('/').pop();
-        const dest = path.join(SOURCE_DIR, filename);
+    for (const tone of internetTones) {
+        const dest = path.join(SOURCE_DIR, tone.name);
         try {
-            await downloadFile(url, dest);
-            console.log(`Ready: ${filename}`);
+            await downloadFile(tone.url, dest);
+            console.log(`Ready: ${tone.name}`);
         } catch (e) {
-            console.error(`Failed to download ${filename}:`, e);
+            console.error(`Failed to download ${tone.name}:`, e);
         }
     }
 
@@ -68,7 +74,7 @@ async function prepareAudio() {
         
         const files = fs.readdirSync(SOURCE_DIR);
         files.forEach(file => {
-            if (file.endsWith('.mp3') || file.endsWith('.wav')) {
+            if (file.endsWith('.mp3') || file.endsWith('.wav') || file.endsWith('.ogg')) {
                 const sourcePath = path.join(SOURCE_DIR, file);
                 let destFilename = file.toLowerCase()
                     .replace(/\s+/g, '_')

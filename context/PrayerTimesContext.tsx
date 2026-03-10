@@ -347,8 +347,9 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                             androidChannelName: `Adhan ${prayerNamesAr[key]}`,
                                             androidChannelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
                                             sound: androidSoundPath,
-                                            androidChannelImportance: 4,
-                                            androidChannelEnableVibration: true
+                                            androidChannelImportance: 5, // MAX importance to bypass doze
+                                            androidChannelEnableVibration: true,
+                                            androidChannelSoundUsage: 4 // USAGE_ALARM
                                         });
                                     }
 
@@ -368,7 +369,11 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         // The plugin will create this channel if it doesn't exist
                                         androidChannelName: `Adhan ${prayerNamesAr[key]}`,
                                         androidChannelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
-                                        androidChannelImportance: 4, // High importance
+                                        androidChannelImportance: 5, // MAX importance
+                                        androidAllowWhileIdle: true, // Allow in doze mode
+                                        androidWakeUpScreen: true, // Wake up screen
+                                        androidAlarmType: 0, // RTC_WAKEUP
+                                        androidChannelSoundUsage: 4, // USAGE_ALARM
                                         visibility: 1, // Public
                                         playSound: true // Explicitly enable sound
                                     });

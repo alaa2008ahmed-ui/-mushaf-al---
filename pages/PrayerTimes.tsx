@@ -16,11 +16,13 @@ const internetTones = [
     { name: "أذان 8", path: "/assets/audio/azan8.mp3" },
     { name: "أذان 9", path: "/assets/audio/azan9.mp3" },
     { name: "أذان 10", path: "/assets/audio/azan10.mp3" },
-    { name: "تنبيه ساعة رقمية", path: "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" },
-    { name: "تنبيه رنين قصير", path: "https://actions.google.com/sounds/v1/alarms/beep_short.ogg" },
-    { name: "تنبيه هادئ", path: "https://actions.google.com/sounds/v1/alarms/dosimeter_alarm.ogg" },
-    { name: "تنبيه جرس", path: "https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg" },
-    { name: "تنبيه منبه تقليدي", path: "https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg" },
+    { name: "تكبيرة 1", path: "/assets/audio/takbeer1.ogg" },
+    { name: "تكبيرة 2", path: "/assets/audio/takbeer2.ogg" },
+    { name: "تنبيه ساعة رقمية", path: "/assets/audio/digital_watch_alarm_long.ogg" },
+    { name: "تنبيه رنين قصير", path: "/assets/audio/beep_short.ogg" },
+    { name: "تنبيه هادئ", path: "/assets/audio/dosimeter_alarm.ogg" },
+    { name: "تنبيه جرس", path: "/assets/audio/bugle_tune.ogg" },
+    { name: "تنبيه منبه تقليدي", path: "/assets/audio/mechanical_clock_ring.ogg" },
 ];
 
 // Helper Functions
