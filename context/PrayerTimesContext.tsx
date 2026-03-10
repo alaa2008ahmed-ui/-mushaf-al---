@@ -337,25 +337,19 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     // Dynamic Channel ID to force sound update on Android 8+
                                     // If we use the same channel ID, Android will ignore the new sound
                                     const soundName = androidSoundPath.split('/').pop() || 'default';
-                                    // Sanitize channel ID - Added v2 prefix to force recreation with new settings
-                                    const channelId = `adhan_channel_v2_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+                                    // Sanitize channel ID
+                                    const channelId = `adhan_channel_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                                     // Explicitly create the channel to ensure the custom sound is applied
                                     if (isAndroidNative && localNotifier.createChannel) {
                                         localNotifier.createChannel({
-                                            id: channelId,
                                             androidChannelId: channelId,
                                             androidChannelName: `Adhan ${prayerNamesAr[key]}`,
                                             androidChannelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
                                             sound: androidSoundPath,
-                                            androidChannelImportance: 4, // HIGH importance (4 is max)
+                                            androidChannelImportance: 5, // MAX importance to bypass doze
                                             androidChannelEnableVibration: true,
-                                            androidChannelEnableLights: true,
-                                            androidChannelSoundUsage: 4, // USAGE_ALARM
-                                            androidLockscreen: true,
-                                            visibility: 1 // Public
-                                        }, () => {
-                                            console.log(`Channel created/verified for ${key}`);
+                                            androidChannelSoundUsage: 4 // USAGE_ALARM
                                         });
                                     }
 
@@ -367,22 +361,21 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         foreground: true,
                                         sound: androidSoundPath,
                                         androidChannelId: channelId, // Unique channel per prayer/sound combo
-                                        priority: 2, // High priority for older Android
+                                        priority: 2, // High priority
                                         androidLockscreen: true,
                                         androidChannelEnableVibration: true,
                                         launch: true,
                                         // Explicitly define channel properties for Android 8+
+                                        // The plugin will create this channel if it doesn't exist
                                         androidChannelName: `Adhan ${prayerNamesAr[key]}`,
                                         androidChannelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
-                                        androidChannelImportance: 4, // HIGH importance
-                                        androidAllowWhileIdle: true, // CRITICAL: Bypass Doze mode
-                                        androidWakeUpScreen: true,   // Wake up screen
-                                        androidAutoCancel: true,     // Auto cancel when clicked
-                                        androidShowWhen: true,       // Show time in notification
-                                        androidAlarmType: 0,         // RTC_WAKEUP
+                                        androidChannelImportance: 5, // MAX importance
+                                        androidAllowWhileIdle: true, // Allow in doze mode
+                                        androidWakeUpScreen: true, // Wake up screen
+                                        androidAlarmType: 0, // RTC_WAKEUP
                                         androidChannelSoundUsage: 4, // USAGE_ALARM
-                                        visibility: 1,               // Public
-                                        playSound: true              // Explicitly enable sound
+                                        visibility: 1, // Public
+                                        playSound: true // Explicitly enable sound
                                     });
                                 }
                             }
