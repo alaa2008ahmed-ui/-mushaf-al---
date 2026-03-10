@@ -5,18 +5,22 @@ import { useTheme } from '../context/ThemeContext';
 import { prayerNamesAr } from '../data/prayerTimesData';
 import { usePrayerTimes, copyAssetToDevice } from '../context/PrayerTimesContext';
 
-// --- Default Tones Configuration ---
-const defaultTones = [
-    { name: "أذان 4", path: "/assets/audio/adhan4.mp3" },
-];
-
 const internetTones = [
-    { name: "أذان كامل - مكة", path: "https://server11.mp3quran.net/makkah/Adhan_Al-Haram.mp3" },
-    { name: "أذان كامل - المدينة", path: "https://server11.mp3quran.net/madinah/Adhan_Al-Madinah.mp3" },
-    { name: "تكبير فقط 1", path: "https://server11.mp3quran.net/takbeer/takbeer1.mp3" },
-    { name: "تكبير فقط 2", path: "https://server11.mp3quran.net/takbeer/takbeer2.mp3" },
-    { name: "تنبيه قصير 1", path: "https://actions.google.com/sounds/v1/alarms/beep_short.ogg" },
-    { name: "تنبيه قصير 2", path: "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" },
+    { name: "أذان 1 (مكة المكرمة)", path: "https://www.islamcan.com/audio/adhan/azan1.mp3" },
+    { name: "أذان 2 (المدينة المنورة)", path: "https://www.islamcan.com/audio/adhan/azan2.mp3" },
+    { name: "أذان 3 (المسجد الأقصى)", path: "https://www.islamcan.com/audio/adhan/azan3.mp3" },
+    { name: "أذان 4", path: "https://www.islamcan.com/audio/adhan/azan4.mp3" },
+    { name: "أذان 5", path: "https://www.islamcan.com/audio/adhan/azan5.mp3" },
+    { name: "أذان 6", path: "https://www.islamcan.com/audio/adhan/azan6.mp3" },
+    { name: "أذان 7", path: "https://www.islamcan.com/audio/adhan/azan7.mp3" },
+    { name: "أذان 8", path: "https://www.islamcan.com/audio/adhan/azan8.mp3" },
+    { name: "أذان 9", path: "https://www.islamcan.com/audio/adhan/azan9.mp3" },
+    { name: "أذان 10", path: "https://www.islamcan.com/audio/adhan/azan10.mp3" },
+    { name: "تنبيه ساعة رقمية", path: "https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg" },
+    { name: "تنبيه رنين قصير", path: "https://actions.google.com/sounds/v1/alarms/beep_short.ogg" },
+    { name: "تنبيه هادئ", path: "https://actions.google.com/sounds/v1/alarms/dosimeter_alarm.ogg" },
+    { name: "تنبيه جرس", path: "https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg" },
+    { name: "تنبيه منبه تقليدي", path: "https://actions.google.com/sounds/v1/alarms/mechanical_clock_ring.ogg" },
 ];
 
 // Helper Functions
@@ -161,30 +165,24 @@ function PrayerTimes({ onBack }) {
         if (value === 'custom') {
             document.getElementById('sound-file-input').click();
         } else if (value === 'none') {
+            stopNotificationSound();
             updateConfig({
                 tones: { ...config.tones, [currentEditingKey]: { name: 'بدون تنبيه', data: 'none' } }
             });
         } else {
-            const selectedDefault = defaultTones.find(t => t.path === value);
-            if (selectedDefault) {
-                playNotificationSound(selectedDefault.path); // Play preview
-                updateConfig({
-                    tones: { ...config.tones, [currentEditingKey]: { name: selectedDefault.name, data: selectedDefault.path }}
-                });
-            } else {
-                const selectedInternet = internetTones.find(t => t.path === value);
-                if (selectedInternet) {
-                    try {
-                        // Show loading indicator or something if needed
-                        const localUri = await copyAssetToDevice(selectedInternet.path);
-                        playNotificationSound(localUri); // Play preview
-                        updateConfig({
-                            tones: { ...config.tones, [currentEditingKey]: { name: selectedInternet.name, data: localUri, originalUrl: selectedInternet.path }}
-                        });
-                    } catch (err) {
-                        console.error("Failed to download tone:", err);
-                        alert("فشل في تحميل الملف الصوتي. يرجى التحقق من اتصالك بالإنترنت.");
-                    }
+            const selectedInternet = internetTones.find(t => t.path === value);
+            if (selectedInternet) {
+                try {
+                    showToast("جاري تحميل الصوت للمعاينة...");
+                    const localUri = await copyAssetToDevice(selectedInternet.path);
+                    playNotificationSound(localUri); // Play preview
+                    updateConfig({
+                        tones: { ...config.tones, [currentEditingKey]: { name: selectedInternet.name, data: localUri, originalUrl: selectedInternet.path }}
+                    });
+                    showToast("تم اختيار الصوت بنجاح");
+                } catch (err) {
+                    console.error("Failed to download tone:", err);
+                    showToast("فشل في تحميل الملف الصوتي. يرجى التحقق من اتصالك بالإنترنت.");
                 }
             }
         }
@@ -228,10 +226,7 @@ function PrayerTimes({ onBack }) {
                 <div className="relative">
                     <select value={selectValue} onChange={handleToneSelection} className="w-full appearance-none themed-bg-alt border themed-card-border rounded-xl py-3 px-4 text-xs font-bold" style={{ color: primaryColor }}>
                         <option value="none">بدون تنبيه</option>
-                        <optgroup label="النغمات الافتراضية">
-                            {defaultTones.map(tone => <option key={tone.path} value={tone.path}>{tone.name}</option>)}
-                        </optgroup>
-                        <optgroup label="نغمات من الإنترنت">
+                        <optgroup label="أصوات الأذان والتنبيهات">
                             {internetTones.map(tone => <option key={tone.path} value={tone.path}>{tone.name}</option>)}
                         </optgroup>
                         <option value="custom">نغمة مخصصة...</option>

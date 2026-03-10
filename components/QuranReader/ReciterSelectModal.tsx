@@ -11,10 +11,7 @@ const ReciterSelectModal: React.FC<ReciterSelectModalProps> = ({ onClose, curren
     const [isClosing, setIsClosing] = useState(false);
 
     const handleClose = () => {
-        setIsClosing(true);
-        setTimeout(() => {
-            onClose();
-        }, 300);
+        onClose();
     };
 
     const handleSelect = (id: string) => {
@@ -23,8 +20,8 @@ const ReciterSelectModal: React.FC<ReciterSelectModalProps> = ({ onClose, curren
     };
 
     return (
-        <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[200] flex items-center justify-center p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`} onClick={handleClose}>
-            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] ${isClosing ? 'animate-modal-exit' : 'animate-modal-enter'}`} onClick={e => e.stopPropagation()}>
+        <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-fadeIn`} onClick={handleClose}>
+            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
                 <div className="p-4 flex justify-between items-center h-14 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">اختر القارئ</h2>
                     <button onClick={handleClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>

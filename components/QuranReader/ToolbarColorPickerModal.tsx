@@ -13,10 +13,7 @@ const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClo
     const [isClosing, setIsClosing] = useState(false);
 
     const handleClose = () => {
-        setIsClosing(true);
-        setTimeout(() => {
-            onClose();
-        }, 300); // Match animation duration
+        onClose();
     };
     const [isTransparentMode, setIsTransparentMode] = useState(() => localStorage.getItem('transparent_mode') === 'true');
     const [headerSync, setHeaderSync] = useState(false);
@@ -188,8 +185,8 @@ const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClo
     const allButtons = ['surah', 'juz', 'page', 'audio', 'btn-menu', 'btn-settings', 'btn-home', 'btn-bookmark', 'btn-autoscroll', 'btn-themes', 'btn-bookmarks-list', 'btn-search'];
 
     return (
-        <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[200] flex items-center justify-center p-4 ${isClosing ? 'animate-fadeOut' : 'animate-fadeIn'}`} onClick={handleClose}>
-            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] ${isClosing ? 'animate-modal-exit' : 'animate-modal-enter'}`} onClick={e => e.stopPropagation()}>
+        <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-fadeIn`} onClick={handleClose}>
+            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
                 <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex justify-between items-center shadow-md flex-none theme-header-bg">
                     <h3 className="text-lg font-extrabold flex items-center">
                         <i className="fa-solid fa-palette ml-2"></i>

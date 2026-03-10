@@ -8,6 +8,7 @@ interface MushafPageProps {
     onAyahClick: (surah: number, ayah: number) => void;
     onVerseClick: (surah: number, ayah: number, event: React.MouseEvent) => void;
     onVerseLongPress?: (surah: number, ayah: number) => void;
+    onAyahTextLongPress?: (surah: number, ayah: number) => void;
     onInteractionStart?: () => void;
     onInteractionEnd?: () => void;
     settings?: {
@@ -48,17 +49,30 @@ const renderTajweedText = (text: string) => {
     return parts;
 };
 
-const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, highlightedAyahId, onAyahClick, onVerseClick, onVerseLongPress, onInteractionStart, onInteractionEnd, settings }) => {
+const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, highlightedAyahId, onAyahClick, onVerseClick, onVerseLongPress, onAyahTextLongPress, onInteractionStart, onInteractionEnd, settings }) => {
     const pageRef = useRef<HTMLDivElement | null>(null);
     const longPressTimer = useRef<number | null>(null);
     const isLongPressTriggered = useRef(false);
 
-    const handlePointerDown = (s: number, a: number) => {
+    const handleVersePointerDown = (s: number, a: number, e: React.PointerEvent) => {
+        e.stopPropagation();
         if (onInteractionStart) onInteractionStart();
         isLongPressTriggered.current = false;
         longPressTimer.current = window.setTimeout(() => {
             if (onVerseLongPress) {
                 onVerseLongPress(s, a);
+                isLongPressTriggered.current = true;
+            }
+            longPressTimer.current = null;
+        }, 600);
+    };
+
+    const handleAyahTextPointerDown = (s: number, a: number, e: React.PointerEvent) => {
+        if (onInteractionStart) onInteractionStart();
+        isLongPressTriggered.current = false;
+        longPressTimer.current = window.setTimeout(() => {
+            if (onAyahTextLongPress) {
+                onAyahTextLongPress(s, a);
                 isLongPressTriggered.current = true;
             }
             longPressTimer.current = null;
@@ -148,7 +162,15 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                             <span 
                                 id={id} 
                                 className={`ayah-text-block ${highlightedAyahId === id ? 'highlighted' : ''} ${isSajdah ? 'ayah-sajdah' : ''}`} 
-                                onClick={() => onAyahClick(ayah.sNum, ayah.numberInSurah)} 
+                                onClick={(e) => {
+                                    if (!isLongPressTriggered.current) {
+                                        onAyahClick(ayah.sNum, ayah.numberInSurah);
+                                    }
+                                }}
+                                onPointerDown={(e) => handleAyahTextPointerDown(ayah.sNum, ayah.numberInSurah, e as any)}
+                                onPointerUp={handlePointerUp}
+                                onPointerLeave={handlePointerLeave}
+                                onContextMenu={(e) => e.preventDefault()}
                                 data-sajdah={isSajdah} 
                                 data-snum={ayah.sNum}
                                 data-surah={ayah.sName.replace('سورة','').trim()} 
@@ -161,14 +183,24 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                                 {isSajdah && <span className="sajdah-icon-inline">۩</span>}
                                 <span className="verse-container" 
                                     onClick={(e) => {
+                                        e.stopPropagation();
                                         if (!isLongPressTriggered.current) {
                                             onVerseClick(ayah.sNum, ayah.numberInSurah, e);
                                         }
                                     }}
-                                    onPointerDown={() => handlePointerDown(ayah.sNum, ayah.numberInSurah)}
-                                    onPointerUp={handlePointerUp}
-                                    onPointerLeave={handlePointerLeave}
-                                    onContextMenu={(e) => e.preventDefault()}
+                                    onPointerDown={(e) => handleVersePointerDown(ayah.sNum, ayah.numberInSurah, e as any)}
+                                    onPointerUp={(e) => {
+                                        e.stopPropagation();
+                                        handlePointerUp();
+                                    }}
+                                    onPointerLeave={(e) => {
+                                        e.stopPropagation();
+                                        handlePointerLeave();
+                                    }}
+                                    onContextMenu={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                    }}
                                 >
                                     <span className="verse-bracket">﴿</span>
                                     <span className="verse-num-inner">{toArabic(ayah.numberInSurah)}</span>

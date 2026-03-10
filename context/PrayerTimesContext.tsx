@@ -39,11 +39,7 @@ const DEFAULT_CONFIG: PrayerConfig = {
     location: { cityGov: "الدمام - الشرقية", fullCountry: "المملكة العربية السعودية", combinedCode: "+966013", lat: 26.4207, lng: 50.0888 }
 };
 
-const defaultTones = [
-    { name: "أذان المدينة", path: "https://www.islamicfinder.org/adhan/adhan-madina.mp3" },
-    { name: "أذان مكة", path: "https://www.islamicfinder.org/adhan/adhan-makkah.mp3" },
-    { name: "أذان العفاسي", path: "https://www.islamicfinder.org/adhan/adhan-alafasy.mp3" },
-];
+
 
 // --- Helper Functions ---
 const applyOffset = (timeStr: string, offsetMins: number) => {
@@ -55,58 +51,65 @@ const applyOffset = (timeStr: string, offsetMins: number) => {
     return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 };
 
-export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
-    try {
-        const filename = assetPath.split('/').pop();
-        if (!filename) return assetPath;
+const getCountryInfo = (countryCode: string, countryName: string, cityName: string) => {
+    const code = countryCode?.toLowerCase() || '';
+    
+    const dialCodes: Record<string, string> = {
+        'sa': '+966', 'eg': '+20', 'ae': '+971', 'kw': '+965', 'qa': '+974', 'bh': '+973', 
+        'om': '+968', 'jo': '+962', 'sy': '+963', 'lb': '+961', 'ps': '+970', 'iq': '+964', 
+        'ye': '+967', 'sd': '+249', 'ly': '+218', 'tn': '+216', 'dz': '+213', 'ma': '+212', 
+        'mr': '+222', 'so': '+252', 'dj': '+253', 'tr': '+90', 'us': '+1', 'gb': '+44',
+        'fr': '+33', 'de': '+49', 'it': '+39', 'es': '+34', 'ca': '+1', 'au': '+61'
+    };
 
-        // Check if file already exists in Data directory
-        try {
-            const stat = await Filesystem.stat({
-                path: `sounds/${filename}`,
-                directory: Directory.Data
-            });
-            return stat.uri;
-        } catch (e) {
-            // File doesn't exist, proceed to copy
+    const fullNames: Record<string, string> = {
+        'sa': 'المملكة العربية السعودية', 'eg': 'جمهورية مصر العربية', 'ae': 'الإمارات العربية المتحدة',
+        'kw': 'دولة الكويت', 'qa': 'دولة قطر', 'bh': 'مملكة البحرين', 'om': 'سلطنة عمان',
+        'jo': 'المملكة الأردنية الهاشمية', 'sy': 'الجمهورية العربية السورية', 'lb': 'الجمهورية اللبنانية',
+        'ps': 'دولة فلسطين', 'iq': 'جمهورية العراق', 'ye': 'الجمهورية اليمنية', 'sd': 'جمهورية السودان',
+        'ly': 'دولة ليبيا', 'tn': 'الجمهورية التونسية', 'dz': 'الجمهورية الجزائرية الديمقراطية الشعبية',
+        'ma': 'المملكة المغربية', 'mr': 'الجمهورية الإسلامية الموريتانية', 'so': 'جمهورية الصومال الفيدرالية',
+        'dj': 'جمهورية جيبوتي'
+    };
+
+    const saudiCities: Record<string, string> = {
+        'الرياض': '11', 'الخرج': '11', 'مكة': '12', 'مكة المكرمة': '12', 'جدة': '12', 'الطائف': '12',
+        'الدمام': '13', 'الخبر': '13', 'الظهران': '13', 'الجبيل': '13', 'الأحساء': '13', 'الهفوف': '13', 'حفر الباطن': '13',
+        'المدينة': '14', 'المدينة المنورة': '14', 'تبوك': '14', 'ينبع': '14', 'عرعر': '14',
+        'القصيم': '16', 'بريدة': '16', 'عنيزة': '16', 'حائل': '16', 'المجمعة': '16',
+        'أبها': '17', 'خميس مشيط': '17', 'نجران': '17', 'جازان': '17', 'الباحة': '17'
+    };
+
+    const egyptCities: Record<string, string> = {
+        'القاهرة': '2', 'الجيزة': '2', 'الإسكندرية': '3', 'بورسعيد': '66', 'السويس': '62', 'الإسماعيلية': '64',
+        'الأقصر': '95', 'أسوان': '97', 'أسيوط': '88', 'سوهاج': '93', 'المنصورة': '50', 'الدقهلية': '50',
+        'الزقازيق': '55', 'الشرقية': '55', 'طنطا': '40', 'الغربية': '40', 'المنوفية': '48', 'شبين الكوم': '48',
+        'البحيرة': '45', 'دمنهور': '45', 'الفيوم': '84', 'بني سويف': '82', 'المنيا': '86', 'قنا': '96',
+        'دمياط': '57', 'كفر الشيخ': '47', 'البحر الأحمر': '65', 'الغردقة': '65', 'الوادي الجديد': '92',
+        'مطروح': '46', 'شمال سيناء': '68', 'العريش': '68', 'جنوب سيناء': '69', 'الطور': '69', 'شرم الشيخ': '69'
+    };
+
+    let baseDialCode = dialCodes[code] || '';
+    let fullName = fullNames[code] || countryName;
+    let combinedCode = baseDialCode;
+
+    if (code === 'sa') {
+        for (const [key, val] of Object.entries(saudiCities)) {
+            if (cityName.includes(key)) {
+                combinedCode = baseDialCode + val;
+                break;
+            }
         }
-
-        // Fetch the asset as a blob
-        const response = await fetch(assetPath);
-        const blob = await response.blob();
-
-        // Convert blob to base64
-        const base64Data = await new Promise<string>((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                const result = reader.result as string;
-                // Remove the data URL prefix (e.g., "data:audio/mp3;base64,")
-                const base64 = result.split(',')[1];
-                resolve(base64);
-            };
-            reader.onerror = reject;
-            reader.readAsDataURL(blob);
-        });
-
-        // Write file to Data directory
-        await Filesystem.writeFile({
-            path: `sounds/${filename}`,
-            data: base64Data,
-            directory: Directory.Data,
-            recursive: true
-        });
-
-        // Get the URI of the written file
-        const uriResult = await Filesystem.getUri({
-            path: `sounds/${filename}`,
-            directory: Directory.Data
-        });
-
-        return uriResult.uri;
-    } catch (error) {
-        console.error("Error copying asset to device:", error);
-        return assetPath; // Fallback to original path if copy fails
+    } else if (code === 'eg') {
+        for (const [key, val] of Object.entries(egyptCities)) {
+            if (cityName.includes(key)) {
+                combinedCode = baseDialCode + val;
+                break;
+            }
+        }
     }
+
+    return { fullName, combinedCode: combinedCode || baseDialCode };
 };
 
 const PrayerTimesContext = createContext<PrayerTimesContextType | undefined>(undefined);
@@ -195,11 +198,12 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                         const data = await res.json();
                         const addr = data.address;
                         const city = addr.village || addr.town || addr.city || "موقعي";
+                        const countryInfo = getCountryInfo(addr.country_code, addr.country, city);
                         newLoc = {
                             ...newLoc,
                             cityGov: `${city} - ${addr.state || ""}`,
-                            fullCountry: addr.country,
-                            combinedCode: "+966"
+                            fullCountry: countryInfo.fullName,
+                            combinedCode: countryInfo.combinedCode
                         };
                     } catch(e) {
                         newLoc.cityGov = "موقعي الحالي (بدون اتصال)";
@@ -223,10 +227,11 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                 const addr = data[0].address;
                 const name = addr.city || addr.town || addr.village || query;
                 const province = addr.state || "";
+                const countryInfo = getCountryInfo(addr.country_code, addr.country, name);
                 const newLocation = {
                     cityGov: `${name} - ${province}`,
-                    fullCountry: addr.country,
-                    combinedCode: "+966",
+                    fullCountry: countryInfo.fullName,
+                    combinedCode: countryInfo.combinedCode,
                     lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon)
                 };
                 setConfig(prev => ({ ...prev, location: newLocation }));
@@ -294,35 +299,31 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     if (prayerDate < new Date()) continue;
 
                                     const toneConfig = config.tones[key];
-                                    let soundPath = defaultTones[0].path;
+                                    let soundPath = "https://www.islamcan.com/audio/adhan/azan1.mp3";
                                     
                                     if (toneConfig && toneConfig.data && toneConfig.data !== 'none' && !toneConfig.data.startsWith('data:')) {
                                         soundPath = toneConfig.data;
                                     }
 
-                                    // Ensure sound is available locally
-                                    let localSoundPath = await copyAssetToDevice(soundPath);
-
                                     // Fix sound path for Android (Capacitor)
-                                    let androidSoundPath = localSoundPath;
+                                    let androidSoundPath = soundPath;
                                     const isAndroidNative = w.cordova && (w.cordova.platformId === 'android' || (w.device && w.device.platform === 'Android') || /android/i.test(navigator.userAgent));
                                     
                                     if (isAndroidNative) {
-                                        // For Android, we use the res://raw/ scheme if it's a bundled asset
-                                        if (localSoundPath.startsWith('/assets/')) {
-                                            const filename = localSoundPath.split('/').pop();
-                                            if (filename) {
-                                                const rawName = filename.toLowerCase()
-                                                    .replace(/\.mp3|\.wav/g, '')
-                                                    .replace(/\s+/g, '_')
-                                                    .replace(/[^a-z0-9_]/g, '');
-                                                
-                                                const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
-                                                androidSoundPath = `res://raw/${finalName}`;
-                                            }
-                                        } else {
-                                            // For downloaded files, use the local file URI
-                                            androidSoundPath = localSoundPath;
+                                        // For Android, we use the res://raw/ scheme
+                                        // The file must be in res/raw (copied by our build script)
+                                        // And the filename must be lowercase with underscores only, no extension
+                                        const filename = soundPath.split('/').pop();
+                                        if (filename) {
+                                            const rawName = filename.toLowerCase()
+                                                .replace(/\.mp3|\.wav/g, '') // Remove extension
+                                                .replace(/\s+/g, '_')       // Replace spaces
+                                                .replace(/[^a-z0-9_]/g, ''); // Remove special chars
+                                            
+                                            // Ensure it doesn't start with a number
+                                            const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
+                                            
+                                            androidSoundPath = `res://raw/${finalName}`;
                                         }
                                     }
 
@@ -477,4 +478,64 @@ export const usePrayerTimes = () => {
         throw new Error('usePrayerTimes must be used within a PrayerTimesProvider');
     }
     return context;
+};
+
+export const copyAssetToDevice = async (assetPath: string): Promise<string> => {
+    try {
+        const filename = assetPath.split('/').pop()?.split('?')[0] || 'audio.mp3';
+        if (!filename) return assetPath;
+
+        // Check if file already exists in Data directory
+        try {
+            const stat = await Filesystem.stat({
+                path: `sounds/${filename}`,
+                directory: Directory.Data
+            });
+            return stat.uri;
+        } catch (e) {
+            // File doesn't exist, proceed to copy
+        }
+
+        // Fetch the asset as a blob, using a CORS proxy for external URLs
+        let fetchUrl = assetPath;
+        if (assetPath.startsWith('http')) {
+             fetchUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(assetPath)}`;
+        }
+        
+        const response = await fetch(fetchUrl);
+        if (!response.ok) throw new Error("Network response was not ok");
+        const blob = await response.blob();
+
+        // Convert blob to base64
+        const base64Data = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const result = reader.result as string;
+                // Remove the data URL prefix (e.g., "data:audio/mp3;base64,")
+                const base64 = result.split(',')[1];
+                resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+
+        // Write file to Data directory
+        await Filesystem.writeFile({
+            path: `sounds/${filename}`,
+            data: base64Data,
+            directory: Directory.Data,
+            recursive: true
+        });
+
+        // Get the URI of the written file
+        const uriResult = await Filesystem.getUri({
+            path: `sounds/${filename}`,
+            directory: Directory.Data
+        });
+
+        return uriResult.uri;
+    } catch (error) {
+        console.error("Error copying asset to device:", error);
+        return assetPath; // Fallback to original path if copy fails
+    }
 };

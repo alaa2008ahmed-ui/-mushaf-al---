@@ -110,7 +110,7 @@ function HajjUmrah({ onBack }) {
 const HomeScreen = ({ setScreen, theme }) => (
      <section id="home-screen" className="space-y-4">
         <div className="themed-card rounded-2xl p-4 mb-3">
-            <p className="text-xl md:text-2xl mb-1 text-center font-amiri" style={{color: theme.palette[1]}}>
+            <p className="text-xl md:text-2xl mb-1 text-center font-amiri" style={{color: theme.name === 'أبيض وأسود' ? theme.textColor : theme.palette[1]}}>
                 ﴿ وَأَتِمُّوا الْحَجَّ وَالْعُمْرَةَ لِلَّهِ ﴾
             </p>
             <p className="text-xs md:text-sm text-center themed-text-muted">البقرة: 196</p>
@@ -137,7 +137,7 @@ const HomeScreen = ({ setScreen, theme }) => (
             {homeScreenAdditions.map((item, index) => (
                  <div key={index} className="themed-card rounded-2xl p-3">
                     <h3 className="font-bold text-sm mb-2 flex items-center gap-2">
-                        <i className={`fa-solid ${item.icon}`} style={{color: theme.palette[index % 2]}}></i>
+                        <i className={`fa-solid ${item.icon}`} style={{color: theme.name === 'أبيض وأسود' ? theme.textColor : theme.palette[index % 2]}}></i>
                         <span>{item.title}</span>
                     </h3>
                     {item.type === 'hadith' ? 
@@ -195,7 +195,7 @@ const UmrahScreen = ({ theme }) => (
                                     {step.points.map((p, i) => <li key={i} dangerouslySetInnerHTML={{ __html: p }}></li>)}
                                 </ul>
                             ) : (
-                                <p className="text-xs themed-text-muted leading-relaxed" dangerouslySetInnerHTML={{ __html: step.text.replace('{{THEME_PALETTE_0}}', theme.palette[0]) }}></p>
+                                <p className="text-xs themed-text-muted leading-relaxed" dangerouslySetInnerHTML={{ __html: step.text.replace('{{THEME_PALETTE_0}}', theme.name === 'أبيض وأسود' ? theme.textColor : theme.palette[0]) }}></p>
                             )}
                         </div>
                     </div>

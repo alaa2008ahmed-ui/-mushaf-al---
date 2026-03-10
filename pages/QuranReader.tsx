@@ -423,6 +423,16 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         setTafseerSelectionInfo({ isOpen: true, s, a, wasAutoscrolling });
     }, []);
 
+    const handleAyahTextLongPress = useCallback((s: number, a: number) => {
+        const wasAutoscrolling = autoScrollStateRef.current.isActive && !autoScrollStateRef.current.isPaused;
+        if (wasAutoscrolling) {
+            autoScrollPausedRef.current = true;
+            setAutoScrollState(p => ({ ...p, isPaused: true }));
+            autoScrollStateRef.current = { ...autoScrollStateRef.current, isPaused: true };
+        }
+        openModal('mushaf-selection-modal');
+    }, [openModal]);
+
     const handleTafseerSelect = useCallback((tafseerId: string) => {
         if (tafseerSelectionInfo.wasAutoscrolling) {
             autoScrollPausedRef.current = false;
@@ -500,29 +510,6 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         if (playButtonTimerRef.current) {
             clearTimeout(playButtonTimerRef.current);
             playButtonTimerRef.current = null;
-        }
-    };
-
-    const surahButtonTimerRef = useRef<number | null>(null);
-    const handleSurahButtonPointerDown = () => {
-        surahButtonTimerRef.current = window.setTimeout(() => {
-            surahButtonTimerRef.current = null;
-            openModal('mushaf-selection-modal');
-        }, 600);
-    };
-
-    const handleSurahButtonPointerUp = () => {
-        if (surahButtonTimerRef.current) {
-            clearTimeout(surahButtonTimerRef.current);
-            surahButtonTimerRef.current = null;
-            openModal('surah-modal');
-        }
-    };
-
-    const handleSurahButtonPointerLeave = () => {
-        if (surahButtonTimerRef.current) {
-            clearTimeout(surahButtonTimerRef.current);
-            surahButtonTimerRef.current = null;
         }
     };
 
@@ -993,11 +980,9 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             <header id="header" className="header-default flex-none z-50 flex items-center px-4 justify-between border-b shadow-xl w-full gap-2" style={getToolbarStyle('top-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button 
                     id="surah-name-header" 
-                    onPointerDown={handleSurahButtonPointerDown}
-                    onPointerUp={handleSurahButtonPointerUp}
-                    onPointerLeave={handleSurahButtonPointerLeave}
+                    onClick={() => openModal('surah-modal')}
                     className="top-bar-text-button" 
-                    style={{...getToolbarStyle('surah', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder), touchAction: 'none'}}
+                    style={getToolbarStyle('surah', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}
                 >
                     <span>{surahName} - آية {toArabic(currentAyah.a)}</span>
                 </button>
@@ -1047,7 +1032,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             <ReadingTimer isVisible={autoScrollState.isPaused || (!autoScrollState.isActive && autoScrollState.elapsedTime > 0)} elapsedTime={autoScrollState.elapsedTime} />
             <div id="mushaf-content" ref={mushafContentRef} onClick={pauseResumeAutoScroll} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
                 <div id="pages-container" className="full-mushaf-container">
-                   {[...new Set(visiblePages)].sort((a: number, b: number) => a - b).map(pageNum => (<MushafPage key={pageNum} pageNum={pageNum} pageData={getPageData(pageNum)} highlightedAyahId={highlightedAyahId} onAyahClick={handleAyahClick} onVerseClick={handleVerseClick} onVerseLongPress={handleVerseLongPress} onInteractionStart={handleInteractionStart} onInteractionEnd={handleInteractionEnd} settings={settings} />))}
+                   {[...new Set(visiblePages)].sort((a: number, b: number) => a - b).map(pageNum => (<MushafPage key={pageNum} pageNum={pageNum} pageData={getPageData(pageNum)} highlightedAyahId={highlightedAyahId} onAyahClick={handleAyahClick} onVerseClick={handleVerseClick} onVerseLongPress={handleVerseLongPress} onAyahTextLongPress={handleAyahTextLongPress} onInteractionStart={handleInteractionStart} onInteractionEnd={handleInteractionEnd} settings={settings} />))}
                 </div>
             </div>
             <MarkerNotification isVisible={markerNotification.show} type={markerNotification.type} text={markerNotification.text} />
