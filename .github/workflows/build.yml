@@ -25,7 +25,6 @@ jobs:
           npm install
           npm install @capacitor/cli @capacitor/core @capacitor/android
 
-      # --- حل مشكلة تصاريح Vite ---
       - name: Fix Vite Permissions
         run: chmod +x node_modules/.bin/vite
 
@@ -35,28 +34,26 @@ jobs:
       - name: Sync with Capacitor
         run: npx cap sync android
 
-      # --- فك تشفير مفتاح التوقيع ---
+      # --- التعديل هنا: فك التشفير في المجلد الرئيسي مباشرة لضمان رؤيته ---
       - name: Prepare Keystore File
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 -d > android/app/release.keystore
+          echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 -d > release.keystore
 
-      # --- بناء النسخة الرسمية الموقعة ---
+      # --- التعديل هنا: تحديد المسار الكامل للملف بدقة ---
       - name: Build Signed Release APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=release.keystore \
+            -Pandroid.injected.signing.store.file=$GITHUB_WORKSPACE/release.keystore \
             -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
             -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
             -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
 
-      # --- إعادة تسمية الملف بالاسم الذي تريده ---
       - name: Rename APK File
         run: |
           mv android/app/build/outputs/apk/release/app-release.apk "android/app/build/outputs/apk/release/مصحف أحمد وليلى.apk"
 
-      # --- رفع الملف النهائي لـ GitHub ---
       - name: Upload Official APK
         uses: actions/upload-artifact@v4
         with:
