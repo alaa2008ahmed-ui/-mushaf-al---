@@ -311,14 +311,8 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     const isAndroidNative = w.cordova && (w.cordova.platformId === 'android' || (w.device && w.device.platform === 'Android') || /android/i.test(navigator.userAgent));
                                     
                                     if (isAndroidNative) {
-                                        if (soundPath.startsWith('file://')) {
-                                            // It's a downloaded file on the device, use it directly
-                                            androidSoundPath = soundPath;
-                                        } else if (soundPath.startsWith('http')) {
-                                            // External URL, keep it
-                                            androidSoundPath = soundPath;
-                                        } else {
-                                            // For Android, we use the res://raw/ scheme for bundled assets
+                                        // Force bundled azans to use res://raw/ (even if they are old file:// or http:// paths in config)
+                                        if (soundPath.includes('azan') || soundPath.startsWith('/assets/audio/')) {
                                             const filename = soundPath.split('/').pop();
                                             if (filename) {
                                                 const rawName = filename.toLowerCase()
@@ -331,6 +325,9 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                                 
                                                 androidSoundPath = `res://raw/${finalName}`;
                                             }
+                                        } else if (soundPath.startsWith('file://') || soundPath.startsWith('http')) {
+                                            // It's a downloaded custom file or external URL
+                                            androidSoundPath = soundPath;
                                         }
                                     }
 

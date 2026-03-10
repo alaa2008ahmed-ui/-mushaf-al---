@@ -62,9 +62,10 @@ const formatTime12_clean = (time) => {
 
 const getMediaURL = (s) => {
     if (!s) return '';
-    if (s.startsWith('file://') || s.startsWith('/')) {
+    if (s.startsWith('file://')) {
         return Capacitor.convertFileSrc(s);
     }
+    // For bundled assets starting with '/', return as is so the WebView loads them from its local server
     return s;
 };
 
