@@ -6,23 +6,12 @@ import { prayerNamesAr } from '../data/prayerTimesData';
 import { usePrayerTimes, copyAssetToDevice } from '../context/PrayerTimesContext';
 
 const internetTones = [
-    { name: "أذان 1 (مكة المكرمة)", path: "/assets/audio/azan1.mp3" },
-    { name: "أذان 2 (المدينة المنورة)", path: "/assets/audio/azan2.mp3" },
-    { name: "أذان 3 (المسجد الأقصى)", path: "/assets/audio/azan3.mp3" },
+    { name: "أذان 1", path: "/assets/audio/azan1.mp3" },
+    { name: "أذان 2", path: "/assets/audio/azan2.mp3" },
+    { name: "أذان 3", path: "/assets/audio/azan3.mp3" },
     { name: "أذان 4", path: "/assets/audio/azan4.mp3" },
-    { name: "أذان 5", path: "/assets/audio/azan5.mp3" },
-    { name: "أذان 6", path: "/assets/audio/azan6.mp3" },
-    { name: "أذان 7", path: "/assets/audio/azan7.mp3" },
-    { name: "أذان 8", path: "/assets/audio/azan8.mp3" },
-    { name: "أذان 9", path: "/assets/audio/azan9.mp3" },
-    { name: "أذان 10", path: "/assets/audio/azan10.mp3" },
-    { name: "تكبيرة 1", path: "/assets/audio/takbeer1.ogg" },
-    { name: "تكبيرة 2", path: "/assets/audio/takbeer2.ogg" },
-    { name: "تنبيه ساعة رقمية", path: "/assets/audio/digital_watch_alarm_long.ogg" },
-    { name: "تنبيه رنين قصير", path: "/assets/audio/beep_short.ogg" },
-    { name: "تنبيه هادئ", path: "/assets/audio/dosimeter_alarm.ogg" },
-    { name: "تنبيه جرس", path: "/assets/audio/bugle_tune.ogg" },
-    { name: "تنبيه منبه تقليدي", path: "/assets/audio/mechanical_clock_ring.ogg" },
+    { name: "تكبيرة 1", path: "/assets/audio/takbeer1.mp3" },
+    { name: "تكبيرة 2", path: "/assets/audio/takbeer2.mp3" },
 ];
 
 // Helper Functions
