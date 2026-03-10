@@ -103,6 +103,7 @@ function PrayerTimes({ onBack }) {
     const [searchInput, setSearchInput] = useState("");
     const searchIconRef = useRef(null);
     const [toastMessage, setToastMessage] = useState('');
+    const [isRefreshingLocation, setIsRefreshingLocation] = useState(false);
     
     useEffect(() => {
         if (toastMessage) {
@@ -112,6 +113,18 @@ function PrayerTimes({ onBack }) {
     }, [toastMessage]);
     
     const showToast = useCallback((msg) => setToastMessage(msg), []);
+
+    const handleRefreshLocation = async () => {
+        setIsRefreshingLocation(true);
+        try {
+            await refreshLocation();
+            showToast("تم تحديث الموقع بنجاح");
+        } catch (e) {
+            showToast("فشل في تحديث الموقع");
+        } finally {
+            setIsRefreshingLocation(false);
+        }
+    };
 
     const handleManualSearch = async () => {
         if(!searchInput) return;
@@ -243,7 +256,7 @@ function PrayerTimes({ onBack }) {
             <header className="app-top-bar">
                 <div className="app-top-bar__inner">
                     <div className="flex items-center justify-center gap-2">
-                        <i onClick={refreshLocation} className="text-xl cursor-pointer active:rotate-180 duration-700 fa-solid fa-location-crosshairs" style={{ color: primaryColor }}></i>
+                        <i onClick={handleRefreshLocation} className={`text-xl cursor-pointer duration-700 fa-solid fa-location-crosshairs ${isRefreshingLocation ? 'fa-spin' : 'active:rotate-180'}`} style={{ color: primaryColor }}></i>
                         <h1 className="app-top-bar__title text-xl sm:text-2xl font-kufi truncate" style={{ color: primaryColor }}>{config.location.cityGov}</h1>
                     </div>
                      <div className="flex items-center justify-center gap-2" dir="rtl">
