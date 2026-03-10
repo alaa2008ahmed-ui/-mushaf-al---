@@ -1,8 +1,9 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mushaf.ahmedandlayla',
-  appName: 'مصحف أحمد وليلى',
+  // تم تغيير الـ ID ليكون نسخة تجريبية مستقلة تماماً
+  appId: 'com.mushaf.test', 
+  appName: 'مصحف تجريبي',
   webDir: 'dist',
   server: {
     androidScheme: 'https'

@@ -1,4 +1,4 @@
-name: Build Official Signed APK
+name: Build Test Debug APK
 on: [push]
 
 jobs:
@@ -34,25 +34,21 @@ jobs:
       - name: Sync with Capacitor
         run: npx cap sync android
 
-      - name: Prepare Keystore
-        run: echo "${{ secrets.ANDROID_KEYSTORE_CONTENT }}" | base64 -d > release.keystore
-
-      - name: Build Signed Release APK
+      # --- بناء نسخة الـ Debug (لا تحتاج لأي مفاتيح أو Secrets) ---
+      - name: Build Debug APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease \
-            -Pandroid.injected.signing.store.file=$GITHUB_WORKSPACE/release.keystore \
-            -Pandroid.injected.signing.store.password=${{ secrets.ANDROID_KEYSTORE_PASSWORD }} \
-            -Pandroid.injected.signing.key.alias=${{ secrets.ANDROID_KEY_ALIAS }} \
-            -Pandroid.injected.signing.key.password=${{ secrets.ANDROID_KEY_PASSWORD }}
+          ./gradlew assembleDebug
 
+      # --- إعادة تسمية ملف الـ Debug الناتج لتمييزه ---
       - name: Rename APK File
         run: |
-          mv android/app/build/outputs/apk/release/app-release.apk "android/app/build/outputs/apk/release/مصحف أحمد وليلى - تحديث رسمي.apk"
+          mv android/app/build/outputs/apk/debug/app-debug.apk "android/app/build/outputs/apk/debug/مصحف أحمد وليلى - نسخة تجريبية.apk"
 
-      - name: Upload Official APK
+      # --- رفع الملف الناتج إلى GitHub Actions ---
+      - name: Upload Test APK
         uses: actions/upload-artifact@v4
         with:
-          name: Mushaf-Official-Update
-          path: "android/app/build/outputs/apk/release/*.apk"
+          name: Mushaf-Test-Debug-Build
+          path: "android/app/build/outputs/apk/debug/*.apk"

@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     // اسم الحزمة المعتمد
-    namespace "com.Ahmed11Laila.Quran"
+    namespace "com.AhmedLaila.test"
     compileSdk rootProject.ext.compileSdkVersion
 
     defaultConfig {
         // تم التصحيح هنا: اسم واحد فقط وبدون تكرار الكود
-        applicationId "com.AhmedLaila.Quran"
+        applicationId "com.AhmedLaila.test"
         
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
