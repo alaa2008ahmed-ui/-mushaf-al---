@@ -1,14 +1,26 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 // FIX: The component was trying to import 'STATIC_DUAA', which is not exported from adiaData. The correct export is 'ALL_DUAA'.
 import { ALL_DUAA } from '../data/adiaData';
-
+import { registerBackInterceptor } from '../hooks/useBackButton';
 
 function Adia({ onBack }) {
     const { theme } = useTheme();
     const [zoomedDuaa, setZoomedDuaa] = useState(null);
+
+    useEffect(() => {
+        const interceptor = () => {
+            if (zoomedDuaa) {
+                setZoomedDuaa(null);
+                return true;
+            }
+            return false;
+        };
+        const unregister = registerBackInterceptor(interceptor);
+        return unregister;
+    }, [zoomedDuaa]);
 
     const openZoomModal = (duaa) => {
         setZoomedDuaa(duaa);

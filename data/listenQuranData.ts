@@ -11,7 +11,8 @@ export const RECITERS = [
     { id: 'https://server6.mp3quran.net/kurdi', name: 'رعد محمد الكردي' },
     { id: 'https://server12.mp3quran.net/tblawi', name: 'محمد محمود الطبلاوي' },
     { id: 'https://server8.mp3quran.net/bna', name: 'محمود علي البنا' },
-    { id: 'https://server12.mp3quran.net/kyat', name: 'عبدالله خياط' }
+    { id: 'https://server12.mp3quran.net/kyat', name: 'عبدالله خياط' },
+    { id: 'https://server14.mp3quran.net/islam/', name: 'إسلام صبحي' }
 ];
 
 export const SURAH_LIST = [

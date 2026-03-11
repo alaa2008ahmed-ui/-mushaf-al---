@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { registerBackInterceptor } from '../../hooks/useBackButton';
 
 interface ToolbarColorPickerModalProps {
     onClose: () => void;
@@ -22,6 +23,18 @@ const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClo
     
     // State for the edit modal
     const [editConfig, setEditConfig] = useState({ bg: '#ffffff', text: '#000000', border: '#cccccc', font: '' });
+
+    useEffect(() => {
+        const interceptor = () => {
+            if (editingType) {
+                setEditingType(null);
+                return true;
+            }
+            return false;
+        };
+        const unregister = registerBackInterceptor(interceptor);
+        return unregister;
+    }, [editingType]);
 
     const toggleTransparentMode = (checked: boolean) => {
         setIsTransparentMode(checked);

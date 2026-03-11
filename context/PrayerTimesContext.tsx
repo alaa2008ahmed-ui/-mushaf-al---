@@ -396,7 +396,9 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                             sound: androidSoundPath,
                                             androidChannelImportance: 5, // MAX importance to bypass doze
                                             androidChannelEnableVibration: true,
-                                            androidChannelSoundUsage: 4 // USAGE_ALARM
+                                            androidChannelSoundUsage: 4, // USAGE_ALARM
+                                            androidChannelVisibility: 1,
+                                            androidChannelLockscreenVisibility: 1
                                         });
                                     }
 
@@ -421,6 +423,8 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         androidWakeUpScreen: true, // Wake up screen
                                         androidAlarmType: 0, // RTC_WAKEUP
                                         androidChannelSoundUsage: 4, // USAGE_ALARM
+                                        androidChannelVisibility: 1,
+                                        androidChannelLockscreenVisibility: 1,
                                         visibility: 1, // Public
                                         playSound: true // Explicitly enable sound
                                     });

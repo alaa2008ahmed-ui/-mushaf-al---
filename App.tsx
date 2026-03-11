@@ -26,6 +26,7 @@ function App() {
   useBackButton({
     history,
     isThemeSelectorOpen,
+    showExitConfirm,
     navigateBack,
     setIsThemeSelectorOpen,
     setShowExitConfirm

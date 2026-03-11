@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 import { BASE_ADHKAR_MORNING, BASE_ADHKAR_EVENING } from '../data/adkarSabahMasaaData';
+import { registerBackInterceptor } from '../hooks/useBackButton';
 
 // FIX: Correctly convert digits to numbers for array indexing.
 const toArabicNumerals = (num) => String(num).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[+d]);
@@ -38,6 +39,18 @@ function AdkarSabahMasaa({ onBack }) {
         };
         setAdhkarCounts(initialCounts);
     }, []);
+
+    useEffect(() => {
+        const interceptor = () => {
+            if (zoomedDhikr) {
+                setZoomedDhikr(null);
+                return true;
+            }
+            return false;
+        };
+        const unregister = registerBackInterceptor(interceptor);
+        return unregister;
+    }, [zoomedDhikr]);
 
     const handleDecrement = (index) => {
         if (zoomedDhikr) return; // Prevent decrementing when zoomed

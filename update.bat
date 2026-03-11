@@ -1,12 +1,15 @@
 @echo off
+:: دعم اللغة العربية في الكوماند بروومبت
+chcp 65001 >nul
 title Mushaf Fast Deployer
 echo ==========================================
 echo      REPAIRING AND DEPLOYING MUSHAF
 echo ==========================================
 
-:: --- اكتب الاسم اللي عاوزه يظهر في جيت هاب هنا ---
-set DEPLOY_NAME="نسخة_مصحف_أحمد_وليلى_النهائية"
-:: -----------------------------------------------
+:: --- هنا السؤال السحري ---
+echo.
+set /p DEPLOY_NAME="اكتب الاسم اللي عاوزه يظهر في صفحة جيت هاب (ثم اضغط Enter): "
+echo.
 
 echo [1/7] Installing Core Capacitor Android...
 call npm install @capacitor/core @capacitor/android @capacitor/cli
@@ -28,19 +31,20 @@ echo [5/7] Setting up Git...
 git remote remove origin >nul 2>&1
 git remote add origin https://github.com/alaa2008ahmed-ui/-mushaf-al---.git
 
-echo [6/7] Committing with name: %DEPLOY_NAME%...
+echo [6/7] Committing with your name...
 git add .
-:: هنا الاسم هيظهر في الـ Commit History في جيت هاب
-git commit -m "Deploy: %DEPLOY_NAME% [%date% %time%]"
+:: اللي إنت كتبته في الأول هو اللي هيظهر في الـ Actions
+git commit -m "%DEPLOY_NAME%"
 
 echo [7/7] Pushing to GitHub...
-:: الرفع بالإجبار مع تسجيل التغيير بالاسم الجديد
 git push -u origin main --force
 if %ERRORLEVEL% neq 0 goto :error
 
 echo ==========================================
 echo      SUCCESS! %DEPLOY_NAME% is LIVE
 echo ==========================================
+:: الخروج الفوري
+timeout /t 5
 exit
 
 :error

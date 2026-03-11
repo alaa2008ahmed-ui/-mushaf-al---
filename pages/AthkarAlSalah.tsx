@@ -1,14 +1,31 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 import { baseAthkar, specialZikr, prayerOptions, fajrDhikr, fajrMaghribDhikr } from '../data/athkarAlSalahData';
+import { registerBackInterceptor } from '../hooks/useBackButton';
 
 function AthkarAlSalah({ onBack }) {
     const { theme } = useTheme();
     const [currentPrayer, setCurrentPrayer] = useState(null);
     const [athkarList, setAthkarList] = useState([]);
     const [zoomedZikr, setZoomedZikr] = useState(null);
+
+    useEffect(() => {
+        const interceptor = () => {
+            if (zoomedZikr) {
+                setZoomedZikr(null);
+                return true;
+            }
+            if (currentPrayer) {
+                setCurrentPrayer(null);
+                return true;
+            }
+            return false;
+        };
+        const unregister = registerBackInterceptor(interceptor);
+        return unregister;
+    }, [zoomedZikr, currentPrayer]);
 
     const openPrayer = (prayerId, titleText) => {
         let currentAthkarData = JSON.parse(JSON.stringify(baseAthkar));

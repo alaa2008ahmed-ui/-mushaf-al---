@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NAWAWI_DATA } from '../data/nawawiData';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
+import { registerBackInterceptor } from '../hooks/useBackButton';
 
 const HadithModal = ({ hadith, onClose }) => {
     const { theme, themeKey } = useTheme();
@@ -45,6 +46,18 @@ const Nawawi = ({ onBack }) => {
     const [selectedHadith, setSelectedHadith] = useState(null);
     const isBlackAndWhite = themeKey === 'black_and_white';
     const primaryColor = isBlackAndWhite ? '#FFFFFF' : theme.palette[0];
+
+    useEffect(() => {
+        const interceptor = () => {
+            if (selectedHadith) {
+                setSelectedHadith(null);
+                return true;
+            }
+            return false;
+        };
+        const unregister = registerBackInterceptor(interceptor);
+        return unregister;
+    }, [selectedHadith]);
 
     return (
         <div className="h-screen flex flex-col font-cairo overflow-hidden" style={{ backgroundColor: theme.bg, color: theme.textColor }}>

@@ -4,6 +4,7 @@ import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 import type { Theme } from '../context/themes';
 import { DEFAULT_PHRASES } from '../data/tasbeehData';
+import { registerBackInterceptor } from '../hooks/useBackButton';
 
 // FIX: Renamed to be more specific to phrases
 const PHRASES_STORAGE_KEY = 'ahmed_laila_tasbeeh_phrases';
@@ -135,6 +136,18 @@ function Tasbeeh({ onBack }) {
             setCounterColor(theme.palette[0]);
         }
     }, [loadPhrases, theme.palette]);
+
+    useEffect(() => {
+        const interceptor = () => {
+            if (modals.target || modals.phrase || modals.add || modals.delete || modals.color) {
+                setModals({ target: false, phrase: false, add: false, delete: false, color: false });
+                return true;
+            }
+            return false;
+        };
+        const unregister = registerBackInterceptor(interceptor);
+        return unregister;
+    }, [modals]);
 
     const showMessage = (text: string, type = 'green') => {
         setMessage({ text, type, visible: true });

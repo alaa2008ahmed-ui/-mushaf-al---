@@ -7,6 +7,7 @@ import WhatsAppButton from '../components/WhatsAppButton';
 import InteractiveBackground from '../components/InteractiveBackground';
 import { verses } from '../data/mainMenuData';
 import MenuCustomizationModal from '../components/MenuCustomizationModal';
+import { registerBackInterceptor } from '../hooks/useBackButton';
 
 const DEFAULT_MENU_ITEMS = [
     { id: 'quran', label: "📖 القرآن الكريم", className: "col-span-2 h-12", colorIndex: 0 },
@@ -97,6 +98,33 @@ function MainMenu({ onNavigate, onOpenThemes }) {
     }
   }, []);
 
+  const handleCancelEdit = () => {
+      const savedLayout = localStorage.getItem('menuLayout');
+      if (savedLayout) {
+          setMenuItems(JSON.parse(savedLayout));
+      } else {
+          setMenuItems(DEFAULT_MENU_ITEMS);
+      }
+      setIsEditMode(false);
+      if (navigator.vibrate) navigator.vibrate(50);
+  };
+
+  useEffect(() => {
+      const interceptor = () => {
+          if (isCustomizationOpen) {
+              setIsCustomizationOpen(false);
+              return true;
+          }
+          if (isEditMode) {
+              handleCancelEdit();
+              return true;
+          }
+          return false;
+      };
+      const unregister = registerBackInterceptor(interceptor);
+      return unregister;
+  }, [isCustomizationOpen, isEditMode]);
+
   const handleSaveCustomization = (selectedIds: string[]) => {
       setVisibleItems(selectedIds);
       localStorage.setItem('visibleMenuItems', JSON.stringify(selectedIds));
@@ -112,17 +140,6 @@ function MainMenu({ onNavigate, onOpenThemes }) {
   const handleResetLayout = () => {
       setMenuItems(DEFAULT_MENU_ITEMS);
       localStorage.removeItem('menuLayout');
-      setIsEditMode(false);
-      if (navigator.vibrate) navigator.vibrate(50);
-  };
-
-  const handleCancelEdit = () => {
-      const savedLayout = localStorage.getItem('menuLayout');
-      if (savedLayout) {
-          setMenuItems(JSON.parse(savedLayout));
-      } else {
-          setMenuItems(DEFAULT_MENU_ITEMS);
-      }
       setIsEditMode(false);
       if (navigator.vibrate) navigator.vibrate(50);
   };

@@ -3,6 +3,7 @@ import { App } from '@capacitor/app';
 
 interface UseBackButtonProps {
     isThemeSelectorOpen: boolean;
+    showExitConfirm: boolean;
     history: string[];
     navigateBack: () => void;
     setIsThemeSelectorOpen: (isOpen: boolean) => void;
@@ -24,6 +25,7 @@ export const registerBackInterceptor = (interceptor: () => boolean) => {
 
 export function useBackButton({
     isThemeSelectorOpen,
+    showExitConfirm,
     history,
     navigateBack,
     setIsThemeSelectorOpen,
@@ -39,7 +41,17 @@ export function useBackButton({
         isThemeSelectorOpenRef.current = isThemeSelectorOpen;
     }, [isThemeSelectorOpen]);
 
+    const showExitConfirmRef = useRef(showExitConfirm);
+    useEffect(() => {
+        showExitConfirmRef.current = showExitConfirm;
+    }, [showExitConfirm]);
+
     const handleBackButton = useCallback(() => {
+        if (showExitConfirmRef.current) {
+            setShowExitConfirm(false);
+            return;
+        }
+
         if (isThemeSelectorOpenRef.current) {
             setIsThemeSelectorOpen(false);
             return;

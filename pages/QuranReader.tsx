@@ -35,7 +35,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const [currentAyah, setCurrentAyah] = useState<{ s: number; a: number }>({ s: 1, a: 1 });
     const [highlightedAyahId, setHighlightedAyahId] = useState<string | null>(null);
 
-    const [activeModals, setActiveModals] = useState<Record<string, boolean>>({});
+    const [activeModals, setActiveModals] = useState<string[]>([]);
     const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
     
     const [toast, setToast] = useState({ show: false, message: '' });
@@ -377,9 +377,9 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     }, [settings.reader, stopAudio, preloadAudioQueue, manageAudioCache, showToast, scrollToAyah]);
 
     const closeModal = useCallback((modalName: string) => {
-        setActiveModals(p => ({ ...p, [modalName]: false }));
+        setActiveModals(p => p.filter(m => m !== modalName));
         if (wasAutoscrollingBeforeModal.current) {
-            const anyOtherOpen = Object.entries(activeModals).some(([k, v]) => k !== modalName && v);
+            const anyOtherOpen = activeModals.some(m => m !== modalName);
             if (!anyOtherOpen) {
                 autoScrollPausedRef.current = false;
                 setAutoScrollState(p => ({ ...p, isPaused: false }));
@@ -395,7 +395,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
             setAutoScrollState(p => ({ ...p, isPaused: true }));
             wasAutoscrollingBeforeModal.current = true;
         }
-        setActiveModals(p => ({...p, [modalName]: true})); 
+        setActiveModals(p => [...p.filter(m => m !== modalName), modalName]); 
     }, [stopAudio]);
     
     const handleVerseClick = useCallback((s: number, a: number, event: React.MouseEvent) => {
@@ -596,11 +596,12 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         else document.documentElement.classList.remove('dark');
     }, [currentTheme]);
 
+    const isBookmarksModalOpen = activeModals.includes('bookmarks-modal');
     useEffect(() => {
-        if (activeModals['bookmarks-modal']) {
+        if (isBookmarksModalOpen) {
             setBookmarks(JSON.parse(localStorage.getItem('quran_bookmarks_list') || '[]'));
         }
-    }, [activeModals['bookmarks-modal']]);
+    }, [isBookmarksModalOpen]);
 
     useEffect(() => {
         const contentEl = mushafContentRef.current;
@@ -727,7 +728,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         }, 150);
         
         if (!isPageInputActiveRef.current) {
-            setActiveModals({});
+            setActiveModals([]);
         }
     }, [quranData, handleAyahClick, stopAudio, scrollToAyah]);
 
@@ -950,9 +951,9 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 
     useEffect(() => {
         const interceptor = () => {
-            const openModalName = Object.keys(activeModals).find(k => activeModals[k]);
-            if (openModalName) {
-                closeModal(openModalName);
+            if (activeModals.length > 0) {
+                const lastModal = activeModals[activeModals.length - 1];
+                closeModal(lastModal);
                 return true;
             }
             if (tafseerInfo.isOpen) {
@@ -1012,7 +1013,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const handleInteractionEnd = useCallback(() => {
         setTimeout(() => {
-             const isAnyModalOpen = Object.values(activeModals).some(v => v) || tafseerInfo.isOpen || tafseerSelectionInfo.isOpen;
+             const isAnyModalOpen = activeModals.length > 0 || tafseerInfo.isOpen || tafseerSelectionInfo.isOpen;
              if (!isAnyModalOpen && autoScrollStateRef.current.isActive && !autoScrollStateRef.current.isPaused) {
                  autoScrollPausedRef.current = false;
              }
@@ -1105,22 +1106,22 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 </button>
                 <button id="btn-home" onClick={onBack} className="bottom-bar-button btn-green flex-1 mx-1" style={getToolbarStyle('btn-home', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><i className="fa-solid fa-home"></i><span className="hidden sm:inline">الرئيسية</span></button>
             </footer>
-            {activeModals['surah-modal'] && <SurahJuzModal type="surah" quranData={quranData} onSelect={(s, a) => { closeModal('surah-modal'); setTimeout(() => jumpToAyah(s, a, true), 0); }} onClose={() => closeModal('surah-modal')} />}
-            {activeModals['juz-modal'] && <SurahJuzModal type="juz" quranData={quranData} onSelect={(j: number) => { closeModal('juz-modal'); setTimeout(() => jumpToAyah(JUZ_MAP[j - 1].s, JUZ_MAP[j - 1].a, true), 0); }} onClose={() => closeModal('juz-modal')} />}
-            {activeModals['bookmarks-modal'] && <BookmarksModal bookmarks={bookmarks} quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onDelete={deleteBookmark} onClose={() => closeModal('bookmarks-modal')} />}
-            {activeModals['search-modal'] && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onClose={() => closeModal('search-modal')} />}
-            {activeModals['themes-modal'] && <ThemesModal onClose={() => closeModal('themes-modal')} showToast={showToast} />}
-            {activeModals['settings-modal'] && <SettingsModal onClose={() => closeModal('settings-modal')} onOpenModal={openModal} showToast={showToast} />}
-            {activeModals['reciter-modal'] && <ReciterSelectModal onClose={() => closeModal('reciter-modal')} currentReader={settings.reader} onSelect={(id) => {
+            {activeModals.includes('surah-modal') && <SurahJuzModal type="surah" quranData={quranData} onSelect={(s, a) => { closeModal('surah-modal'); setTimeout(() => jumpToAyah(s, a, true), 0); }} onClose={() => closeModal('surah-modal')} />}
+            {activeModals.includes('juz-modal') && <SurahJuzModal type="juz" quranData={quranData} onSelect={(j: number) => { closeModal('juz-modal'); setTimeout(() => jumpToAyah(JUZ_MAP[j - 1].s, JUZ_MAP[j - 1].a, true), 0); }} onClose={() => closeModal('juz-modal')} />}
+            {activeModals.includes('bookmarks-modal') && <BookmarksModal bookmarks={bookmarks} quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onDelete={deleteBookmark} onClose={() => closeModal('bookmarks-modal')} />}
+            {activeModals.includes('search-modal') && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onClose={() => closeModal('search-modal')} />}
+            {activeModals.includes('themes-modal') && <ThemesModal onClose={() => closeModal('themes-modal')} showToast={showToast} />}
+            {activeModals.includes('settings-modal') && <SettingsModal onClose={() => closeModal('settings-modal')} onOpenModal={openModal} showToast={showToast} />}
+            {activeModals.includes('reciter-modal') && <ReciterSelectModal onClose={() => closeModal('reciter-modal')} currentReader={settings.reader} onSelect={(id) => {
                 const newSettings = { ...settings, reader: id };
                 setSettings(newSettings);
                 localStorage.setItem('quran_settings', JSON.stringify(newSettings));
                 window.dispatchEvent(new Event('settings-change'));
                 showToast('تم تغيير القارئ بنجاح');
             }} />}
-            {activeModals['toolbar-color-picker-modal'] && <ToolbarColorPickerModal onClose={() => closeModal('toolbar-color-picker-modal')} onOpenModal={openModal} showToast={showToast} currentTheme={currentTheme} toolbarColors={toolbarColors} />}
-            {activeModals['quran-download-modal'] && <QuranDownloadModal onClose={() => closeModal('quran-download-modal')} quranData={quranData} showToast={showToast} />}
-            {activeModals['tafsir-download-modal'] && <TafsirDownloadModal onClose={() => closeModal('tafsir-download-modal')} quranData={quranData} showToast={showToast} />}
+            {activeModals.includes('toolbar-color-picker-modal') && <ToolbarColorPickerModal onClose={() => closeModal('toolbar-color-picker-modal')} onOpenModal={openModal} showToast={showToast} currentTheme={currentTheme} toolbarColors={toolbarColors} />}
+            {activeModals.includes('quran-download-modal') && <QuranDownloadModal onClose={() => closeModal('quran-download-modal')} quranData={quranData} showToast={showToast} />}
+            {activeModals.includes('tafsir-download-modal') && <TafsirDownloadModal onClose={() => closeModal('tafsir-download-modal')} quranData={quranData} showToast={showToast} />}
             <TafseerModal 
                 isOpen={tafseerInfo.isOpen} 
                 isLoading={isTafseerLoading} 
@@ -1147,7 +1148,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 currentTafseerId={settings.tafseer} 
             />
             <MushafSelectionModal
-                isOpen={activeModals['mushaf-selection-modal']}
+                isOpen={activeModals.includes('mushaf-selection-modal')}
                 onClose={() => closeModal('mushaf-selection-modal')}
                 onSelect={handleMushafTypeSelect}
                 currentType={useTajweed ? 'tajweed' : 'uthmani'}
