@@ -101,7 +101,8 @@
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:exported="false"
-            android:authorities="com.Ahmed11Laila.Quran.androidx-startup">
+            android:authorities="com.Ahmed11Laila.Quran.androidx-startup"
+            tools:replace="android:authorities">
             <meta-data
                 android:name="androidx.emoji2.text.EmojiCompatInitializer"
                 android:value="androidx.startup"/>
