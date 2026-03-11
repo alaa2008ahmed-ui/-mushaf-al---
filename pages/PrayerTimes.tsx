@@ -288,21 +288,7 @@ function PrayerTimes({ onBack }) {
                         </div>
                     </div>
                     
-                     {Capacitor.getPlatform() === 'android' && (
-                        <div className="themed-card rounded-2xl p-3 mb-5 border-dashed border-2" style={{ borderColor: secondaryColor + '44' }}>
-                            <div className="flex items-start gap-3">
-                                <i className="fa-solid fa-circle-info text-lg mt-0.5" style={{ color: primaryColor }}></i>
-                                <div className="text-right">
-                                    <p className="text-xs font-bold mb-1" style={{ color: primaryColor }}>تنبيه لمستخدمي أندرويد:</p>
-                                    <p className="text-[10px] leading-relaxed" style={{ color: secondaryColor }}>
-                                        لضمان عمل صوت الأذان والشاشة مغلقة، يرجى استثناء التطبيق من "تحسين البطارية" (Battery Optimization) في إعدادات الهاتف.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {nextPrayer && times[nextPrayer.key] && (
+                     {nextPrayer && times[nextPrayer.key] && (
                         <div className="rounded-2xl p-3 text-white mb-5 relative overflow-hidden" style={{background: isBlackAndWhite ? `linear-gradient(135deg, #333, #000)` : `linear-gradient(135deg, ${theme.palette[1]}, ${theme.palette[0]})`}}>
                             <div className="flex justify-between items-center relative z-10">
                                 <div className="text-right">
