@@ -19,6 +19,50 @@ function Qibla({ onBack }) {
     
     const compassCircleRef = useRef(null);
     const qiblaPointerRef = useRef(null);
+    const [permissionStatus, setPermissionStatus] = useState('unknown'); // 'unknown', 'granted', 'denied'
+
+    const handleOrientation = (event) => {
+        let angle;
+        if (event.webkitCompassHeading) {
+            // iOS
+            angle = event.webkitCompassHeading;
+        } else if (event.absolute && event.alpha !== null) {
+            // Android absolute
+            angle = (360 - event.alpha) % 360;
+        } else if (event.alpha !== null) {
+            // Android relative
+            angle = (360 - event.alpha) % 360;
+        }
+        
+        if (typeof angle !== 'undefined') {
+            setHeading(angle);
+        }
+    };
+
+    const requestPermission = async () => {
+        if (typeof (window.DeviceOrientationEvent as any)?.requestPermission === 'function') {
+            try {
+                const permission = await (window.DeviceOrientationEvent as any).requestPermission();
+                if (permission === 'granted') {
+                    setPermissionStatus('granted');
+                    window.addEventListener('deviceorientation', handleOrientation);
+                } else {
+                    setPermissionStatus('denied');
+                    setError('تم رفض إذن الوصول إلى البوصلة.');
+                }
+            } catch (e) {
+                setError('حدث خطأ أثناء طلب الإذن.');
+            }
+        } else {
+            // Non-iOS or older iOS
+            setPermissionStatus('granted');
+            if ('ondeviceorientationabsolute' in window) {
+                (window as any).addEventListener('deviceorientationabsolute', handleOrientation);
+            } else {
+                (window as any).addEventListener('deviceorientation', handleOrientation);
+            }
+        }
+    };
 
     const handleRefreshLocation = async () => {
         setIsRefreshing(true);
@@ -40,22 +84,19 @@ function Qibla({ onBack }) {
             setError('تعذر تحديد الموقع من إعدادات مواقيت الصلاة.');
         }
 
-        // Device orientation listener
-        const handleOrientation = (event) => {
-            let angle = event.webkitCompassHeading || Math.abs(event.alpha - 360);
-            if (typeof angle !== 'undefined') {
-                setHeading(angle);
+        // Auto-start if not iOS (iOS requires user gesture)
+        if (typeof (window.DeviceOrientationEvent as any)?.requestPermission !== 'function') {
+            if ('ondeviceorientationabsolute' in window) {
+                (window as any).addEventListener('deviceorientationabsolute', handleOrientation);
+            } else {
+                (window as any).addEventListener('deviceorientation', handleOrientation);
             }
-        };
-
-        if ('DeviceOrientationEvent' in window) {
-             window.addEventListener('deviceorientation', handleOrientation);
-        } else {
-            setError('مستشعر البوصلة غير مدعوم في هذا الجهاز أو المتصفح.');
+            setPermissionStatus('granted');
         }
 
         return () => {
-            window.removeEventListener('deviceorientation', handleOrientation);
+            (window as any).removeEventListener('deviceorientation', handleOrientation);
+            (window as any).removeEventListener('deviceorientationabsolute', handleOrientation);
         };
     }, [config.location]);
 
@@ -112,6 +153,17 @@ function Qibla({ onBack }) {
             <main className="flex-1 flex flex-col items-center justify-center p-4 gap-4 text-center">
                  {error && <p className="themed-card p-3 rounded-lg" style={{backgroundColor: '#ef4444', color: 'white'}}>{error}</p>}
                  {qiblaDirection === null && !error && <p className="themed-text">جاري تحديد اتجاه القبلة...</p>}
+                 
+                 {permissionStatus === 'unknown' && (
+                     <button 
+                         onClick={requestPermission}
+                         className="themed-card p-4 rounded-xl font-bold flex flex-col items-center gap-2 animate-pulse"
+                         style={{ borderColor: theme.palette[0], borderWidth: '2px' }}
+                     >
+                         <i className="fa-solid fa-compass text-3xl" style={{ color: theme.palette[0] }}></i>
+                         <span>اضغط هنا لتفعيل البوصلة</span>
+                     </button>
+                 )}
 
                 <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-full flex items-center justify-center themed-card transition-all duration-300" style={{boxShadow: isAligned ? `0 0 20px ${theme.name === 'أبيض وأسود' ? '#ffffff' : theme.palette[0]}90` : 'var(--card-shadow)'}}>
                     

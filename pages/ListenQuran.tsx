@@ -116,7 +116,9 @@ function ListenQuran({ onBack }) {
         setError('');
 
         const surahFormatted = String(surahNumber).padStart(3, '0');
-        const audioUrl = `${reciterId}/${surahFormatted}.mp3`;
+        // Ensure no double slashes if reciterId has a trailing slash
+        const baseUrl = reciterId.endsWith('/') ? reciterId.slice(0, -1) : reciterId;
+        const audioUrl = `${baseUrl}/${surahFormatted}.mp3`;
 
         audio.src = audioUrl;
         audio.load();
