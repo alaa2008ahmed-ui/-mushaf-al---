@@ -20,6 +20,7 @@ import ReadingTimer from '../components/QuranReader/ReadingTimer';
 import MarkerNotification from '../components/QuranReader/MarkerNotification';
 import quranUthmaniJson from '../data/quran-uthmani.json';
 import quranTajweedJson from '../data/quran-tajweed.json';
+import { registerBackInterceptor } from '../hooks/useBackButton';
 
 declare var window: any;
 
@@ -946,6 +947,49 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const handleToastClose = useCallback(() => {
         setToast(prev => ({ ...prev, show: false }));
     }, []);
+
+    useEffect(() => {
+        const interceptor = () => {
+            const openModalName = Object.keys(activeModals).find(k => activeModals[k]);
+            if (openModalName) {
+                closeModal(openModalName);
+                return true;
+            }
+            if (tafseerInfo.isOpen) {
+                if (tafseerInfo.wasAutoscrolling) {
+                    autoScrollPausedRef.current = false;
+                    setAutoScrollState(p => ({ ...p, isPaused: false }));
+                }
+                setTafseerInfo(p => ({ ...p, isOpen: false, wasAutoscrolling: false }));
+                return true;
+            }
+            if (tafseerSelectionInfo.isOpen) {
+                if (tafseerSelectionInfo.wasAutoscrolling) {
+                    autoScrollPausedRef.current = false;
+                    setAutoScrollState(p => ({ ...p, isPaused: false }));
+                }
+                setTafseerSelectionInfo(p => ({ ...p, isOpen: false, wasAutoscrolling: false }));
+                return true;
+            }
+            if (sajdahCardInfo.show) {
+                handleCloseSajdahCard();
+                return true;
+            }
+            if (isFloatingMenuOpen) {
+                setIsFloatingMenuOpen(false);
+                return true;
+            }
+            if (isPageInputActive) {
+                setIsPageInputActive(false);
+                setPageInput('');
+                return true;
+            }
+            return false;
+        };
+
+        const unregister = registerBackInterceptor(interceptor);
+        return unregister;
+    }, [activeModals, tafseerInfo, tafseerSelectionInfo, sajdahCardInfo, isFloatingMenuOpen, isPageInputActive, closeModal, handleCloseSajdahCard]);
 
     if (isLoading) { return <div id="loader" className="fixed inset-0 bg-[#1f2937] text-white z-[9999] flex flex-col items-center justify-center"><div className="text-2xl font-bold mb-4">جاري تحميل المصحف...</div><div className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden"><div id="progress-bar" className="h-full bg-green-500 transition-all duration-300" style={{width: `${loadingProgress}%`}}></div></div><div id="loader-status" className="mt-2 text-sm text-gray-400">{loadingStatus}</div></div> }
     
