@@ -1,32 +1,45 @@
 @echo off
-title Mushaf Test Deployer
+title Mushaf Test Deployer (Fix & Deploy)
 echo ==========================================
-echo    STARTING MUSHAF TEST VERSION DEPLOY
+echo     STARTING MUSHAF TEST VERSION DEPLOY
 echo ==========================================
 
-:: 1. تأكد من مزامنة كاباسيتور (لتطبيق الـ ID الجديد)
-echo [1/5] Syncing Capacitor settings...
+:: 1. حل مشكلة المكتبات الناقصة (Geolocation)
+echo [1/6] Installing missing dependencies...
+call npm install @capacitor/geolocation
+
+:: 2. تأكد من مزامنة كاباسيتور
+echo [2/6] Syncing Capacitor settings...
 call npx cap sync android
 
-:: 2. بناء مشروع الويب (اختياري لو مغيرتش في الكود)
-echo [2/5] Building web project...
+:: 3. بناء مشروع الويب
+echo [3/6] Building web project...
+:: ملحوظة: لو فشل هنا، اتأكد إنك مسحت سطر cordova.js من index.html يدوياً
 call npm run build
+if %ERRORLEVEL% neq 0 (
+    echo !!!!!!!!! BUILD FAILED !!!!!!!!!
+    echo Check if you removed cordova.js from index.html
+    pause
+    exit /b
+)
 
-:: 3. تحضير الـ Git للمستودع الجديد
-echo [3/5] Setting up Git Remote...
+:: 4. تحضير الـ Git للمستودع الجديد
+echo [4/6] Setting up Git Remote...
 git remote remove origin >nul 2>&1
 git remote add origin https://github.com/alaa2008ahmed-ui/-mushaf-al---.git
 
-:: 4. إضافة الملفات والتسجيل
-echo [4/5] Committing changes...
+:: 5. إضافة الملفات والتسجيل
+echo [5/6] Committing changes...
 git add .
-git commit -m "Test Version: %date% %time%"
+git commit -m "Test Version: %date% %time% - Fixed Geolocation"
 
-:: 5. الرفع بالإجبار (Force Push)
-echo [5/5] Pushing to GitHub (Force)...
+:: 6. الرفع بالإجبار (Force Push)
+echo [6/6] Pushing to GitHub (Force)...
 git push -u origin main --force
 
 echo ==========================================
-echo    DONE! Check GitHub Actions for APK.
+echo     DONE! Check GitHub Actions for APK.
 echo ==========================================
-pause
+echo Closing in 5 seconds...
+timeout /t 5 > nul
+exit
