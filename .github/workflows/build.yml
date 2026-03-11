@@ -1,16 +1,20 @@
 name: Build Test Debug APK
 on: [push]
 
+# إضافة هذا المتغير لإيقاف التحذير الأصفر وإجبار النظام على استخدام Node 24
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
-      - name: Use Node.js 22
+      - name: Use Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24 # تم التحديث من 22 إلى 24
           cache: 'npm'
 
       - name: Set up JDK 21
