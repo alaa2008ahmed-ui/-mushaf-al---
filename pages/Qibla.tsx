@@ -10,14 +10,27 @@ const toDeg = (rad) => rad * 180 / Math.PI;
 
 function Qibla({ onBack }) {
     const { theme } = useTheme();
-    const { config } = usePrayerTimes();
+    const { config, refreshLocation } = usePrayerTimes();
     const [heading, setHeading] = useState(0);
     const [qiblaDirection, setQiblaDirection] = useState(null);
     const [isAligned, setIsAligned] = useState(false);
     const [error, setError] = useState('');
+    const [isRefreshing, setIsRefreshing] = useState(false);
     
     const compassCircleRef = useRef(null);
     const qiblaPointerRef = useRef(null);
+
+    const handleRefreshLocation = async () => {
+        setIsRefreshing(true);
+        setError('');
+        try {
+            await refreshLocation();
+        } catch (e) {
+            setError('حدث خطأ أثناء تحديث الموقع.');
+        } finally {
+            setIsRefreshing(false);
+        }
+    };
 
     useEffect(() => {
         // Use location from PrayerTimesContext
@@ -44,7 +57,7 @@ function Qibla({ onBack }) {
         return () => {
             window.removeEventListener('deviceorientation', handleOrientation);
         };
-    }, []);
+    }, [config.location]);
 
     const calculateQiblaDirection = (latitude, longitude) => {
         const kaabaLat = 21.4225;
@@ -86,7 +99,10 @@ function Qibla({ onBack }) {
         <div className="h-screen w-screen flex flex-col overflow-hidden">
             <header className="app-top-bar">
                 <div className="app-top-bar__inner">
-                    <h1 className="app-top-bar__title text-2xl font-kufi">اتجاه القبلة</h1>
+                    <div className="flex items-center justify-center gap-2">
+                        <i onClick={handleRefreshLocation} className={`text-xl cursor-pointer ${isRefreshing ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-location-crosshairs active:rotate-180 duration-700'}`} style={{ color: theme.name === 'أبيض وأسود' ? '#ffffff' : theme.palette[0] }}></i>
+                        <h1 className="app-top-bar__title text-2xl font-kufi">اتجاه القبلة</h1>
+                    </div>
                     <p className="app-top-bar__subtitle">
                         {config?.location?.cityGov ? `حسب موقعك في: ${config.location.cityGov}` : 'استخدم البوصلة لتحديد اتجاه الكعبة المشرفة'}
                     </p>

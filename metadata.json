@@ -1,8 +1,7 @@
 {
-  "name": "Mushaf A\u0026L 2.2462",
+  "name": "مصحف أحمد وليلى",
   "description": "تطبيق إسلامي شامل يعمل بدون انترنت، يحتوي على القرآن الكريم، أذكار، تسبيح، مواقيت الصلاة، والمزيد. مصمم ليكون رفيقك اليومي.",
   "requestFramePermissions": [
-    "geolocation",
-    "screen-wake-lock"
+    "geolocation"
   ]
 }

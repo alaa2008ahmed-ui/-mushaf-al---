@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, Rea
 import { Coordinates, CalculationMethod, PrayerTimes as AdhanPrayerTimes } from 'adhan';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Capacitor } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
 import { prayerNamesAr } from '../data/prayerTimesData';
 
 // --- Types ---
@@ -26,7 +27,7 @@ interface PrayerTimesContextType {
     countdown: string;
     config: PrayerConfig;
     setConfig: React.Dispatch<React.SetStateAction<PrayerConfig>>;
-    refreshLocation: () => void;
+    refreshLocation: () => Promise<void>;
     manualSearch: (query: string) => Promise<void>;
     updateConfig: (newConfig: Partial<PrayerConfig>) => void;
 }
@@ -180,74 +181,90 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
         } catch(e) { console.error("Failed to calculate prayer times:", e); }
     }, []);
 
-    // --- Location Logic ---
-    const fetchByIP = useCallback(async () => {
-        try {
-            const res = await fetch('https://ipwho.is/');
-            const data = await res.json();
-            if (data && data.success) {
-                const city = data.city || data.region;
-                const countryInfo = getCountryInfo(data.country_code, data.country, city);
-                const newLoc = {
-                    lat: data.latitude,
-                    lng: data.longitude,
-                    cityGov: `${city} - ${data.region || ""}`,
-                    fullCountry: countryInfo.fullName,
-                    combinedCode: countryInfo.combinedCode
-                };
-                setConfig(prev => ({ ...prev, location: newLoc }));
-            } else {
-                throw new Error("IP fetch failed");
-            }
-        } catch (e) {
-            console.error("Failed to fetch location by IP:", e);
-            throw e;
-        }
-    }, []);
-    
-    const refreshLocation = useCallback(() => {
-        return new Promise<void>((resolve, reject) => {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    async (pos) => {
-                        const { latitude, longitude } = pos.coords;
-                        let newLoc = {
-                            lat: latitude, lng: longitude,
-                            cityGov: 'موقعي الحالي', fullCountry: '', combinedCode: ''
+    const refreshLocation = useCallback(async () => {
+        return new Promise<void>(async (resolve, reject) => {
+            const fetchByIP = async () => {
+                try {
+                    let res = await fetch('https://ipapi.co/json/');
+                    if (!res.ok) throw new Error("IP fetch failed");
+                    let data = await res.json();
+                    if (data && data.latitude && data.longitude) {
+                        const newLoc = {
+                            lat: data.latitude,
+                            lng: data.longitude,
+                            cityGov: `${data.city} - ${data.region}`,
+                            fullCountry: data.country_name,
+                            combinedCode: data.country_calling_code
                         };
-                        try {
-                            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ar`);
-                            const data = await res.json();
-                            const addr = data.address;
-                            const city = addr.village || addr.town || addr.city || "موقعي";
-                            const countryInfo = getCountryInfo(addr.country_code, addr.country, city);
-                            newLoc = {
-                                ...newLoc,
-                                cityGov: `${city} - ${addr.state || ""}`,
-                                fullCountry: countryInfo.fullName,
-                                combinedCode: countryInfo.combinedCode
-                            };
-                        } catch(e) {
-                            newLoc.cityGov = "موقعي الحالي (بدون اتصال)";
-                        }
                         setConfig(prev => ({ ...prev, location: newLoc }));
                         resolve();
-                    },
-                    async () => {
-                        try {
-                            await fetchByIP();
+                    } else {
+                        throw new Error("Invalid data");
+                    }
+                } catch (e) {
+                    try {
+                        let res = await fetch('https://ipwho.is/');
+                        let data = await res.json();
+                        if (data && data.latitude && data.longitude) {
+                            const newLoc = {
+                                lat: data.latitude,
+                                lng: data.longitude,
+                                cityGov: `${data.city} - ${data.region}`,
+                                fullCountry: data.country,
+                                combinedCode: data.calling_code ? `+${data.calling_code}` : ''
+                            };
+                            setConfig(prev => ({ ...prev, location: newLoc }));
                             resolve();
-                        } catch (e) {
-                            reject(e);
+                        } else {
+                            reject(new Error("Failed to fetch IP location"));
                         }
-                    },
-                    { enableHighAccuracy: true, timeout: 6000 }
-                );
-            } else {
-                fetchByIP().then(resolve).catch(reject);
+                    } catch (e2) {
+                        console.error("Failed to fetch location by IP:", e2);
+                        reject(e2);
+                    }
+                }
+            };
+
+            try {
+                if (Capacitor.isNativePlatform()) {
+                    const permStatus = await Geolocation.checkPermissions();
+                    if (permStatus.location !== 'granted') {
+                        const requestStatus = await Geolocation.requestPermissions();
+                        if (requestStatus.location !== 'granted') {
+                            throw new Error("Location permission denied");
+                        }
+                    }
+                }
+
+                const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+                const { latitude, longitude } = pos.coords;
+                let newLoc = {
+                    lat: latitude, lng: longitude,
+                    cityGov: 'موقعي الحالي', fullCountry: '', combinedCode: ''
+                };
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&accept-language=ar`);
+                    const data = await res.json();
+                    const addr = data.address;
+                    const city = addr.village || addr.town || addr.city || "موقعي";
+                    const countryInfo = getCountryInfo(addr.country_code, addr.country, city);
+                    newLoc = {
+                        ...newLoc,
+                        cityGov: `${city} - ${addr.state || ""}`,
+                        fullCountry: countryInfo.fullName,
+                        combinedCode: countryInfo.combinedCode
+                    };
+                } catch(e) {
+                    newLoc.cityGov = "موقعي الحالي (بدون اتصال)";
+                }
+                setConfig(prev => ({ ...prev, location: newLoc }));
+                resolve();
+            } catch (err) {
+                console.warn("Geolocation failed, falling back to IP:", err);
+                fetchByIP();
             }
         });
-    }, [fetchByIP]);
+    }, []);
 
     const manualSearch = useCallback(async (query: string) => {
         if(!query) return;
@@ -341,7 +358,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     const isAndroidNative = w.cordova && (w.cordova.platformId === 'android' || (w.device && w.device.platform === 'Android') || /android/i.test(navigator.userAgent));
                                     
                                     if (isAndroidNative) {
-                                        // Force bundled azans to use res:// (even if they are old file:// or http:// paths in config)
+                                        // Force bundled azans to use res://raw/ (even if they are old file:// or http:// paths in config)
                                         if (soundPath.includes('azan') || soundPath.startsWith('/assets/audio/')) {
                                             const filename = soundPath.split('/').pop();
                                             if (filename) {
@@ -353,7 +370,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                                 // Ensure it doesn't start with a number
                                                 const finalName = /^\d/.test(rawName) ? 'sound_' + rawName : rawName;
                                                 
-                                                androidSoundPath = `res://${finalName}`;
+                                                androidSoundPath = `res://raw/${finalName}`;
                                             }
                                         } else if (soundPath.startsWith('file://') || soundPath.startsWith('http')) {
                                             // It's a downloaded custom file or external URL
