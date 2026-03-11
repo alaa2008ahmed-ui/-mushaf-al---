@@ -9,6 +9,19 @@ interface UseBackButtonProps {
     setShowExitConfirm: (show: boolean) => void;
 }
 
+// Global stack of interceptors
+const backButtonInterceptors: Array<() => boolean> = [];
+
+export const registerBackInterceptor = (interceptor: () => boolean) => {
+    backButtonInterceptors.push(interceptor);
+    return () => {
+        const index = backButtonInterceptors.indexOf(interceptor);
+        if (index !== -1) {
+            backButtonInterceptors.splice(index, 1);
+        }
+    };
+};
+
 export function useBackButton({
     isThemeSelectorOpen,
     history,
@@ -30,6 +43,14 @@ export function useBackButton({
         if (isThemeSelectorOpenRef.current) {
             setIsThemeSelectorOpen(false);
             return;
+        }
+
+        // Check if any interceptor handles the back button
+        for (let i = backButtonInterceptors.length - 1; i >= 0; i--) {
+            const interceptor = backButtonInterceptors[i];
+            if (interceptor()) {
+                return; // Interceptor handled it
+            }
         }
 
         if (historyRef.current.length > 1) {

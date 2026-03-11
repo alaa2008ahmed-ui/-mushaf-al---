@@ -1,8 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { App as CapacitorApp } from '@capacitor/app';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 import { HISN_ALMUSLIM_CATEGORIES, HISN_ALMUSLIM_DATA } from '../data/hisnAlmuslimData';
+import { registerBackInterceptor } from '../hooks/useBackButton';
 
 function HisnAlmuslim({ onBack }) {
     const { theme } = useTheme();
@@ -16,6 +18,22 @@ function HisnAlmuslim({ onBack }) {
     const closeZoomModal = () => {
         setZoomedItem(null);
     };
+
+    useEffect(() => {
+        const interceptor = () => {
+            if (zoomedItem) {
+                setZoomedItem(null);
+                return true;
+            } else if (selectedCategory) {
+                setSelectedCategory(null);
+                return true;
+            }
+            return false;
+        };
+
+        const unregister = registerBackInterceptor(interceptor);
+        return unregister;
+    }, [selectedCategory, zoomedItem]);
 
     const CategoriesScreen = () => (
         <div className="p-4 space-y-3">

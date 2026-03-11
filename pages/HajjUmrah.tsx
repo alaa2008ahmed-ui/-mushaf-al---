@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect, FC } from 'react';
+import { App as CapacitorApp } from '@capacitor/app';
 import BottomBar from '../components/BottomBar';
 import { useTheme } from '../context/ThemeContext';
 import { umrahSteps, hajjTypes, hajjTamattuPlan, hajjGeneralInfo, allDuaas, homeScreenAdditions } from '../data/hajjUmrahData';
+import { registerBackInterceptor } from '../hooks/useBackButton';
 
 interface DuaaSectionProps {
     title: string;
@@ -57,6 +59,22 @@ function HajjUmrah({ onBack }) {
             setOpenDuaaId(1);
         }
     }, [screen]);
+
+    useEffect(() => {
+        const interceptor = () => {
+            if (zoomedDuaa) {
+                setZoomedDuaa(null);
+                return true; // handled
+            } else if (screen !== 'home') {
+                setScreen('home');
+                return true; // handled
+            }
+            return false; // let the global handler process it (will call onBack)
+        };
+
+        const unregister = registerBackInterceptor(interceptor);
+        return unregister;
+    }, [screen, zoomedDuaa]);
 
     const renderScreen = () => {
         switch (screen) {
