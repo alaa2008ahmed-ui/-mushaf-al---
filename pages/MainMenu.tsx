@@ -10,19 +10,19 @@ import MenuCustomizationModal from '../components/MenuCustomizationModal';
 import { registerBackInterceptor } from '../hooks/useBackButton';
 
 const DEFAULT_MENU_ITEMS = [
-    { id: 'quran', label: "القرآن الكريم 📖", className: "col-span-2 h-12", colorIndex: 0 },
-    { id: 'listen', label: "الاستماع للقرآن 🎧", className: "col-span-2 h-10", colorIndex: 0 },
-    { id: 'salah-adhkar', label: "أذكار الصلاة 🕌", className: "col-span-2 h-10", colorIndex: 0 },
-    { id: 'adia', label: "الأدعية 🤲", className: "h-10", colorIndex: 1 },
-    { id: 'sabah-masaa', label: "الأذكار ☀️", className: "h-10", colorIndex: 1 },
-    { id: 'tasbeeh', label: "السبحة 📿", className: "h-10", colorIndex: 1 },
-    { id: 'calendar', label: "التقويم 📅", className: "h-10", colorIndex: 0 },
-    { id: 'hisn-muslim', label: "حصن المسلم 🛡️", className: "h-10", colorIndex: 0 },
-    { id: 'calculators', label: "الحاسبة الشرعية 🧮", className: "h-10", colorIndex: 1 },
-    { id: 'prayer-times', label: "مواقيت الصلاة ⏱️", className: "h-10", colorIndex: 1 },
-    { id: 'qibla', label: "القبلة 🧭", className: "h-10", colorIndex: 1 },
-    { id: 'hajj-umrah', label: "الحج والعمرة 🕋", className: "h-10", colorIndex: 1 },
-    { id: 'nawawi', label: "الأربعون النووية 📚", className: "h-10", colorIndex: 1 },
+    { id: 'quran', label: "📖 القرآن الكريم", className: "col-span-2 h-12", colorIndex: 0 },
+    { id: 'listen', label: "🎧 الاستماع للقرآن", className: "col-span-2 h-10", colorIndex: 0 },
+    { id: 'salah-adhkar', label: "🕌 أذكار الصلاة", className: "col-span-2 h-10", colorIndex: 0 },
+    { id: 'adia', label: "🤲 الأدعية", className: "h-10", colorIndex: 1 },
+    { id: 'sabah-masaa', label: "☀️ الأذكار", className: "h-10", colorIndex: 1 },
+    { id: 'tasbeeh', label: "📿 السبحة", className: "h-10", colorIndex: 1 },
+    { id: 'calculators', label: "🧮 الحاسبة الشرعية", className: "h-10", colorIndex: 1 },
+    { id: 'hisn-muslim', label: "🛡️ حصن المسلم", className: "h-10", colorIndex: 0 },
+    { id: 'calendar', label: "📅 التقويم", className: "h-10", colorIndex: 0 },
+    { id: 'hajj-umrah', label: "🕋 الحج والعمرة", className: "h-10", colorIndex: 1 },
+    { id: 'prayer-times', label: "⏱️ مواقيت الصلاة", className: "h-10", colorIndex: 1 },
+    { id: 'qibla', label: "🧭 القبلة", className: "h-10", colorIndex: 1 },
+    { id: 'nawawi', label: "📚 الأربعون النووية", className: "h-10", colorIndex: 1 },
 ];
 
 interface NavButtonProps {
@@ -363,7 +363,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
               </div>
 
               {/* Grid Section */}
-              <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto flex-grow content-center relative mt-6">
+              <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto flex-grow content-center relative mt-2">
                   {menuItems.filter(item => visibleItems.includes(item.id)).map(item => (
                       <motion.div
                           layout

@@ -89,7 +89,7 @@ const ThemesModal: React.FC<ThemesModalProps> = ({ onClose, showToast }) => {
                     <h3 className="font-bold text-lg">اختر الثيم</h3>
                     <button onClick={onClose} className="text-2xl hover:opacity-80 transition">&times;</button>
                 </div>
-                <div className="overflow-y-auto p-4 grid grid-cols-2 gap-3 flex-1" style={{ '--theme-card-border-color': activeTheme.accent, '--theme-card-shadow-color': `${activeTheme.accent}4D` } as React.CSSProperties}>
+                <div className="overflow-y-auto p-4 grid grid-cols-2 gap-3" style={{ '--theme-card-border-color': activeTheme.accent, '--theme-card-shadow-color': `${activeTheme.accent}4D` } as React.CSSProperties}>
                     {Object.entries(THEMES).map(([key, t]: [string, any]) => (
                         <button 
                             key={key} 
