@@ -513,16 +513,37 @@
     }
 }
 
+.quran-reader-container.landscape-mode {
+    touch-action: none;
+}
+.quran-reader-container.landscape-mode #mushaf-content {
+    /* No padding, let content flow under absolute bars so it doesn't jump */
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+.quran-reader-container.landscape-mode.landscape-ui-hidden #mushaf-content {
+    /* No padding needed */
+}
 .quran-reader-container.landscape-mode #header {
     height: 40px;
     padding: 0 10px;
     font-size: 0.85rem;
     transition: transform 0.3s ease, opacity 0.3s ease;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
 }
 .quran-reader-container.landscape-mode #bottom-bar {
     height: 50px;
     padding: 0 10px;
     transition: transform 0.3s ease, opacity 0.3s ease;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
 }
 .quran-reader-container.landscape-mode .top-bar-text-button {
     padding: 2px 6px;
