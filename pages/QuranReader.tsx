@@ -39,6 +39,11 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     const [activeModals, setActiveModals] = useState<string[]>([]);
     const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
     const [isLandscape, setIsLandscape] = useState(false);
+    const [isLandscapeUIHidden, setIsLandscapeUIHidden] = useState(false);
+    const isLandscapeUIHiddenRef = useRef(false);
+    useEffect(() => { isLandscapeUIHiddenRef.current = isLandscapeUIHidden; }, [isLandscapeUIHidden]);
+    const isLandscapeRef = useRef(false);
+    useEffect(() => { isLandscapeRef.current = isLandscape; }, [isLandscape]);
     
     useEffect(() => {
         const checkOrientation = async () => {
@@ -779,6 +784,11 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     
         const handleScroll = () => {
             const { scrollTop, scrollHeight, clientHeight } = contentEl;
+            
+            if (isLandscapeRef.current && !isLandscapeUIHiddenRef.current) {
+                setIsLandscapeUIHidden(true);
+            }
+
             if (scrollTop < clientHeight) {
                 setVisiblePages(prev => {
                     // FIX: Guard against applying Math.min on an empty array, which results in Infinity. This prevents potential arithmetic errors and invalid state.
@@ -1071,7 +1081,10 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         if (autoScrollState.isActive) stopAutoScroll();
         else { startAutoScroll(); showToast('تم تفعيل التمرير التلقائي'); }
     };
-    const pauseResumeAutoScroll = () => {
+    const handleScreenTap = () => {
+      if (isLandscape) {
+          setIsLandscapeUIHidden(prev => !prev);
+      }
       if (autoScrollState.isActive) {
         const newPausedState = !autoScrollState.isPaused;
         autoScrollPausedRef.current = newPausedState;
@@ -1211,7 +1224,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     }, [activeModals, tafseerInfo.isOpen, tafseerSelectionInfo.isOpen]);
 
     return (
-        <div className={`quran-reader-container ${autoScrollState.isActive && !autoScrollState.isPaused && hideUIOnScroll && !isPageInputActive ? 'fullscreen-active' : ''} ${isPageInputActive ? 'force-ui-visible' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
+        <div className={`quran-reader-container ${autoScrollState.isActive && !autoScrollState.isPaused && hideUIOnScroll && !isPageInputActive ? 'fullscreen-active' : ''} ${isPageInputActive ? 'force-ui-visible' : ''} ${isLandscape ? 'landscape-mode' : ''} ${isLandscapeUIHidden ? 'landscape-ui-hidden' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
             <header id="header" className="header-default flex-none z-50 flex items-center px-4 justify-between border-b shadow-xl w-full gap-2" style={getToolbarStyle('top-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button 
                     id="surah-name-header" 
@@ -1265,7 +1278,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 </div>
             </header>
             <ReadingTimer isVisible={autoScrollState.isPaused || (!autoScrollState.isActive && autoScrollState.elapsedTime > 0)} elapsedTime={autoScrollState.elapsedTime} />
-            <div id="mushaf-content" ref={mushafContentRef} onClick={pauseResumeAutoScroll} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
+            <div id="mushaf-content" ref={mushafContentRef} onClick={handleScreenTap} onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
                 <div id="pages-container" className="full-mushaf-container">
                    {[...new Set(visiblePages)].sort((a: number, b: number) => a - b).map(pageNum => (<MushafPage key={pageNum} pageNum={pageNum} pageData={getPageData(pageNum)} highlightedAyahId={highlightedAyahId} onAyahClick={handleAyahClick} onVerseClick={handleVerseClick} onVerseLongPress={handleVerseLongPress} onAyahTextLongPress={handleAyahTextLongPress} onInteractionStart={handleInteractionStart} onInteractionEnd={handleInteractionEnd} settings={settings} />))}
                 </div>

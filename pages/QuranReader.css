@@ -498,6 +498,43 @@
     display: flex !important;
 }
 
+/* Landscape Mode UI */
+.quran-reader-container.landscape-mode #header {
+    height: 40px;
+    padding: 0 10px;
+    font-size: 0.85rem;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.quran-reader-container.landscape-mode #bottom-bar {
+    height: 50px;
+    padding: 0 10px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.quran-reader-container.landscape-mode .top-bar-text-button {
+    padding: 2px 6px;
+    font-size: 0.85rem;
+}
+.quran-reader-container.landscape-mode .bottom-bar-button {
+    padding: 4px;
+}
+.quran-reader-container.landscape-mode .bottom-bar-button i {
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+.quran-reader-container.landscape-mode.landscape-ui-hidden #header {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+.quran-reader-container.landscape-mode.landscape-ui-hidden #bottom-bar {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+.quran-reader-container.landscape-mode.landscape-ui-hidden #floating-menu {
+    display: none !important;
+}
+
 /* Smart Notification Toast */
 #message-toast {
     position: fixed; 
