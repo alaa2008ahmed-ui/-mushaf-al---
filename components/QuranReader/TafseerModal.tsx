@@ -13,12 +13,12 @@ const TafseerModal: React.FC<TafseerModalProps> = ({ isOpen, isLoading, title, t
 
     return (
         <div className="fixed inset-0 z-[180] bg-black/30 flex justify-center items-center px-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl flex flex-col max-h-[60vh] shadow-2xl" onClick={e => e.stopPropagation()}>
-                <div className="p-4 rounded-t-2xl flex justify-between items-center shadow-md theme-header-bg">
+            <div className="modal-skinned w-full max-w-md rounded-2xl flex flex-col max-h-[95vh] shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="p-4 rounded-t-2xl flex justify-between items-center shadow-md theme-header-bg flex-none">
                     <h3 className="font-bold text-lg">{title}</h3>
                     <button onClick={onClose} className="text-2xl hover:opacity-80 transition">&times;</button>
                 </div>
-                <div className="p-5 overflow-y-auto text-center">
+                <div className="p-5 overflow-y-auto text-center flex-grow">
                     {isLoading ? (
                         <div>
                             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600 mx-auto"></div>

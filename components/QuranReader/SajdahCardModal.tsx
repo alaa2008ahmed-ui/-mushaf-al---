@@ -9,14 +9,14 @@ const SajdahCardModal: FC<{
 
     return (
         <div className="fixed inset-0 z-[250] bg-black/30 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
-                <div className="p-4 theme-header-bg rounded-t-2xl text-center">
+            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl flex flex-col max-h-[95vh]" onClick={e => e.stopPropagation()}>
+                <div className="p-4 theme-header-bg rounded-t-2xl text-center flex-none">
                     <h3 className="font-bold text-lg">أحكام سجود التلاوة</h3>
                     <p className="text-xs opacity-80 mt-1">
                         عند آية سجدة: سورة {info.surah} - آية {toArabic(info.ayah)}
                     </p>
                 </div>
-                <div className="p-5 overflow-y-auto text-right leading-relaxed space-y-4 text-sm">
+                <div className="p-5 overflow-y-auto text-right leading-relaxed space-y-4 text-sm flex-grow">
                     <div>
                         <p><b>1. تعريف سجود التلاوة</b></p>
                         <p className="mt-1">هو سجود يؤديه القارئ أو المستمع عند قراءة آية من آيات السجود في القرآن الكريم، تعظيماً لله تعالى وإظهاراً للعبودية. وقد ثبت في صحيح مسلم عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:</p>

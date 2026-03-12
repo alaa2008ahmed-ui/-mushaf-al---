@@ -84,12 +84,12 @@ const ThemesModal: React.FC<ThemesModalProps> = ({ onClose, showToast }) => {
 
     return (
         <div className="fixed inset-0 z-[190] bg-black/30 flex justify-center items-center px-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl flex flex-col max-h-[85vh] shadow-2xl" onClick={e => e.stopPropagation()}>
-                <div className="p-4 rounded-t-2xl flex justify-between items-center shadow-md theme-header-bg">
+            <div className="modal-skinned w-full max-w-md rounded-2xl flex flex-col max-h-[95vh] shadow-2xl" onClick={e => e.stopPropagation()}>
+                <div className="p-4 rounded-t-2xl flex justify-between items-center shadow-md theme-header-bg flex-none">
                     <h3 className="font-bold text-lg">اختر الثيم</h3>
                     <button onClick={onClose} className="text-2xl hover:opacity-80 transition">&times;</button>
                 </div>
-                <div className="overflow-y-auto p-4 grid grid-cols-2 gap-3" style={{ '--theme-card-border-color': activeTheme.accent, '--theme-card-shadow-color': `${activeTheme.accent}4D` } as React.CSSProperties}>
+                <div className="overflow-y-auto p-4 grid grid-cols-2 gap-3 flex-grow" style={{ '--theme-card-border-color': activeTheme.accent, '--theme-card-shadow-color': `${activeTheme.accent}4D` } as React.CSSProperties}>
                     {Object.entries(THEMES).map(([key, t]: [string, any]) => (
                         <button 
                             key={key} 

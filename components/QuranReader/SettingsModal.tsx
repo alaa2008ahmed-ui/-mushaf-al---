@@ -87,13 +87,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
     };
 
     return (
-        <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[150] flex items-center justify-center p-4 animate-fadeIn`} onClick={handleClose}>
-            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
+        <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[150] flex items-center justify-center p-2 sm:p-4 animate-fadeIn`} onClick={handleClose}>
+            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">إعدادات العرض</h2>
                     <button onClick={handleClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
-                <div className="p-3 space-y-2 overflow-y-auto text-center">
+                <div className="p-3 space-y-2 overflow-y-auto text-center flex-grow">
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <div id="settings-preview" className="rounded-lg border p-2 transition-all duration-300 shadow-sm text-center" dir="rtl" style={{ backgroundColor: settings.bgColor, borderColor: settings.barBorder }}>
                             <p className="leading-loose text-center" style={{ fontSize: `${settings.fontSize}rem`, fontFamily: settings.fontFamily, color: settings.textColor }}>﴿إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ﴾</p>
