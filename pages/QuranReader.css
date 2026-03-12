@@ -517,12 +517,13 @@
     touch-action: none;
 }
 .quran-reader-container.landscape-mode #mushaf-content {
-    /* No padding, let content flow under absolute bars so it doesn't jump */
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+    /* Add padding to account for absolute headers/footers in landscape */
+    padding-top: 45px !important;
+    padding-bottom: 55px !important;
 }
 .quran-reader-container.landscape-mode.landscape-ui-hidden #mushaf-content {
-    /* No padding needed */
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
 }
 .quran-reader-container.landscape-mode #header {
     height: 40px;

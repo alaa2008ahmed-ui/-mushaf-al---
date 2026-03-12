@@ -24,7 +24,9 @@ interface AppRouterProps {
 const AppRouter: React.FC<AppRouterProps> = ({ page, onBack, onNavigate, onOpenThemes }) => {
     switch(page) {
       case 'quran':
-        return <QuranReader onBack={onBack} />;
+        return <QuranReader onBack={onBack} initialLandscape={false} />;
+      case 'quran-landscape':
+        return <QuranReader onBack={onBack} initialLandscape={true} />;
       case 'salah-adhkar':
         return <AthkarAlSalah onBack={onBack} />;
       case 'calendar':

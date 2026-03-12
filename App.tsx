@@ -38,7 +38,7 @@ function App() {
 
   const handleNavigate = (pageId: string) => {
     const validPages = [
-      'quran', 'salah-adhkar', 'calendar', 'listen', 'tasbeeh', 
+      'quran', 'quran-landscape', 'salah-adhkar', 'calendar', 'listen', 'tasbeeh', 
       'hajj-umrah', 'hisn-muslim', 'prayer-times', 'qibla', 
       'sabah-masaa', 'adia', 'nawawi', 'calculators'
     ];

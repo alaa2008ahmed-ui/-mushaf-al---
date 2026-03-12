@@ -369,7 +369,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                           layout
                           key={item.id}
                           data-item-id={item.id}
-                          className={item.className}
+                          className={`${item.className} relative`}
                           drag={isEditMode}
                           dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
                           dragElastic={1}
@@ -387,6 +387,18 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                             onResize={(e) => handleResize(item.id, e)}
                             isGlass={theme.isGlass}
                           />
+                          {item.id === 'quran' && !isEditMode && (
+                              <button
+                                  onClick={(e) => {
+                                      e.stopPropagation();
+                                      onNavigate('quran-landscape');
+                                  }}
+                                  className="absolute top-1/2 left-2 -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white rounded-full w-10 h-10 flex items-center justify-center z-10 transition-colors shadow-lg border border-white/20"
+                                  title="وضع العرض"
+                              >
+                                  <i className="fa-solid fa-arrows-rotate text-lg"></i>
+                              </button>
+                          )}
                       </motion.div>
                   ))}
               </div>

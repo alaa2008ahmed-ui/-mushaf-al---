@@ -25,7 +25,7 @@ import { registerBackInterceptor } from '../hooks/useBackButton';
 
 declare var window: any;
 
-const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
+const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ onBack, initialLandscape = false }) => {
     const [useTajweed, setUseTajweed] = useState(() => localStorage.getItem('use_tajweed_quran') === 'true');
     const [quranData, setQuranData] = useState<any>(useTajweed ? quranTajweedJson.data : quranUthmaniJson.data);
     const [isLoading, setIsLoading] = useState(false);
@@ -38,7 +38,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const [activeModals, setActiveModals] = useState<string[]>([]);
     const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
-    const [isLandscape, setIsLandscape] = useState(false);
+    const [isLandscape, setIsLandscape] = useState(initialLandscape);
     const [isLandscapeUIHidden, setIsLandscapeUIHidden] = useState(false);
     const isLandscapeUIHiddenRef = useRef(false);
     useEffect(() => { isLandscapeUIHiddenRef.current = isLandscapeUIHidden; }, [isLandscapeUIHidden]);
@@ -435,10 +435,16 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         if (el) {
             const container = mushafContentRef.current;
             if (container) {
-                const containerRect = container.getBoundingClientRect();
-                const elRect = el.getBoundingClientRect();
-                const scrollTop = container.scrollTop + elRect.top - containerRect.top - (containerRect.height / 2) + (elRect.height / 2);
-                container.scrollTo({ top: scrollTop, behavior: instant ? 'auto' : 'smooth' });
+                if (isLandscapeRef.current) {
+                    // In landscape mode (rotated), we use offsetTop for more reliable scrolling
+                    const targetScroll = el.offsetTop - (container.clientHeight / 2) + (el.clientHeight / 2);
+                    container.scrollTo({ top: targetScroll, behavior: instant ? 'auto' : 'smooth' });
+                } else {
+                    const containerRect = container.getBoundingClientRect();
+                    const elRect = el.getBoundingClientRect();
+                    const scrollTop = container.scrollTop + elRect.top - containerRect.top - (containerRect.height / 2) + (elRect.height / 2);
+                    container.scrollTo({ top: scrollTop, behavior: instant ? 'auto' : 'smooth' });
+                }
             } else {
                 el.scrollIntoView({ block: 'center', behavior: instant ? 'auto' : 'smooth' });
             }
@@ -543,6 +549,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     }, [quranData]);
 
     const handleVerseLongPress = useCallback((s: number, a: number) => {
+        if (isLandscapeRef.current) return;
         const wasAutoscrolling = autoScrollStateRef.current.isActive && !autoScrollStateRef.current.isPaused;
         if (wasAutoscrolling) {
             autoScrollPausedRef.current = true;
@@ -554,6 +561,7 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     }, []);
 
     const handleAyahTextLongPress = useCallback((s: number, a: number) => {
+        if (isLandscapeRef.current) return;
         const wasAutoscrolling = autoScrollStateRef.current.isActive && !autoScrollStateRef.current.isPaused;
         if (wasAutoscrolling) {
             autoScrollPausedRef.current = true;
@@ -1314,7 +1322,6 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                  <button onClick={() => { openModal('bookmarks-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-bookmarks-list', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>قائمة الإشارات</span><i className="fa-solid fa-list"></i></button>
                  <button onClick={() => { openModal('search-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-purple w-full justify-between mb-2" style={getToolbarStyle('btn-search', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>البحث</span><i className="fa-solid fa-search"></i></button>
                  <button onClick={() => { openModal('themes-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-themes', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الثيمات</span><i className="fa-solid fa-palette"></i></button>
-                 <button onClick={toggleOrientation} className="bottom-bar-button btn-purple w-full justify-between mb-2" style={getToolbarStyle('btn-orientation', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>{isLandscape ? 'وضع الطول' : 'وضع العرض'}</span><i className={`fa-solid ${isLandscape ? 'fa-mobile-screen' : 'fa-mobile-screen-button'}`}></i></button>
                  <button onClick={() => { openModal('settings-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between" style={getToolbarStyle('btn-settings', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الإعدادات</span><i className="fa-solid fa-cog"></i></button>
             </div>
             <footer id="bottom-bar" className="footer-default flex-none border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-10 flex justify-around items-center px-1 py-1 w-full" style={getToolbarStyle('bottom-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
