@@ -390,7 +390,7 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
                             <div className="custom-select-display text-sm h-8 themed-card-bg">{TAFSEERS.find(t => t.id === selectedTafsir)?.name || "اختر التفسير"}</div>
                             <select value={selectedTafsir} onChange={(e) => setSelectedTafsir(e.target.value)} className="custom-select-design">
                                 <option value="">اختر التفسير</option>
-                                {TAFSEERS.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                {TAFSEERS.filter(t => t.id !== 'ar.jalalayn').map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                             </select>
                         </div>
                         
