@@ -129,12 +129,12 @@ const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClo
     if (editingType) {
         return (
             <div className="fixed inset-0 z-[220] bg-black/70 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={() => setEditingType(null)}>
-                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-modal-enter flex flex-col max-h-[95vh]" onClick={e => e.stopPropagation()}>
-                    <div className="p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex justify-between items-center flex-none">
+                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden animate-modal-enter" onClick={e => e.stopPropagation()}>
+                    <div className="p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white flex justify-between items-center">
                         <h3 className="font-bold text-lg">تخصيص: {getName(editingType)}</h3>
                         <button onClick={() => setEditingType(null)} className="text-white hover:bg-white/20 rounded-full p-1">✕</button>
                     </div>
-                    <div className="p-5 space-y-4 overflow-y-auto flex-grow">
+                    <div className="p-5 space-y-4">
                         {!editingType.includes('toolbar') && (
                             <div id="modal-font-section">
                                 <label className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 block">نوع الخط</label>
@@ -199,7 +199,7 @@ const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClo
 
     return (
         <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-fadeIn`} onClick={handleClose}>
-            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95dvh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
                 <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white flex justify-between items-center shadow-md flex-none theme-header-bg">
                     <h3 className="text-lg font-extrabold flex items-center">
                         <i className="fa-solid fa-palette ml-2"></i>

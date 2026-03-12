@@ -80,6 +80,14 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     background-color: var(--qr-modal-bg, #ffffff);
     color: var(--qr-modal-text, #000000);
+    max-height: 95dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-skinned > div:nth-child(2) {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .theme-header-bg {
@@ -153,7 +161,7 @@
     overflow-y: hidden;
     display: flex;
     flex-direction: column;
-    padding: 2px 0; /* Removed horizontal padding */
+    padding: 2px 1rem; /* Aligned with header/footer buttons */
     container-type: size;
 }
 

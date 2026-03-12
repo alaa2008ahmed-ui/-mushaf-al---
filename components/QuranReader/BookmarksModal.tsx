@@ -16,15 +16,15 @@ const BookmarksModal: React.FC<BookmarksModalProps> = ({ bookmarks, quranData, o
         : bookmarks;
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black/30 flex justify-center pt-10 px-4 animate-fadeIn backdrop-blur-sm" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-2xl rounded-t-2xl flex flex-col max-h-[95vh]" onClick={e => e.stopPropagation()}>
-                <div className="p-4 theme-header-bg rounded-t-2xl flex justify-between items-center flex-none">
+        <div className="fixed inset-0 z-[100] bg-black/30 flex justify-center items-center px-4 animate-fadeIn backdrop-blur-sm" onClick={onClose}>
+            <div className="modal-skinned w-full max-w-2xl rounded-2xl flex flex-col max-h-[95dvh]" onClick={e => e.stopPropagation()}>
+                <div className="p-4 theme-header-bg rounded-t-2xl flex justify-between items-center">
                     <h3 className="font-bold text-lg">
                         {filterLandscape === true ? 'الإشارات (الوضع الأفقي)' : filterLandscape === false ? 'الإشارات (الوضع الرأسي)' : 'الإشارات المرجعية'}
                     </h3>
                     <button onClick={onClose} className="text-2xl">&times;</button>
                 </div>
-                <div className="overflow-y-auto p-4 space-y-2 flex-grow">
+                <div className="overflow-y-auto p-4 space-y-2">
                     {filteredBookmarks.length === 0 ? (
                         <div className="text-center p-4 font-bold">لا توجد إشارات مرجعية محفوظة</div>
                     ) : (

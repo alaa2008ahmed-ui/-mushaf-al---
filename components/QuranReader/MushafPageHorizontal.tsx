@@ -96,7 +96,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
     return (
         <div className={`mushaf-page ${isHorizontal ? 'horizontal-mushaf-page' : ''}`} data-page={pageNum} ref={pageRef} style={{ backgroundColor: 'transparent' }}>
             <div className="page-content" style={pageStyle}>
-                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', flexGrow: 1 }}>
+                <div style={{ width: '100%', display: 'block', textAlign: 'justify', textAlignLast: 'center' }}>
                     {pageData.map(ayah => {
                     const isSajdah = SAJDAH_LOCATIONS.some(sl => sl.s === ayah.sNum && sl.a === ayah.numberInSurah);
                     const showHeader = currentSurah !== ayah.sNum && ayah.numberInSurah === 1;
@@ -114,7 +114,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                         <React.Fragment key={id}>
                             {showHeader && ( 
                                 <> 
-                                    <div className="surah-header my-4 flex items-center justify-between w-full px-2">
+                                    <div className="surah-header my-4 flex items-center justify-between w-full">
                                         <span className="surah-info-right">{SURAH_INFO[ayah.sNum]?.type}</span>
                                         <span className="surah-name">{ayah.sName.replace('سورة', '').trim()}</span>
                                         <span className="surah-info-left">آياتها {toArabic(SURAH_INFO[ayah.sNum]?.ayahs || 0)}</span>
