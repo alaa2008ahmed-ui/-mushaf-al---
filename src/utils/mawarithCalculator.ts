@@ -1,26 +1,34 @@
 export interface HeirResult {
     name: string;
-    share: number; // Fractional share (e.g., 1/2, 1/4)
+    share: number;
     amount: number;
-    type: 'فرض' | 'تعصيب' | 'رد';
+    type: 'فرض' | 'تعصيب' | 'رد' | 'عول';
 }
 
-interface MawarithInput {
+export interface MawarithInput {
     estateValue: string;
-    hasFather: boolean;
-    hasMother: boolean;
     spouseType: 'none' | 'husband' | 'wife';
     wivesCount: number;
+    hasFather: boolean;
+    hasMother: boolean;
     sonsCount: number;
     daughtersCount: number;
+    grandsonsCount: number;
+    granddaughtersCount: number;
     hasPaternalGrandfather: boolean;
     hasMaternalGrandmother: boolean;
-    brothersCount: number;
-    sistersCount: number;
+    hasPaternalGrandmother: boolean;
+    fullBrothersCount: number;
+    fullSistersCount: number;
+    paternalBrothersCount: number;
+    paternalSistersCount: number;
+    maternalSiblingsCount: number;
+    fullNephewsCount: number;
+    paternalNephewsCount: number;
+    fullUnclesCount: number;
     paternalUnclesCount: number;
-    paternalAuntsCount: number;
-    maternalUnclesCount: number;
-    maternalAuntsCount: number;
+    fullCousinsCount: number;
+    paternalCousinsCount: number;
 }
 
 export const calculateMawarith = (input: MawarithInput): HeirResult[] => {
@@ -29,153 +37,211 @@ export const calculateMawarith = (input: MawarithInput): HeirResult[] => {
 
     let remaining = total;
     const results: HeirResult[] = [];
+
+    // --- Hajb (Blocking) Logic ---
     const hasSons = input.sonsCount > 0;
     const hasDaughters = input.daughtersCount > 0;
-    const isChildrenPresent = hasSons || hasDaughters;
+    const hasGrandsons = input.grandsonsCount > 0 && !hasSons;
+    const hasGranddaughters = input.granddaughtersCount > 0 && !hasSons;
+    
+    const isMaleDescendant = hasSons || hasGrandsons;
+    const isFemaleDescendant = hasDaughters || hasGranddaughters;
+    const isChildrenPresent = isMaleDescendant || isFemaleDescendant;
 
-    // --- Step 1: Determine who is present and apply basic exclusions ---
-    const isFatherPresent = input.hasFather;
-    const isMotherPresent = input.hasMother;
-    const isPaternalGrandfatherPresent = input.hasPaternalGrandfather && !isFatherPresent; // Grandfather is excluded by father
-    const isMaternalGrandmotherPresent = input.hasMaternalGrandmother && !isMotherPresent; // Grandmother is excluded by mother
+    const isFather = input.hasFather;
+    const isMother = input.hasMother;
+    const isPaternalGrandfather = input.hasPaternalGrandfather && !isFather;
+    const isMaternalGrandmother = input.hasMaternalGrandmother && !isMother;
+    const isPaternalGrandmother = input.hasPaternalGrandmother && !isMother && !isFather;
 
-    // Siblings are excluded by sons, father, and paternal grandfather
-    const isSiblingsExcluded = hasSons || isFatherPresent || isPaternalGrandfatherPresent;
-    const isBrothersPresent = input.brothersCount > 0 && !isSiblingsExcluded;
-    const isSistersPresent = input.sistersCount > 0 && !isSiblingsExcluded;
+    const isMaleAscendant = isFather || isPaternalGrandfather;
 
-    // Uncles are excluded by sons, father, paternal grandfather, and brothers
-    const isPaternalUnclesPresent = input.paternalUnclesCount > 0 && !isSiblingsExcluded && !isBrothersPresent && !isSistersPresent;
-    // Paternal aunts, maternal uncles/aunts are generally Dhawu al-Arham and don't inherit in this simplified model
+    // Siblings blocking
+    const blockMaternalSiblings = isChildrenPresent || isMaleAscendant;
+    const blockFullSiblings = isMaleDescendant || isFather || isPaternalGrandfather;
+    const blockPaternalSiblings = blockFullSiblings || input.fullBrothersCount > 0 || (input.fullSistersCount > 0 && isFemaleDescendant); // Full sister with daughter becomes Asabah and blocks paternal brother
 
-    // --- Step 2: Assign Furood (Fixed Shares) ---
+    const hasFullBrothers = input.fullBrothersCount > 0 && !blockFullSiblings;
+    const hasFullSisters = input.fullSistersCount > 0 && !blockFullSiblings;
+    const hasPaternalBrothers = input.paternalBrothersCount > 0 && !blockPaternalSiblings;
+    const hasPaternalSisters = input.paternalSistersCount > 0 && !blockPaternalSiblings;
+    const hasMaternalSiblings = input.maternalSiblingsCount > 0 && !blockMaternalSiblings;
 
-    // Spouse
+    // Extended family blocking
+    const blockNephews = blockPaternalSiblings || hasFullBrothers || hasPaternalBrothers;
+    const hasFullNephews = input.fullNephewsCount > 0 && !blockNephews;
+    const hasPaternalNephews = input.paternalNephewsCount > 0 && !blockNephews && !hasFullNephews;
+
+    const blockUncles = blockNephews || hasFullNephews || hasPaternalNephews;
+    const hasFullUncles = input.fullUnclesCount > 0 && !blockUncles;
+    const hasPaternalUncles = input.paternalUnclesCount > 0 && !blockUncles && !hasFullUncles;
+
+    const blockCousins = blockUncles || hasFullUncles || hasPaternalUncles;
+    const hasFullCousins = input.fullCousinsCount > 0 && !blockCousins;
+    const hasPaternalCousins = input.paternalCousinsCount > 0 && !blockCousins && !hasFullCousins;
+
+    // --- Furood (Fixed Shares) ---
+    let totalShares = 0;
+    const furood: { name: string, share: number }[] = [];
+
+    // 1. Husband / Wife
     if (input.spouseType === 'husband') {
-        const share = isChildrenPresent ? 1/4 : 1/2;
-        const amount = total * share;
-        results.push({ name: 'الزوج', share, amount, type: 'فرض' });
-        remaining -= amount;
+        furood.push({ name: 'الزوج', share: isChildrenPresent ? 1/4 : 1/2 });
     } else if (input.spouseType === 'wife' && input.wivesCount > 0) {
-        const share = isChildrenPresent ? 1/8 : 1/4;
-        const amount = total * share;
-        results.push({ name: input.wivesCount > 1 ? `الزوجات (${input.wivesCount})` : 'الزوجة', share, amount, type: 'فرض' });
+        furood.push({ name: input.wivesCount > 1 ? `الزوجات (${input.wivesCount})` : 'الزوجة', share: isChildrenPresent ? 1/8 : 1/4 });
+    }
+
+    // 2. Mother
+    const siblingsCount = (hasFullBrothers ? input.fullBrothersCount : 0) + 
+                          (hasFullSisters ? input.fullSistersCount : 0) + 
+                          (hasPaternalBrothers ? input.paternalBrothersCount : 0) + 
+                          (hasPaternalSisters ? input.paternalSistersCount : 0) + 
+                          (hasMaternalSiblings ? input.maternalSiblingsCount : 0);
+    
+    if (isMother) {
+        furood.push({ name: 'الأم', share: (isChildrenPresent || siblingsCount >= 2) ? 1/6 : 1/3 });
+    }
+
+    // 3. Father / Grandfather (Fixed part)
+    if (isFather && isChildrenPresent) {
+        furood.push({ name: 'الأب (فرض)', share: 1/6 });
+    } else if (isPaternalGrandfather && isChildrenPresent) {
+        furood.push({ name: 'الجد لأب (فرض)', share: 1/6 });
+    }
+
+    // 4. Grandmothers
+    if (isMaternalGrandmother && isPaternalGrandmother) {
+        furood.push({ name: 'الجدتان (لأم ولأب)', share: 1/6 });
+    } else if (isMaternalGrandmother) {
+        furood.push({ name: 'الجدة لأم', share: 1/6 });
+    } else if (isPaternalGrandmother) {
+        furood.push({ name: 'الجدة لأب', share: 1/6 });
+    }
+
+    // 5. Daughters
+    if (hasDaughters && !hasSons) {
+        furood.push({ name: input.daughtersCount === 1 ? 'البنت' : `البنات (${input.daughtersCount})`, share: input.daughtersCount === 1 ? 1/2 : 2/3 });
+    }
+
+    // 6. Granddaughters (if no sons, no grandsons, and < 2 daughters)
+    if (hasGranddaughters && !hasSons && !hasGrandsons) {
+        if (input.daughtersCount === 0) {
+            furood.push({ name: input.granddaughtersCount === 1 ? 'بنت الابن' : `بنات الابن (${input.granddaughtersCount})`, share: input.granddaughtersCount === 1 ? 1/2 : 2/3 });
+        } else if (input.daughtersCount === 1) {
+            furood.push({ name: input.granddaughtersCount === 1 ? 'بنت الابن' : `بنات الابن (${input.granddaughtersCount})`, share: 1/6 }); // تكملة الثلثين
+        }
+    }
+
+    // 7. Maternal Siblings
+    if (hasMaternalSiblings) {
+        furood.push({ name: input.maternalSiblingsCount === 1 ? 'الأخ/الأخت لأم' : `الإخوة لأم (${input.maternalSiblingsCount})`, share: input.maternalSiblingsCount === 1 ? 1/6 : 1/3 });
+    }
+
+    // 8. Full Sisters (if no full brothers, no male ascendants/descendants, no female descendants)
+    if (hasFullSisters && !hasFullBrothers && !isFemaleDescendant) {
+        furood.push({ name: input.fullSistersCount === 1 ? 'الأخت الشقيقة' : `الأخوات الشقيقات (${input.fullSistersCount})`, share: input.fullSistersCount === 1 ? 1/2 : 2/3 });
+    }
+
+    // 9. Paternal Sisters (if no paternal brothers, no full siblings, no descendants/ascendants)
+    if (hasPaternalSisters && !hasPaternalBrothers && !hasFullBrothers && !isFemaleDescendant) {
+        if (input.fullSistersCount === 0) {
+            furood.push({ name: input.paternalSistersCount === 1 ? 'الأخت لأب' : `الأخوات لأب (${input.paternalSistersCount})`, share: input.paternalSistersCount === 1 ? 1/2 : 2/3 });
+        } else if (input.fullSistersCount === 1) {
+            furood.push({ name: input.paternalSistersCount === 1 ? 'الأخت لأب' : `الأخوات لأب (${input.paternalSistersCount})`, share: 1/6 }); // تكملة الثلثين
+        }
+    }
+
+    // --- Calculate Furood ---
+    totalShares = furood.reduce((sum, f) => sum + f.share, 0);
+    
+    // Awl (العول) - if shares exceed 1
+    let awlFactor = 1;
+    if (totalShares > 1) {
+        awlFactor = totalShares;
+    }
+
+    furood.forEach(f => {
+        const actualShare = f.share / awlFactor;
+        const amount = total * actualShare;
+        results.push({ name: f.name, share: actualShare, amount, type: totalShares > 1 ? 'عول' : 'فرض' });
         remaining -= amount;
-    }
+    });
 
-    // Mother
-    if (isMotherPresent) {
-        const share = isChildrenPresent || (input.brothersCount + input.sistersCount >= 2 && !isSiblingsExcluded) ? 1/6 : 1/3; // Mother's share changes with children or multiple siblings
-        const amount = total * share;
-        results.push({ name: 'الأم', share, amount, type: 'فرض' });
-        remaining -= amount;
-    }
+    // Prevent floating point issues
+    if (remaining < 0.01) remaining = 0;
 
-    // Paternal Grandmother
-    if (isMaternalGrandmotherPresent) {
-        const share = 1/6;
-        const amount = total * share;
-        results.push({ name: 'الجدة لأم', share, amount, type: 'فرض' });
-        remaining -= amount;
-    }
-
-    // Daughters (if no sons)
-    if (!hasSons && hasDaughters) {
-        const share = input.daughtersCount === 1 ? 1/2 : 2/3;
-        const amount = Math.min(total * share, remaining);
-        results.push({ name: input.daughtersCount === 1 ? 'البنت' : `البنات (${input.daughtersCount})`, share, amount, type: 'فرض' });
-        remaining -= amount;
-    }
-
-    // --- Step 3: Assign Ta'seeb (Residuary Shares) ---
-
-    // Father (as residuary if no children, or with fixed share + residuary)
-    if (isFatherPresent) {
-        let fatherShare = 0;
-        if (isChildrenPresent) {
-            fatherShare = 1/6; // Fixed share with children
-            const amount = total * fatherShare;
-            results.push({ name: 'الأب (فرض)', share: fatherShare, amount, type: 'فرض' });
-            remaining -= amount;
-        }
-        // Father takes remaining as Ta'seeb if no sons or no children at all
-        if (!hasSons && remaining > 0) {
-            results.push({ name: 'الأب (تعصيباً)', share: remaining/total, amount: remaining, type: 'تعصيب' });
-            remaining = 0;
-        }
-    }
-
-    // Paternal Grandfather (as residuary if no father and no children, or with fixed share + residuary)
-    if (isPaternalGrandfatherPresent) {
-        let grandfatherShare = 0;
-        if (isChildrenPresent) {
-            grandfatherShare = 1/6; // Fixed share with children
-            const amount = total * grandfatherShare;
-            results.push({ name: 'الجد لأب (فرض)', share: grandfatherShare, amount, type: 'فرض' });
-            remaining -= amount;
-        }
-        // Grandfather takes remaining as Ta'seeb if no sons and no father
-        if (!hasSons && !isFatherPresent && remaining > 0) {
-            results.push({ name: 'الجد لأب (تعصيباً)', share: remaining/total, amount: remaining, type: 'تعصيب' });
-            remaining = 0;
-        }
-    }
-
-    // Sons and Daughters (Ta'seeb)
-    if (hasSons) {
-        const totalParts = (input.sonsCount * 2) + input.daughtersCount;
-        const partValue = remaining / totalParts;
-        
-        if (input.sonsCount > 0) {
-            results.push({ name: input.sonsCount === 1 ? 'الابن' : `الأبناء (${input.sonsCount})`, share: (partValue * 2 * input.sonsCount)/total, amount: partValue * 2 * input.sonsCount, type: 'تعصيب' });
-        }
-        if (input.daughtersCount > 0) {
-            results.push({ name: input.daughtersCount === 1 ? 'البنت' : `البنات (${input.daughtersCount})`, share: (partValue * input.daughtersCount)/total, amount: partValue * input.daughtersCount, type: 'تعصيب' });
-        }
-        remaining = 0; // Children take all remaining
-    }
-
-    // Siblings (Ta'seeb if no sons, father, paternal grandfather)
-    if (!isSiblingsExcluded && (isBrothersPresent || isSistersPresent) && remaining > 0) {
-        const totalSiblingParts = (input.brothersCount * 2) + input.sistersCount; // Assuming full/paternal siblings
-        if (totalSiblingParts > 0) {
-            const partValue = remaining / totalSiblingParts;
-            if (input.brothersCount > 0) {
-                results.push({ name: input.brothersCount === 1 ? 'الأخ' : `الإخوة (${input.brothersCount})`, share: (partValue * 2 * input.brothersCount)/total, amount: partValue * 2 * input.brothersCount, type: 'تعصيب' });
-            }
-            if (input.sistersCount > 0) {
-                results.push({ name: input.sistersCount === 1 ? 'الأخت' : `الأخوات (${input.sistersCount})`, share: (partValue * input.sistersCount)/total, amount: partValue * input.sistersCount, type: 'تعصيب' });
-            }
-            remaining = 0;
-        } else if (input.sistersCount > 0 && !isBrothersPresent) { // Only sisters, as Fard if no brothers
-            const share = input.sistersCount === 1 ? 1/2 : 2/3;
-            const amount = Math.min(total * share, remaining);
-            results.push({ name: input.sistersCount === 1 ? 'الأخت' : `الأخوات (${input.sistersCount})`, share, amount, type: 'فرض' });
-            remaining -= amount;
-        }
-    }
-
-    // Paternal Uncles (Ta'seeb if no closer residuaries)
-    if (isPaternalUnclesPresent && remaining > 0) {
-        results.push({ name: input.paternalUnclesCount === 1 ? 'العم' : `الأعمام (${input.paternalUnclesCount})`, share: remaining/total, amount: remaining, type: 'تعصيب' });
-        remaining = 0;
-    }
-
-    // Final check for remaining (e.g., for رد - return to heirs by proportion)
-    // This is a simplification, full رد logic is complex.
+    // --- Ta'seeb (Residuary) ---
     if (remaining > 0) {
-        const furoodHeirs = results.filter(r => r.type === 'فرض');
-        if (furoodHeirs.length > 0) {
-            const totalFuroodShares = furoodHeirs.reduce((sum, heir) => sum + heir.share, 0);
-            if (totalFuroodShares > 0) {
-                furoodHeirs.forEach(heir => {
-                    const additionalAmount = (heir.share / totalFuroodShares) * remaining;
-                    heir.amount += additionalAmount;
-                    heir.share += additionalAmount / total;
-                    heir.type = 'رد'; // Mark as returned
-                });
-                remaining = 0;
+        const addAsabah = (name: string, count: number, maleWeight: number, femaleCount: number = 0) => {
+            const totalParts = (count * maleWeight) + femaleCount;
+            const partValue = remaining / totalParts;
+            if (count > 0) {
+                results.push({ name: count === 1 ? name : `${name} (${count})`, share: (partValue * count * maleWeight) / total, amount: partValue * count * maleWeight, type: 'تعصيب' });
             }
+            if (femaleCount > 0) {
+                const femaleName = name.replace('الابن', 'البنت').replace('الأخ', 'الأخت').replace('الأبناء', 'البنات').replace('الإخوة', 'الأخوات');
+                results.push({ name: femaleCount === 1 ? femaleName : `${femaleName} (${femaleCount})`, share: (partValue * femaleCount) / total, amount: partValue * femaleCount, type: 'تعصيب' });
+            }
+            remaining = 0;
+        };
+
+        if (hasSons) {
+            addAsabah('الابن', input.sonsCount, 2, input.daughtersCount);
+        } else if (hasGrandsons) {
+            addAsabah('ابن الابن', input.grandsonsCount, 2, input.granddaughtersCount);
+        } else if (isFather) {
+            results.push({ name: 'الأب (تعصيباً)', share: remaining / total, amount: remaining, type: 'تعصيب' });
+            remaining = 0;
+        } else if (isPaternalGrandfather) {
+            results.push({ name: 'الجد لأب (تعصيباً)', share: remaining / total, amount: remaining, type: 'تعصيب' });
+            remaining = 0;
+        } else if (hasFullBrothers) {
+            addAsabah('الأخ الشقيق', input.fullBrothersCount, 2, input.fullSistersCount);
+        } else if (hasFullSisters && isFemaleDescendant) {
+            // Full sister becomes Asabah with daughters
+            results.push({ name: input.fullSistersCount === 1 ? 'الأخت الشقيقة (عصبة مع الغير)' : `الأخوات الشقيقات (${input.fullSistersCount} - عصبة مع الغير)`, share: remaining / total, amount: remaining, type: 'تعصيب' });
+            remaining = 0;
+        } else if (hasPaternalBrothers) {
+            addAsabah('الأخ لأب', input.paternalBrothersCount, 2, input.paternalSistersCount);
+        } else if (hasPaternalSisters && isFemaleDescendant) {
+            results.push({ name: input.paternalSistersCount === 1 ? 'الأخت لأب (عصبة مع الغير)' : `الأخوات لأب (${input.paternalSistersCount} - عصبة مع الغير)`, share: remaining / total, amount: remaining, type: 'تعصيب' });
+            remaining = 0;
+        } else if (hasFullNephews) {
+            addAsabah('ابن الأخ الشقيق', input.fullNephewsCount, 1);
+        } else if (hasPaternalNephews) {
+            addAsabah('ابن الأخ لأب', input.paternalNephewsCount, 1);
+        } else if (hasFullUncles) {
+            addAsabah('العم الشقيق', input.fullUnclesCount, 1);
+        } else if (hasPaternalUncles) {
+            addAsabah('العم لأب', input.paternalUnclesCount, 1);
+        } else if (hasFullCousins) {
+            addAsabah('ابن العم الشقيق', input.fullCousinsCount, 1);
+        } else if (hasPaternalCousins) {
+            addAsabah('ابن العم لأب', input.paternalCousinsCount, 1);
+        }
+    }
+
+    // --- Radd (Return) ---
+    if (remaining > 0.01 && totalShares < 1) {
+        // Radd usually doesn't apply to spouses. Filter them out.
+        const eligibleForRadd = results.filter(r => r.type === 'فرض' && !r.name.includes('الزوج'));
+        
+        if (eligibleForRadd.length > 0) {
+            const raddTotalShares = eligibleForRadd.reduce((sum, r) => sum + r.share, 0);
+            eligibleForRadd.forEach(heir => {
+                const additionalAmount = (heir.share / raddTotalShares) * remaining;
+                heir.amount += additionalAmount;
+                heir.share += additionalAmount / total;
+                heir.type = 'رد';
+            });
+            remaining = 0;
+        } else if (results.length > 0) {
+            // If only spouse is there, in modern law it often returns to them if no treasury (Bait al-Mal)
+            const spouse = results[0];
+            spouse.amount += remaining;
+            spouse.share += remaining / total;
+            spouse.type = 'رد';
+            remaining = 0;
         }
     }
 

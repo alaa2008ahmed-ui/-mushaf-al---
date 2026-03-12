@@ -21,7 +21,7 @@ export const navItems = [
   { id: 'adia', title: "أدعية", icon: AdiaIcon },
   { id: 'tasbeeh', title: "التسبيح", icon: TasbeehIcon },
   { id: 'radio', title: "إذاعة القرآن", icon: RadioIcon },
-  { id: 'calculators', title: "حاسبات إسلامية", icon: CalculatorIcon },
+  { id: 'calculators', title: "الحاسبة الشرعية", icon: CalculatorIcon },
   { id: 'salah-adhkar', title: "أذكار الصلاة", icon: SalahAdhkarIcon },
   { id: 'prayer-times', title: "مواقيت الصلاة", icon: PrayerTimesIcon },
   { id: 'qibla', title: "القبلة", icon: QiblaIcon },

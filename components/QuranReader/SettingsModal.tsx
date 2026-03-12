@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { READERS, TAFSEERS } from './constants';
+import { READERS, TAFSEERS, THEMES } from './constants';
 
 interface SettingsModalProps {
     onClose: () => void;
@@ -16,13 +16,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
 
     const [settings, setSettings] = useState(() => {
         const saved = localStorage.getItem('quran_settings');
+        const defaultTheme = THEMES['default'];
         return saved ? JSON.parse(saved) : {
             fontSize: 1.7,
-            fontFamily: "var(--font-noto)",
-            textColor: '#1f2937',
-            bgColor: '#ffffff',
+            fontFamily: defaultTheme.font,
+            textColor: defaultTheme.text,
+            bgColor: defaultTheme.bg,
             reader: 'Alafasy_128kbps',
-            theme: 'light',
+            theme: 'default',
             scrollMinutes: 20,
             tafseer: 'ar.jalalayn'
         };

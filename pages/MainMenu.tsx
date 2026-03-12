@@ -16,9 +16,9 @@ const DEFAULT_MENU_ITEMS = [
     { id: 'adia', label: "🤲 الأدعية", className: "h-10", colorIndex: 1 },
     { id: 'sabah-masaa', label: "☀️ الأذكار", className: "h-10", colorIndex: 1 },
     { id: 'tasbeeh', label: "📿 السبحة", className: "h-10", colorIndex: 1 },
-    { id: 'calculators', label: "🧮 حاسبات إسلامية", className: "h-10", colorIndex: 1 },
-    { id: 'hisn-muslim', label: "🛡️ حصن المسلم", className: "h-10", colorIndex: 1 },
-    { id: 'calendar', label: "📅 التقويم", className: "h-10", colorIndex: 1 },
+    { id: 'calculators', label: "🧮 الحاسبة الشرعية", className: "h-10", colorIndex: 1 },
+    { id: 'hisn-muslim', label: "🛡️ حصن المسلم", className: "h-10", colorIndex: 0 },
+    { id: 'calendar', label: "📅 التقويم", className: "h-10", colorIndex: 0 },
     { id: 'hajj-umrah', label: "🕋 الحج والعمرة", className: "h-10", colorIndex: 1 },
     { id: 'prayer-times', label: "⏱️ مواقيت الصلاة", className: "h-10", colorIndex: 1 },
     { id: 'qibla', label: "🧭 القبلة", className: "h-10", colorIndex: 1 },
@@ -94,7 +94,23 @@ function MainMenu({ onNavigate, onOpenThemes }) {
 
     const savedLayout = localStorage.getItem('menuLayout');
     if (savedLayout) {
-        setMenuItems(JSON.parse(savedLayout));
+        try {
+            const parsed = JSON.parse(savedLayout);
+            let changed = false;
+            const updated = parsed.map((item: any) => {
+                if ((item.id === 'hisn-muslim' || item.id === 'calendar') && item.colorIndex === 1) {
+                    changed = true;
+                    return { ...item, colorIndex: 0 };
+                }
+                return item;
+            });
+            if (changed) {
+                localStorage.setItem('menuLayout', JSON.stringify(updated));
+            }
+            setMenuItems(updated);
+        } catch (e) {
+            setMenuItems(DEFAULT_MENU_ITEMS);
+        }
     }
   }, []);
 
@@ -298,10 +314,10 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                 onContextMenu={handleContextMenu}
                 style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
               >
-                  <p className="font-bold leading-tight mb-1 pointer-events-none transition-all duration-75" style={{ color: theme.textColor, fontSize: `${verseFontSize}rem` }}>
+                  <p className="font-bold leading-tight mb-1 pointer-events-none transition-all duration-75" style={{ color: theme.textColor === '#000000' ? theme.palette[0] : theme.textColor, fontSize: `${verseFontSize}rem` }}>
                       {currentVerse.text}
                   </p>
-                  <p className="text-[12px] font-bold text-left pl-8 pointer-events-none transition-all duration-75" style={{ color: theme.textColor, fontSize: `${Math.max(0.75, verseFontSize * 0.6)}rem` }}>
+                  <p className="text-[12px] font-bold text-left pl-8 pointer-events-none transition-all duration-75" style={{ color: theme.textColor === '#000000' ? theme.palette[1] : theme.textColor, fontSize: `${Math.max(0.75, verseFontSize * 0.6)}rem` }}>
                       {`(${currentVerse.surah}: ${currentVerse.number})`}
                   </p>
               </div>

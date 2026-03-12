@@ -30,8 +30,8 @@ const ThemesModal: React.FC<ThemesModalProps> = ({ onClose, showToast }) => {
              themeColors = {
                 'top-toolbar': { bg: white, border: grayBorder },
                 'bottom-toolbar': { bg: white, border: grayBorder },
-                'surah': { bg: white, text: green, border: green, font: theme.font },
-                'juz': { bg: white, text: purpleText, border: purpleText, font: theme.font },
+                'surah': { bg: white, text: purpleText, border: purpleText, font: theme.font },
+                'juz': { bg: white, text: green, border: green, font: theme.font },
                 'page': { bg: white, text: purpleText, border: purpleText, font: theme.font },
                 'audio': { bg: white, text: green, border: green },
                 'btn-settings': { bg: purple, text: white, border: purpleBorder },

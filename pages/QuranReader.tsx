@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, FC } from 'react';
+import { ScreenOrientation } from '@capacitor/screen-orientation';
 import './QuranReader.css'; 
 import { JUZ_MAP, toArabic, THEMES, TAFSEERS, READERS } from '../components/QuranReader/constants';
 import SearchModal from '../components/QuranReader/SearchModal';
@@ -37,6 +38,63 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const [activeModals, setActiveModals] = useState<string[]>([]);
     const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
+    const [isLandscape, setIsLandscape] = useState(false);
+    
+    useEffect(() => {
+        const checkOrientation = async () => {
+            try {
+                const result = await ScreenOrientation.orientation();
+                setIsLandscape(result.type.includes('landscape'));
+            } catch (e) {
+                setIsLandscape(window.innerWidth > window.innerHeight);
+            }
+        };
+        checkOrientation();
+
+        let listener: any;
+        ScreenOrientation.addListener('screenOrientationChange', (result) => {
+            setIsLandscape(result.type.includes('landscape'));
+        }).then(l => {
+            listener = l;
+        }).catch(() => {});
+
+        return () => {
+            if (listener) {
+                try {
+                    listener.remove();
+                } catch (e) {}
+            }
+            ScreenOrientation.unlock().catch(() => {});
+        };
+    }, []);
+
+    const toggleOrientation = async () => {
+        try {
+            if (isLandscape) {
+                await ScreenOrientation.lock({ type: 'portrait' });
+                setIsLandscape(false);
+            } else {
+                await ScreenOrientation.lock({ type: 'landscape' });
+                setIsLandscape(true);
+            }
+        } catch (e) {
+            try {
+                if (isLandscape) {
+                    // @ts-ignore
+                    await screen.orientation.lock('portrait');
+                    setIsLandscape(false);
+                } else {
+                    // @ts-ignore
+                    await screen.orientation.lock('landscape');
+                    setIsLandscape(true);
+                }
+            } catch (err) {
+                setToast({ show: true, message: 'هذه الميزة مدعومة فقط في تطبيق الهاتف' });
+                setTimeout(() => setToast({ show: false, message: '' }), 3000);
+            }
+        }
+        setIsFloatingMenuOpen(false);
+    };
     
     const [toast, setToast] = useState({ show: false, message: '' });
     const [reciterToast, setReciterToast] = useState({ show: false, name: '' });
@@ -73,9 +131,10 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const [settings, setSettings] = useState(() => {
         const saved = localStorage.getItem('quran_settings');
+        const defaultTheme = THEMES['default'];
         return saved ? JSON.parse(saved) : {
-            fontSize: 1.7, fontFamily: "var(--font-noto)", textColor: '#1f2937', bgColor: '#ffffff',
-            reader: 'Alafasy_128kbps', theme: 'light', scrollMinutes: 20, tafseer: 'ar.jalalayn'
+            fontSize: 1.7, fontFamily: defaultTheme.font, textColor: defaultTheme.text, bgColor: defaultTheme.bg,
+            reader: 'Alafasy_128kbps', theme: 'default', scrollMinutes: 20, tafseer: 'ar.jalalayn'
         };
     });
 
@@ -126,7 +185,46 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         };
     }, []);
 
-    const [toolbarColors, setToolbarColors] = useState(() => JSON.parse(localStorage.getItem('toolbar_colors') || '{}'));
+    const [toolbarColors, setToolbarColors] = useState(() => {
+        const saved = localStorage.getItem('toolbar_colors');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                // Migrate old default colors to new default colors
+                if (parsed['surah']?.text === "#10b981" && parsed['juz']?.text === "#6d28d9") {
+                    parsed['surah'].text = "#6d28d9";
+                    parsed['surah'].border = "#6d28d9";
+                    parsed['juz'].text = "#10b981";
+                    parsed['juz'].border = "#10b981";
+                    localStorage.setItem('toolbar_colors', JSON.stringify(parsed));
+                }
+                return parsed;
+            } catch (e) {}
+        }
+        
+        const theme = THEMES['default'];
+        const green = "#10b981"; const greenBorder = "#059669";
+        const purple = "#7e22ce"; const purpleBorder = "#6b21a8";
+        const purpleText = "#6d28d9";
+        const white = "#ffffff"; const grayBorder = "#e5e7eb";
+        
+        return {
+            'top-toolbar': { bg: white, border: grayBorder },
+            'bottom-toolbar': { bg: white, border: grayBorder },
+            'surah': { bg: white, text: purpleText, border: purpleText, font: theme.font },
+            'juz': { bg: white, text: green, border: green, font: theme.font },
+            'page': { bg: white, text: purpleText, border: purpleText, font: theme.font },
+            'audio': { bg: white, text: green, border: green },
+            'btn-settings': { bg: purple, text: white, border: purpleBorder },
+            'btn-home': { bg: green, text: white, border: greenBorder },
+            'btn-bookmark': { bg: green, text: white, border: greenBorder },
+            'btn-bookmarks-list': { bg: green, text: white, border: greenBorder },
+            'btn-themes': { bg: green, text: white, border: greenBorder },
+            'btn-autoscroll': { bg: purple, text: white, border: purpleBorder },
+            'btn-menu': { bg: purple, text: white, border: purpleBorder },
+            'btn-search': { bg: purple, text: white, border: purpleBorder }
+        };
+    });
     const [isTransparentMode, setIsTransparentMode] = useState(() => localStorage.getItem('transparent_mode') === 'true');
 
     const mushafContentRef = useRef<HTMLDivElement>(null);
@@ -537,13 +635,85 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                 setSettings(prev => ({ ...prev, bgColor: newTheme.bg, textColor: newTheme.text, fontFamily: newTheme.font }));
             }
             
-            setToolbarColors(JSON.parse(localStorage.getItem('toolbar_colors') || '{}'));
+            const savedToolbarColors = localStorage.getItem('toolbar_colors');
+            if (savedToolbarColors) {
+                try {
+                    const parsed = JSON.parse(savedToolbarColors);
+                    if (parsed['surah']?.text === "#10b981" && parsed['juz']?.text === "#6d28d9") {
+                        parsed['surah'].text = "#6d28d9";
+                        parsed['surah'].border = "#6d28d9";
+                        parsed['juz'].text = "#10b981";
+                        parsed['juz'].border = "#10b981";
+                        localStorage.setItem('toolbar_colors', JSON.stringify(parsed));
+                    }
+                    setToolbarColors(parsed);
+                } catch (e) {}
+            } else {
+                const theme = THEMES['default'];
+                const green = "#10b981"; const greenBorder = "#059669";
+                const purple = "#7e22ce"; const purpleBorder = "#6b21a8";
+                const purpleText = "#6d28d9";
+                const white = "#ffffff"; const grayBorder = "#e5e7eb";
+                setToolbarColors({
+                    'top-toolbar': { bg: white, border: grayBorder },
+                    'bottom-toolbar': { bg: white, border: grayBorder },
+                    'surah': { bg: white, text: purpleText, border: purpleText, font: theme.font },
+                    'juz': { bg: white, text: green, border: green, font: theme.font },
+                    'page': { bg: white, text: purpleText, border: purpleText, font: theme.font },
+                    'audio': { bg: white, text: green, border: green },
+                    'btn-settings': { bg: purple, text: white, border: purpleBorder },
+                    'btn-home': { bg: green, text: white, border: greenBorder },
+                    'btn-bookmark': { bg: green, text: white, border: greenBorder },
+                    'btn-bookmarks-list': { bg: green, text: white, border: greenBorder },
+                    'btn-themes': { bg: green, text: white, border: greenBorder },
+                    'btn-autoscroll': { bg: purple, text: white, border: purpleBorder },
+                    'btn-menu': { bg: purple, text: white, border: purpleBorder },
+                    'btn-search': { bg: purple, text: white, border: purpleBorder }
+                });
+            }
             setIsTransparentMode(localStorage.getItem('transparent_mode') === 'true');
         };
         const handleSettingsChange = () => {
             const saved = localStorage.getItem('quran_settings');
             if (saved) setSettings(JSON.parse(saved));
-            setToolbarColors(JSON.parse(localStorage.getItem('toolbar_colors') || '{}'));
+            
+            const savedToolbarColors = localStorage.getItem('toolbar_colors');
+            if (savedToolbarColors) {
+                try {
+                    const parsed = JSON.parse(savedToolbarColors);
+                    if (parsed['surah']?.text === "#10b981" && parsed['juz']?.text === "#6d28d9") {
+                        parsed['surah'].text = "#6d28d9";
+                        parsed['surah'].border = "#6d28d9";
+                        parsed['juz'].text = "#10b981";
+                        parsed['juz'].border = "#10b981";
+                        localStorage.setItem('toolbar_colors', JSON.stringify(parsed));
+                    }
+                    setToolbarColors(parsed);
+                } catch (e) {}
+            } else {
+                const theme = THEMES['default'];
+                const green = "#10b981"; const greenBorder = "#059669";
+                const purple = "#7e22ce"; const purpleBorder = "#6b21a8";
+                const purpleText = "#6d28d9";
+                const white = "#ffffff"; const grayBorder = "#e5e7eb";
+                setToolbarColors({
+                    'top-toolbar': { bg: white, border: grayBorder },
+                    'bottom-toolbar': { bg: white, border: grayBorder },
+                    'surah': { bg: white, text: purpleText, border: purpleText, font: theme.font },
+                    'juz': { bg: white, text: green, border: green, font: theme.font },
+                    'page': { bg: white, text: purpleText, border: purpleText, font: theme.font },
+                    'audio': { bg: white, text: green, border: green },
+                    'btn-settings': { bg: purple, text: white, border: purpleBorder },
+                    'btn-home': { bg: green, text: white, border: greenBorder },
+                    'btn-bookmark': { bg: green, text: white, border: greenBorder },
+                    'btn-bookmarks-list': { bg: green, text: white, border: greenBorder },
+                    'btn-themes': { bg: green, text: white, border: greenBorder },
+                    'btn-autoscroll': { bg: purple, text: white, border: purpleBorder },
+                    'btn-menu': { bg: purple, text: white, border: purpleBorder },
+                    'btn-search': { bg: purple, text: white, border: purpleBorder }
+                });
+            }
+            
             setHideUIOnScroll(localStorage.getItem('hide_ui_on_scroll') === 'true');
             const savedSajdah = localStorage.getItem('show_sajdah_card');
             setShowSajdahCard(savedSajdah !== null ? savedSajdah === 'true' : true);
@@ -992,6 +1162,26 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
         return unregister;
     }, [activeModals, tafseerInfo, tafseerSelectionInfo, sajdahCardInfo, isFloatingMenuOpen, isPageInputActive, closeModal, handleCloseSajdahCard]);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+            if (isFloatingMenuOpen && 
+                floatingMenuRef.current && 
+                !floatingMenuRef.current.contains(event.target as Node) &&
+                menuButtonRef.current &&
+                !menuButtonRef.current.contains(event.target as Node)) {
+                setIsFloatingMenuOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        document.addEventListener('touchstart', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+            document.removeEventListener('touchstart', handleClickOutside);
+        };
+    }, [isFloatingMenuOpen]);
+
     if (isLoading) { return <div id="loader" className="fixed inset-0 bg-[#1f2937] text-white z-[9999] flex flex-col items-center justify-center"><div className="text-2xl font-bold mb-4">جاري تحميل المصحف...</div><div className="w-64 h-2 bg-gray-700 rounded-full overflow-hidden"><div id="progress-bar" className="h-full bg-green-500 transition-all duration-300" style={{width: `${loadingProgress}%`}}></div></div><div id="loader-status" className="mt-2 text-sm text-gray-400">{loadingStatus}</div></div> }
     
     const surahName = quranData?.surahs[currentAyah.s - 1]?.name.replace('سورة', '').trim() || '';
@@ -1085,7 +1275,8 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
                  <button onClick={() => { openModal('bookmarks-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-bookmarks-list', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>قائمة الإشارات</span><i className="fa-solid fa-list"></i></button>
                  <button onClick={() => { openModal('search-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-purple w-full justify-between mb-2" style={getToolbarStyle('btn-search', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>البحث</span><i className="fa-solid fa-search"></i></button>
                  <button onClick={() => { openModal('themes-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-themes', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الثيمات</span><i className="fa-solid fa-palette"></i></button>
-                 <button onClick={() => { openModal('settings-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-purple w-full justify-between" style={getToolbarStyle('btn-settings', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الإعدادات</span><i className="fa-solid fa-cog"></i></button>
+                 <button onClick={toggleOrientation} className="bottom-bar-button btn-purple w-full justify-between mb-2" style={getToolbarStyle('btn-orientation', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>{isLandscape ? 'وضع الطول' : 'وضع العرض'}</span><i className={`fa-solid ${isLandscape ? 'fa-mobile-screen' : 'fa-mobile-screen-button'}`}></i></button>
+                 <button onClick={() => { openModal('settings-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between" style={getToolbarStyle('btn-settings', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الإعدادات</span><i className="fa-solid fa-cog"></i></button>
             </div>
             <footer id="bottom-bar" className="footer-default flex-none border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-10 flex justify-around items-center px-1 py-1 w-full" style={getToolbarStyle('bottom-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button ref={menuButtonRef} id="btn-menu" onClick={() => setIsFloatingMenuOpen(p => !p)} className="bottom-bar-button btn-purple flex-1 mx-1" style={getToolbarStyle('btn-menu', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><i className="fa-solid fa-bars"></i><span className="hidden sm:inline">القائمة</span></button>
