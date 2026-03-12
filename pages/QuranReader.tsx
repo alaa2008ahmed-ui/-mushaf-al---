@@ -46,58 +46,11 @@ const QuranReader: FC<{ onBack: () => void }> = ({ onBack }) => {
     useEffect(() => { isLandscapeRef.current = isLandscape; }, [isLandscape]);
     
     useEffect(() => {
-        const checkOrientation = async () => {
-            try {
-                const result = await ScreenOrientation.orientation();
-                setIsLandscape(result.type.includes('landscape'));
-            } catch (e) {
-                setIsLandscape(window.innerWidth > window.innerHeight);
-            }
-        };
-        checkOrientation();
-
-        let listener: any;
-        ScreenOrientation.addListener('screenOrientationChange', (result) => {
-            setIsLandscape(result.type.includes('landscape'));
-        }).then(l => {
-            listener = l;
-        }).catch(() => {});
-
-        return () => {
-            if (listener) {
-                try {
-                    listener.remove();
-                } catch (e) {}
-            }
-            ScreenOrientation.unlock().catch(() => {});
-        };
+        // Removed ScreenOrientation logic as per user request to make it purely in-app
     }, []);
 
-    const toggleOrientation = async () => {
-        try {
-            if (isLandscape) {
-                await ScreenOrientation.lock({ type: 'portrait' });
-                setIsLandscape(false);
-            } else {
-                await ScreenOrientation.lock({ type: 'landscape' });
-                setIsLandscape(true);
-            }
-        } catch (e) {
-            try {
-                if (isLandscape) {
-                    // @ts-ignore
-                    await screen.orientation.lock('portrait');
-                    setIsLandscape(false);
-                } else {
-                    // @ts-ignore
-                    await screen.orientation.lock('landscape');
-                    setIsLandscape(true);
-                }
-            } catch (err) {
-                setToast({ show: true, message: 'هذه الميزة مدعومة فقط في تطبيق الهاتف' });
-                setTimeout(() => setToast({ show: false, message: '' }), 3000);
-            }
-        }
+    const toggleOrientation = () => {
+        setIsLandscape(!isLandscape);
         setIsFloatingMenuOpen(false);
     };
     

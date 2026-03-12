@@ -499,6 +499,20 @@
 }
 
 /* Landscape Mode UI */
+@media (orientation: portrait) {
+    .quran-reader-container.landscape-mode {
+        transform: rotate(90deg);
+        transform-origin: center center;
+        width: 100dvh !important;
+        height: 100dvw !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        margin-top: -50dvw;
+        margin-left: -50dvh;
+    }
+}
+
 .quran-reader-container.landscape-mode #header {
     height: 40px;
     padding: 0 10px;
