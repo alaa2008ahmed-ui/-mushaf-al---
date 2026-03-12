@@ -44,83 +44,6 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
     useEffect(() => { isLandscapeUIHiddenRef.current = isLandscapeUIHidden; }, [isLandscapeUIHidden]);
     const isLandscapeRef = useRef(false);
     useEffect(() => { isLandscapeRef.current = isLandscape; }, [isLandscape]);
-    
-    useEffect(() => {
-        if (!isLandscape) return;
-
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let lastTouchX = 0;
-        let lastTouchY = 0;
-        let isScrolling = false;
-
-        const handleTouchStart = (e: TouchEvent) => {
-            if (e.touches.length !== 1) return;
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            lastTouchX = touchStartX;
-            lastTouchY = touchStartY;
-            isScrolling = false;
-        };
-
-        const handleTouchMove = (e: TouchEvent) => {
-            if (e.touches.length !== 1) return;
-            
-            const currentX = e.touches[0].clientX;
-            const currentY = e.touches[0].clientY;
-            
-            if (!isScrolling) {
-                if (Math.abs(currentX - touchStartX) > 5 || Math.abs(currentY - touchStartY) > 5) {
-                    isScrolling = true;
-                    // Don't update lastTouch yet so the initial delta is applied
-                } else {
-                    return; // Wait until threshold is met
-                }
-            }
-
-            const deltaX = currentX - lastTouchX;
-            const deltaY = currentY - lastTouchY;
-            
-            lastTouchX = currentX;
-            lastTouchY = currentY;
-
-            if (isScrolling) {
-                let target = e.target as HTMLElement;
-                let scrollable: HTMLElement | null = null;
-                
-                while (target && target !== document.body) {
-                    const style = window.getComputedStyle(target);
-                    const overflowY = style.overflowY;
-                    const overflowX = style.overflowX;
-                    
-                    const canScrollY = (overflowY === 'auto' || overflowY === 'scroll') && target.scrollHeight > target.clientHeight;
-                    const canScrollX = (overflowX === 'auto' || overflowX === 'scroll') && target.scrollWidth > target.clientWidth;
-                    
-                    if (canScrollY || canScrollX) {
-                        scrollable = target;
-                        break;
-                    }
-                    target = target.parentElement as HTMLElement;
-                }
-
-                if (scrollable) {
-                    if (e.cancelable) {
-                        e.preventDefault();
-                    }
-                    scrollable.scrollTop += deltaX;
-                    scrollable.scrollLeft += deltaY;
-                }
-            }
-        };
-
-        document.addEventListener('touchstart', handleTouchStart, { passive: false });
-        document.addEventListener('touchmove', handleTouchMove, { passive: false });
-
-        return () => {
-            document.removeEventListener('touchstart', handleTouchStart);
-            document.removeEventListener('touchmove', handleTouchMove);
-        };
-    }, [isLandscape]);
 
     const toggleOrientation = () => {
         setIsLandscape(!isLandscape);
@@ -1134,8 +1057,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         if (autoScrollState.isActive) stopAutoScroll();
         else { startAutoScroll(); showToast('تم تفعيل التمرير التلقائي'); }
     };
-    const handleScreenTap = () => {
-      if (isLandscape) {
+    const handleScreenTap = useCallback(() => {
+      if (isLandscapeRef.current) {
           setIsLandscapeUIHidden(prev => !prev);
       }
       if (autoScrollState.isActive) {
@@ -1143,7 +1066,108 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         autoScrollPausedRef.current = newPausedState;
         setAutoScrollState(p => ({...p, isPaused: newPausedState }));
       }
-    };
+    }, [autoScrollState.isActive, autoScrollState.isPaused]);
+
+    useEffect(() => {
+        if (!isLandscape) return;
+
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let lastTouchX = 0;
+        let lastTouchY = 0;
+        let isScrolling = false;
+
+        const handleTouchStart = (e: TouchEvent) => {
+            if (e.touches.length !== 1) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            lastTouchX = touchStartX;
+            lastTouchY = touchStartY;
+            isScrolling = false;
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            if (e.touches.length !== 1) return;
+            
+            const currentX = e.touches[0].clientX;
+            const currentY = e.touches[0].clientY;
+            
+            if (!isScrolling) {
+                if (Math.abs(currentX - touchStartX) > 5 || Math.abs(currentY - touchStartY) > 5) {
+                    isScrolling = true;
+                } else {
+                    return;
+                }
+            }
+
+            const deltaX = currentX - lastTouchX;
+            const deltaY = currentY - lastTouchY;
+            
+            lastTouchX = currentX;
+            lastTouchY = currentY;
+
+            if (isScrolling) {
+                let target = e.target as HTMLElement;
+                let scrollable: HTMLElement | null = null;
+                
+                while (target && target !== document.body) {
+                    const style = window.getComputedStyle(target);
+                    const overflowY = style.overflowY;
+                    const overflowX = style.overflowX;
+                    
+                    const canScrollY = (overflowY === 'auto' || overflowY === 'scroll') && target.scrollHeight > target.clientHeight;
+                    const canScrollX = (overflowX === 'auto' || overflowX === 'scroll') && target.scrollWidth > target.clientWidth;
+                    
+                    if (canScrollY || canScrollX) {
+                        scrollable = target;
+                        break;
+                    }
+                    target = target.parentElement as HTMLElement;
+                }
+
+                if (scrollable) {
+                    if (e.cancelable) {
+                        e.preventDefault();
+                    }
+                    scrollable.scrollTop += deltaX;
+                    scrollable.scrollLeft += deltaY;
+                }
+            }
+        };
+
+        const handleTouchEnd = (e: TouchEvent) => {
+            if (e.touches.length > 0) return;
+            
+            if (!isScrolling) {
+                const touch = e.changedTouches[0];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                const ayahBlock = target?.closest('.ayah-text-block');
+                
+                if (ayahBlock) {
+                    const id = ayahBlock.id;
+                    const parts = id.split('-');
+                    if (parts.length === 3) {
+                        const s = parseInt(parts[1]);
+                        const a = parseInt(parts[2]);
+                        handleAyahClick(s, a);
+                        return;
+                    }
+                }
+                
+                handleScreenTap();
+            }
+        };
+
+        document.addEventListener('touchstart', handleTouchStart, { passive: false });
+        document.addEventListener('touchmove', handleTouchMove, { passive: false });
+        document.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+        return () => {
+            document.removeEventListener('touchstart', handleTouchStart);
+            document.removeEventListener('touchmove', handleTouchMove);
+            document.removeEventListener('touchend', handleTouchEnd);
+        };
+    }, [isLandscape, handleAyahClick, handleScreenTap]);
 
     const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 3);

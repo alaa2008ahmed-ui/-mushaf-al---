@@ -11,8 +11,8 @@ import { registerBackInterceptor } from '../hooks/useBackButton';
 
 const DEFAULT_MENU_ITEMS = [
     { id: 'quran', label: "📖 القرآن الكريم", className: "col-span-2 h-12", colorIndex: 0 },
-    { id: 'listen', label: "🎧 الاستماع للقرآن", className: "col-span-2 h-10", colorIndex: 0 },
-    { id: 'salah-adhkar', label: "🕌 أذكار الصلاة", className: "col-span-2 h-10", colorIndex: 0 },
+    { id: 'listen', label: "🎧 الاستماع للقرآن", className: "h-10", colorIndex: 0 },
+    { id: 'salah-adhkar', label: "🕌 أذكار الصلاة", className: "h-10", colorIndex: 0 },
     { id: 'adia', label: "🤲 الأدعية", className: "h-10", colorIndex: 1 },
     { id: 'sabah-masaa', label: "☀️ الأذكار", className: "h-10", colorIndex: 1 },
     { id: 'tasbeeh', label: "📿 السبحة", className: "h-10", colorIndex: 1 },
