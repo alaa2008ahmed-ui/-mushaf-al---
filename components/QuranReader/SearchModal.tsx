@@ -155,7 +155,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ quranData, onSelect, onClose 
                     </div>
                     <div className="text-xs text-center mt-2 opacity-60 font-bold">{searchStats}</div>
                 </div>
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 relative themed-bg">
+                <div className="flex-grow overflow-y-auto p-4 space-y-3 relative themed-bg">
                     {isSearching && (
                         <div className="text-center mt-8">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto"></div>

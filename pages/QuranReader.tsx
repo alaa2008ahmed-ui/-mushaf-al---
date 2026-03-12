@@ -533,15 +533,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         setActiveModals(p => [...p.filter(m => m !== modalName), modalName]); 
     }, [stopAudio]);
     
-    const handleAyahClick = useCallback((s, a) => {
-        setHighlightedAyahId(`ayah-${s}-${a}`);
-        setCurrentAyah({ s, a });
-        localStorage.setItem('last_pos', JSON.stringify({ s, a }));
-    }, []);
-
     const handleVerseClick = useCallback((s: number, a: number, event: React.MouseEvent) => {
         event.stopPropagation();
-        handleAyahClick(s, a);
         if (!quranData) return;
         const surah = quranData.surahs.find((su: any) => su.number === s);
         if (surah) {
@@ -553,7 +546,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             setIsTafseerLoading(true);
             setTafseerInfo({ isOpen: true, s, a, text: '', surahName: surah.name, wasAutoscrolling });
         }
-    }, [quranData, handleAyahClick]);
+    }, [quranData]);
 
     const handleVerseLongPress = useCallback((s: number, a: number) => {
         if (isLandscapeRef.current) return;
@@ -920,6 +913,12 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
     }, [visiblePages, autoScrollState.isActive, handleSajdahVisible]);
 
     const getPageData = useCallback((pageNum) => quranData ? quranData.surahs.flatMap((s:any) => s.ayahs.filter((a:any) => Number(a.page) === Number(pageNum)).map((a:any) => ({ ...a, sNum: s.number, sName: s.name }))) : [], [quranData]);
+    
+    const handleAyahClick = useCallback((s, a) => {
+        setHighlightedAyahId(`ayah-${s}-${a}`);
+        setCurrentAyah({ s, a });
+        localStorage.setItem('last_pos', JSON.stringify({ s, a }));
+    }, []);
     
     const jumpToAyah = useCallback((s, a, instant = false) => {
         stopAudio();
@@ -1357,8 +1356,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                     <i className="fa-solid fa-bookmark"></i>
                     <span className="hidden sm:inline">حفظ</span>
                 </button>
-                <button id="btn-autoscroll" onClick={toggleAutoScroll} className="bottom-bar-button btn-purple flex-1 mx-1" style={getToolbarStyle('btn-autoscroll', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}>
-                    {autoScrollState.isActive ? <i className="fa-solid fa-pause icon-autoscroll-active"></i> : <i className="fa-solid fa-arrow-down"></i>}
+                <button id="btn-autoscroll" onClick={toggleAutoScroll} className={`bottom-bar-button btn-purple flex-1 mx-1 ${autoScrollState.isActive ? 'btn-autoscroll-active' : ''}`} style={getToolbarStyle('btn-autoscroll', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}>
+                    {autoScrollState.isActive ? <i className="fa-solid fa-pause"></i> : <i className="fa-solid fa-arrow-down"></i>}
                     <span className="hidden sm:inline">{autoScrollState.isActive ? "إيقاف" : "تمرير"}</span>
                 </button>
                 <button id="btn-home" onClick={onBack} className="bottom-bar-button btn-green flex-1 mx-1" style={getToolbarStyle('btn-home', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><i className="fa-solid fa-home"></i><span className="hidden sm:inline">الرئيسية</span></button>

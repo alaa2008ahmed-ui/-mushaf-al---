@@ -24,7 +24,7 @@ const BookmarksModal: React.FC<BookmarksModalProps> = ({ bookmarks, quranData, o
                     </h3>
                     <button onClick={onClose} className="text-2xl">&times;</button>
                 </div>
-                <div className="overflow-y-auto p-4 space-y-2 flex-1">
+                <div className="overflow-y-auto p-4 space-y-2">
                     {filteredBookmarks.length === 0 ? (
                         <div className="text-center p-4 font-bold">لا توجد إشارات مرجعية محفوظة</div>
                     ) : (

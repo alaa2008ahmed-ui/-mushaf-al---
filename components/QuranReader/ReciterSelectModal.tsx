@@ -26,7 +26,7 @@ const ReciterSelectModal: React.FC<ReciterSelectModalProps> = ({ onClose, curren
                     <h2 className="text-lg font-bold">اختر القارئ</h2>
                     <button onClick={handleClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
-                <div className="p-3 overflow-y-auto flex-1 space-y-2">
+                <div className="p-3 overflow-y-auto flex-grow space-y-2">
                     {READERS.map(r => (
                         <button 
                             key={r.id} 

@@ -60,7 +60,7 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
                         </div>
                     )}
                 </div>
-                <div className="overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 flex-1">
+                <div className="overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                     {type === 'surah' ? (
                         filteredSurahs?.length > 0 ? (
                             filteredSurahs.map((s: any) => (
