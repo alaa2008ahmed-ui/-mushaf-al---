@@ -473,15 +473,14 @@
     pointer-events: auto;
 }
 
-@keyframes pulse-green {
-    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-    70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+@keyframes pulse-red {
+    0% { opacity: 1; color: #ef4444; }
+    50% { opacity: 0.3; color: #ef4444; }
+    100% { opacity: 1; color: #ef4444; }
 }
-.btn-autoscroll-active {
-    animation: pulse-green 2s infinite;
-    background-color: #059669 !important;
-    border-color: #047857 !important;
+.icon-autoscroll-active {
+    animation: pulse-red 1s infinite;
+    color: #ef4444 !important;
 }
 
 /* Full Screen Reading Mode */
@@ -530,8 +529,8 @@
 }
 .quran-reader-container.landscape-mode #mushaf-content {
     /* Adjust padding to account for app bars (40px/50px) and system safe areas (notches) */
-    padding-top: calc(160px + env(safe-area-inset-top, 0px)) !important;
-    padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-top: calc(320px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(360px + env(safe-area-inset-bottom, 0px)) !important;
 }
 .quran-reader-container.landscape-mode .mushaf-page:first-child {
     padding-top: 0 !important;
