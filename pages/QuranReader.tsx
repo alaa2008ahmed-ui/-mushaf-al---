@@ -39,6 +39,10 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
     const [activeModals, setActiveModals] = useState<string[]>([]);
     const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
     const [isLandscape, setIsLandscape] = useState(initialLandscape);
+    
+    useEffect(() => {
+        setIsLandscape(initialLandscape);
+    }, [initialLandscape]);
     const [isLandscapeUIHidden, setIsLandscapeUIHidden] = useState(false);
     const isLandscapeUIHiddenRef = useRef(false);
     useEffect(() => { isLandscapeUIHiddenRef.current = isLandscapeUIHidden; }, [isLandscapeUIHidden]);
@@ -914,10 +918,17 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
 
     const getPageData = useCallback((pageNum) => quranData ? quranData.surahs.flatMap((s:any) => s.ayahs.filter((a:any) => Number(a.page) === Number(pageNum)).map((a:any) => ({ ...a, sNum: s.number, sName: s.name }))) : [], [quranData]);
     
+    const isInitialLoadDoneRef = useRef(false);
+
+    useEffect(() => {
+        if (!isInitialLoadDoneRef.current) return;
+        const storageKey = isLandscapeRef.current ? 'last_pos_landscape' : 'last_pos';
+        localStorage.setItem(storageKey, JSON.stringify(currentAyah));
+    }, [currentAyah]);
+
     const handleAyahClick = useCallback((s, a) => {
         setHighlightedAyahId(`ayah-${s}-${a}`);
         setCurrentAyah({ s, a });
-        localStorage.setItem('last_pos', JSON.stringify({ s, a }));
     }, []);
     
     const jumpToAyah = useCallback((s, a, instant = false) => {
@@ -947,11 +958,13 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
     }, [quranData, handleAyahClick, stopAudio, scrollToAyah]);
 
     useEffect(() => {
-        const lastPos = JSON.parse(localStorage.getItem('last_pos') || '{}');
+        const storageKey = isLandscape ? 'last_pos_landscape' : 'last_pos';
+        const lastPos = JSON.parse(localStorage.getItem(storageKey) || '{}');
         setTimeout(() => {
             jumpToAyah(lastPos.s || 1, lastPos.a || 1, true);
+            isInitialLoadDoneRef.current = true;
         }, 100);
-    }, [jumpToAyah]);
+    }, [jumpToAyah, isLandscape]);
 
     const jumpToPage = useCallback((pageNum: number, instant: boolean = true) => {
         if (!quranData || isNaN(pageNum) || pageNum < 1 || pageNum > 604) return;
