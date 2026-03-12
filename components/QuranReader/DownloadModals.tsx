@@ -241,12 +241,12 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
 
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[155] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">تحميل القرآن الكريم</h2>
                     <button onClick={onClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
-                <div className="p-3 space-y-2 overflow-y-auto text-center">
+                <div className="p-3 space-y-2 overflow-y-auto text-center flex-1">
                     <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
                         <div className="custom-select-wrapper">
                             <div className="custom-select-display text-sm h-8 themed-card-bg">{READERS.find(r => r.id === selectedReader)?.name || "اختر القارئ"}</div>
@@ -379,18 +379,18 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
 
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[156] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">تحميل التفسير</h2>
                     <button onClick={onClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
-                <div className="p-3 space-y-2 overflow-y-auto text-center">
+                <div className="p-3 space-y-2 overflow-y-auto text-center flex-1">
                     <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
                         <div className="custom-select-wrapper">
                             <div className="custom-select-display text-sm h-8 themed-card-bg">{TAFSEERS.find(t => t.id === selectedTafsir)?.name || "اختر التفسير"}</div>
                             <select value={selectedTafsir} onChange={(e) => setSelectedTafsir(e.target.value)} className="custom-select-design">
                                 <option value="">اختر التفسير</option>
-                                {TAFSEERS.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                {TAFSEERS.filter(t => t.id !== 'ar.jalalayn').map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                             </select>
                         </div>
                         

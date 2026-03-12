@@ -42,8 +42,8 @@ function ThemeSelector({ onClose }) {
             ref={wrapperRef} 
             className="theme-selector-container fixed bottom-[calc(70px+env(safe-area-inset-bottom,0px))] left-1/2 w-full max-w-lg p-2 z-50"
         >
-            <div className="themed-card p-3 rounded-2xl shadow-2xl !backdrop-blur-none !bg-opacity-100 max-h-[calc(100vh-100px)] overflow-y-auto" style={{ backgroundColor: theme.bgColor || '#fff' }}>
-                <div className="grid grid-cols-3 gap-2 mb-2 sticky top-0 z-10 py-1" style={{ backgroundColor: theme.bgColor || '#fff' }}>
+            <div className="themed-card p-3 rounded-2xl shadow-2xl !backdrop-blur-none !bg-opacity-100" style={{ backgroundColor: theme.bgColor || '#fff' }}>
+                <div className="grid grid-cols-3 gap-2 mb-2">
                     <button onClick={() => fileInputRef.current?.click()} className="p-2 rounded-lg font-bold text-[10px] flex flex-col items-center justify-center gap-1" style={{backgroundColor: theme.palette[0] + '30', color: theme.textColor, border: theme.btnBorder || 'none'}}>
                         <span>🖼️</span>
                         <span>خلفية مخصصة</span>
@@ -60,7 +60,7 @@ function ThemeSelector({ onClose }) {
 
                 <div className="h-[1px] w-full my-2" style={{ backgroundColor: 'var(--card-border)' }}></div>
 
-                <div className="flex flex-wrap gap-2 justify-center max-h-[300px] overflow-y-auto hide-scrollbar">
+                <div className="flex flex-wrap gap-2 justify-center max-h-[120px] overflow-y-auto hide-scrollbar">
                     {Object.entries(presetThemes).filter(([key]) => key !== 'default').map(([key, themeOption], index) => (
                         <button
                             key={key}

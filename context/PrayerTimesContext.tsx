@@ -348,22 +348,16 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
 
                                     const toneConfig = config.tones[key];
                                     let soundPath = "https://www.islamcan.com/audio/adhan/azan1.mp3";
-                                    let isSilent = false;
                                     
-                                    if (toneConfig && toneConfig.data) {
-                                        if (toneConfig.data === 'none') {
-                                            isSilent = true;
-                                            soundPath = '';
-                                        } else if (!toneConfig.data.startsWith('data:')) {
-                                            soundPath = toneConfig.data;
-                                        }
+                                    if (toneConfig && toneConfig.data && toneConfig.data !== 'none' && !toneConfig.data.startsWith('data:')) {
+                                        soundPath = toneConfig.data;
                                     }
 
                                     // Fix sound path for Android (Capacitor)
                                     let androidSoundPath = soundPath;
                                     const isAndroidNative = w.cordova && (w.cordova.platformId === 'android' || (w.device && w.device.platform === 'Android') || /android/i.test(navigator.userAgent));
                                     
-                                    if (isAndroidNative && !isSilent) {
+                                    if (isAndroidNative) {
                                         // Force bundled azans to use res://raw/ (even if they are old file:// or http:// paths in config)
                                         if (soundPath.includes('azan') || soundPath.startsWith('/assets/audio/')) {
                                             const filename = soundPath.split('/').pop();
@@ -389,36 +383,32 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                     
                                     // Dynamic Channel ID to force sound update on Android 8+
                                     // If we use the same channel ID, Android will ignore the new sound
-                                    const soundName = isSilent ? 'silent' : (androidSoundPath.split('/').pop() || 'default');
+                                    const soundName = androidSoundPath.split('/').pop() || 'default';
                                     // Sanitize channel ID
                                     const channelId = `adhan_channel_${key}_${soundName.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
                                     // Explicitly create the channel to ensure the custom sound is applied
                                     if (isAndroidNative && localNotifier.createChannel) {
-                                        const channelConfig: any = {
+                                        localNotifier.createChannel({
                                             androidChannelId: channelId,
                                             androidChannelName: `Adhan ${prayerNamesAr[key]}`,
                                             androidChannelDescription: `Notifications for ${prayerNamesAr[key]} prayer`,
+                                            sound: androidSoundPath,
                                             androidChannelImportance: 5, // MAX importance to bypass doze
                                             androidChannelEnableVibration: true,
+                                            androidChannelSoundUsage: 4, // USAGE_ALARM
                                             androidChannelVisibility: 1,
                                             androidChannelLockscreenVisibility: 1
-                                        };
-                                        if (!isSilent) {
-                                            channelConfig.sound = androidSoundPath;
-                                            channelConfig.androidChannelSoundUsage = 4; // USAGE_ALARM
-                                        } else {
-                                            channelConfig.playSound = false;
-                                        }
-                                        localNotifier.createChannel(channelConfig);
+                                        });
                                     }
 
-                                    const notificationConfig: any = {
+                                    notificationsToSchedule.push({
                                         id: id,
                                         title: `حان الآن موعد أذان ${prayerNamesAr[key]}`,
                                         text: 'لا تنس ذكر الله. قال رسول الله ﷺ: "أرحنا بها يا بلال"',
                                         trigger: { at: prayerDate },
                                         foreground: true,
+                                        sound: androidSoundPath,
                                         androidChannelId: channelId, // Unique channel per prayer/sound combo
                                         priority: 2, // High priority
                                         androidLockscreen: true,
@@ -432,20 +422,12 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                                         androidAllowWhileIdle: true, // Allow in doze mode
                                         androidWakeUpScreen: true, // Wake up screen
                                         androidAlarmType: 0, // RTC_WAKEUP
+                                        androidChannelSoundUsage: 4, // USAGE_ALARM
                                         androidChannelVisibility: 1,
                                         androidChannelLockscreenVisibility: 1,
                                         visibility: 1, // Public
-                                    };
-
-                                    if (!isSilent) {
-                                        notificationConfig.sound = androidSoundPath;
-                                        notificationConfig.playSound = true;
-                                        notificationConfig.androidChannelSoundUsage = 4; // USAGE_ALARM
-                                    } else {
-                                        notificationConfig.playSound = false;
-                                    }
-
-                                    notificationsToSchedule.push(notificationConfig);
+                                        playSound: true // Explicitly enable sound
+                                    });
                                 }
                             }
                         }

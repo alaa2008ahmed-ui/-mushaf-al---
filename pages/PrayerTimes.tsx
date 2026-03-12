@@ -353,8 +353,8 @@ function PrayerTimes({ onBack }) {
             </main>
 
              {isModalOpen && currentEditingKey && (
-                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 sm:p-6 scale-in">
-                    <div className="themed-card rounded-[2.5rem] w-full max-w-xs p-6 shadow-2xl max-h-[95vh] overflow-y-auto">
+                 <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-6 scale-in">
+                    <div className="themed-card rounded-[2.5rem] w-full max-w-xs p-6 shadow-2xl">
                          <div className="flex justify-between items-center mb-6 pb-2 border-b themed-text-muted/20">
                             <h3 className="font-black text-sm" style={{ color: primaryColor }}>إعدادات صلاة {prayerNamesAr[currentEditingKey]}</h3>
                             <button onClick={closeModal} className="hover:text-red-500" style={{ color: secondaryColor }}><i className="fa-solid fa-circle-xmark text-2xl"></i></button>

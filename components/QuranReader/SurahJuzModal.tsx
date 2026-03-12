@@ -39,8 +39,8 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
     });
 
     return (
-        <div className="fixed inset-0 z-[100] bg-black/30 flex justify-center items-center px-4 animate-fadeIn backdrop-blur-sm" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-4xl rounded-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] bg-black/30 flex justify-center pt-10 px-4 animate-fadeIn backdrop-blur-sm" onClick={onClose}>
+            <div className="modal-skinned w-full max-w-4xl rounded-t-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 theme-header-bg rounded-t-2xl flex flex-col gap-3">
                     <div className="flex justify-between items-center">
                         <h3 className="font-bold text-lg">{type === 'surah' ? 'اختر السورة' : 'اختر الجزء'}</h3>
@@ -60,7 +60,7 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
                         </div>
                     )}
                 </div>
-                <div className="overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 flex-1">
                     {type === 'surah' ? (
                         filteredSurahs?.length > 0 ? (
                             filteredSurahs.map((s: any) => (
