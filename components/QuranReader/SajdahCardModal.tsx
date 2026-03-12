@@ -16,7 +16,7 @@ const SajdahCardModal: FC<{
                         عند آية سجدة: سورة {info.surah} - آية {toArabic(info.ayah)}
                     </p>
                 </div>
-                <div className="p-5 overflow-y-auto text-right leading-relaxed space-y-4 text-sm">
+                <div className="p-5 overflow-y-auto text-right leading-relaxed space-y-4 text-sm flex-1">
                     <div>
                         <p><b>1. تعريف سجود التلاوة</b></p>
                         <p className="mt-1">هو سجود يؤديه القارئ أو المستمع عند قراءة آية من آيات السجود في القرآن الكريم، تعظيماً لله تعالى وإظهاراً للعبودية. وقد ثبت في صحيح مسلم عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:</p>

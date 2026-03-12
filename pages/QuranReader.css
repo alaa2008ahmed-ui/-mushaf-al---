@@ -513,13 +513,31 @@
     }
 }
 
+/* Fix modals in landscape mode */
+.quran-reader-container.landscape-mode .modal-skinned {
+    max-height: 95% !important;
+    width: 95% !important;
+    max-width: 500px !important;
+}
+
+.quran-reader-container.landscape-mode .modal-skinned > div:nth-child(2) {
+    flex: 1 !important;
+    min-height: 0 !important;
+}
+
 .quran-reader-container.landscape-mode {
     touch-action: none;
 }
 .quran-reader-container.landscape-mode #mushaf-content {
-    /* Increase padding to ensure text is completely clear of the bars */
-    padding-top: 65px !important;
-    padding-bottom: 75px !important;
+    /* Adjust padding to account for app bars (40px/50px) and system safe areas (notches) */
+    padding-top: calc(80px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
+}
+.quran-reader-container.landscape-mode .mushaf-page:first-child {
+    padding-top: 0 !important;
+}
+.quran-reader-container.landscape-mode .mushaf-page:first-child .surah-header-container:first-child {
+    margin-top: 0 !important;
 }
 .quran-reader-container.landscape-mode.landscape-ui-hidden #mushaf-content {
     padding-top: 30px !important;
