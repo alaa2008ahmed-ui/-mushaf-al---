@@ -10,7 +10,7 @@ const TafseerSelectionModal: FC<{
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[300] bg-black/30 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-sm rounded-2xl shadow-2xl flex flex-col max-h-[95dvh]" onClick={e => e.stopPropagation()}>
+            <div className="modal-skinned w-full max-w-sm rounded-2xl shadow-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
                 <div className="p-4 theme-header-bg rounded-t-2xl text-center">
                     <h3 className="font-bold text-lg">اختر التفسير</h3>
                 </div>

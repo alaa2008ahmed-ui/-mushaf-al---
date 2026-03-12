@@ -80,7 +80,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     background-color: var(--qr-modal-bg, #ffffff);
     color: var(--qr-modal-text, #000000);
-    max-height: 95dvh;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
 }
@@ -161,7 +161,7 @@
     overflow-y: hidden;
     display: flex;
     flex-direction: column;
-    padding: 2px 1rem; /* Aligned with header/footer buttons */
+    padding: 0 1rem; /* Removed vertical padding */
     container-type: size;
 }
 

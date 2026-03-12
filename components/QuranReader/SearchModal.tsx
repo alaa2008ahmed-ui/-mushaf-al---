@@ -134,7 +134,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ quranData, onSelect, onClose 
 
     return (
         <div className="fixed inset-0 z-[200] bg-black/30 flex justify-center items-center px-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-lg rounded-2xl flex flex-col max-h-[95dvh] shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="modal-skinned w-full max-w-lg rounded-2xl flex flex-col max-h-[90vh] shadow-2xl" onClick={e => e.stopPropagation()}>
                 <div className="p-4 rounded-t-2xl flex justify-between items-center shadow-md theme-header-bg">
                     <h3 className="font-bold text-lg">البحث في المصحف</h3>
                     <button onClick={onClose} className="text-2xl hover:opacity-80 transition">&times;</button>

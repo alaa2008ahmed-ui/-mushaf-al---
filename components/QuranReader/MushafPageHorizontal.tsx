@@ -80,11 +80,11 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
         fontFamily: settings?.fontFamily || 'var(--font-amiri)',
         color: settings?.theme === 'dark' ? '#fff' : (settings?.textColor || '#000'),
         height: '100%',
-        paddingTop: '5px',
-        paddingBottom: '10px', 
+        paddingTop: '0px',
+        paddingBottom: '0px', 
         display: 'flex',
         flexDirection: 'column' as const,
-        justifyContent: 'center', 
+        justifyContent: 'flex-start', 
         overflow: 'hidden'
     };
 
