@@ -393,7 +393,12 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                                       e.stopPropagation();
                                       onNavigate('quran-landscape');
                                   }}
-                                  className="absolute top-1/2 left-2 -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white rounded-full w-10 h-10 flex items-center justify-center z-10 transition-colors shadow-lg border border-white/20"
+                                  className="absolute top-1/2 left-2 -translate-y-1/2 text-white rounded-full w-10 h-10 flex items-center justify-center z-10 transition-colors shadow-lg border border-white/20"
+                                  style={{ 
+                                      backgroundColor: theme.isGlass ? 'rgba(255, 255, 255, 0.2)' : theme.palette[1],
+                                      backdropFilter: theme.isGlass ? 'blur(4px)' : 'none',
+                                      WebkitBackdropFilter: theme.isGlass ? 'blur(4px)' : 'none'
+                                  }}
                                   title="وضع العرض"
                               >
                                   <i className="fa-solid fa-arrows-rotate text-lg"></i>

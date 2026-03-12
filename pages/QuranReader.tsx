@@ -970,13 +970,32 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         }
     }, [quranData, jumpToAyah, getPageData, showToast]);
 
-    const saveBookmark = () => { if (!currentAyah) { showToast('اختر آية أولاً'); return; } const stored = JSON.parse(localStorage.getItem('quran_bookmarks_list') || '[]'); const date = new Date(); const newBookmark = { id: Date.now(), s: currentAyah.s, a: currentAyah.a, date: date.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }), time: date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) }; const newBookmarks = [newBookmark, ...stored]; localStorage.setItem('quran_bookmarks_list', JSON.stringify(newBookmarks)); setBookmarks(newBookmarks); showToast('تم حفظ الإشارة المرجعية'); };
+    const [bookmarksFilter, setBookmarksFilter] = useState<boolean | null>(null);
+
+    const saveBookmark = () => { 
+        if (!currentAyah) { showToast('اختر آية أولاً'); return; } 
+        const stored = JSON.parse(localStorage.getItem('quran_bookmarks_list') || '[]'); 
+        const date = new Date(); 
+        const newBookmark = { 
+            id: Date.now(), 
+            s: currentAyah.s, 
+            a: currentAyah.a, 
+            isLandscape: isLandscapeRef.current,
+            date: date.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }), 
+            time: date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }) 
+        }; 
+        const newBookmarks = [newBookmark, ...stored]; 
+        localStorage.setItem('quran_bookmarks_list', JSON.stringify(newBookmarks)); 
+        setBookmarks(newBookmarks); 
+        showToast(`تم حفظ الإشارة (${isLandscapeRef.current ? 'أفقي' : 'رأسي'})`); 
+    };
     const deleteBookmark = (id:number) => { const newBookmarks = bookmarks.filter((b:any) => b.id !== id); localStorage.setItem('quran_bookmarks_list', JSON.stringify(newBookmarks)); setBookmarks(newBookmarks); };
 
     const bookmarkButtonTimerRef = useRef<number | null>(null);
     const handleBookmarkButtonPointerDown = () => {
         bookmarkButtonTimerRef.current = window.setTimeout(() => {
             bookmarkButtonTimerRef.current = null;
+            setBookmarksFilter(isLandscapeRef.current);
             openModal('bookmarks-modal');
         }, 500);
     };
@@ -1319,7 +1338,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             </div>
             <MarkerNotification isVisible={markerNotification.show} type={markerNotification.type} text={markerNotification.text} />
             <div id="floating-menu" className={isFloatingMenuOpen ? 'open' : ''} ref={floatingMenuRef}>
-                 <button onClick={() => { openModal('bookmarks-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-bookmarks-list', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>قائمة الإشارات</span><i className="fa-solid fa-list"></i></button>
+                 <button onClick={() => { setBookmarksFilter(null); openModal('bookmarks-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-bookmarks-list', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>قائمة الإشارات</span><i className="fa-solid fa-list"></i></button>
                  <button onClick={() => { openModal('search-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-purple w-full justify-between mb-2" style={getToolbarStyle('btn-search', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>البحث</span><i className="fa-solid fa-search"></i></button>
                  <button onClick={() => { openModal('themes-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-themes', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الثيمات</span><i className="fa-solid fa-palette"></i></button>
                  <button onClick={() => { openModal('settings-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between" style={getToolbarStyle('btn-settings', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الإعدادات</span><i className="fa-solid fa-cog"></i></button>
@@ -1345,7 +1364,24 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             </footer>
             {activeModals.includes('surah-modal') && <SurahJuzModal type="surah" quranData={quranData} onSelect={(s, a) => { closeModal('surah-modal'); setTimeout(() => jumpToAyah(s, a, true), 0); }} onClose={() => closeModal('surah-modal')} />}
             {activeModals.includes('juz-modal') && <SurahJuzModal type="juz" quranData={quranData} onSelect={(j: number) => { closeModal('juz-modal'); setTimeout(() => jumpToAyah(JUZ_MAP[j - 1].s, JUZ_MAP[j - 1].a, true), 0); }} onClose={() => closeModal('juz-modal')} />}
-            {activeModals.includes('bookmarks-modal') && <BookmarksModal bookmarks={bookmarks} quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onDelete={deleteBookmark} onClose={() => closeModal('bookmarks-modal')} />}
+            {activeModals.includes('bookmarks-modal') && (
+                <BookmarksModal 
+                    bookmarks={bookmarks} 
+                    quranData={quranData} 
+                    filterLandscape={bookmarksFilter}
+                    onSelect={(s, a, isL) => {
+                        if (isL !== isLandscapeRef.current) {
+                            setIsLandscape(isL);
+                        }
+                        jumpToAyah(s, a, true);
+                    }} 
+                    onDelete={deleteBookmark} 
+                    onClose={() => {
+                        closeModal('bookmarks-modal');
+                        setBookmarksFilter(null);
+                    }} 
+                />
+            )}
             {activeModals.includes('search-modal') && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onClose={() => closeModal('search-modal')} />}
             {activeModals.includes('themes-modal') && <ThemesModal onClose={() => closeModal('themes-modal')} showToast={showToast} />}
             {activeModals.includes('settings-modal') && <SettingsModal onClose={() => closeModal('settings-modal')} onOpenModal={openModal} showToast={showToast} />}
