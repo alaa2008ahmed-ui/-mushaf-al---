@@ -80,8 +80,8 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
         fontFamily: settings?.fontFamily || 'var(--font-amiri)',
         color: settings?.theme === 'dark' ? '#fff' : (settings?.textColor || '#000'),
         height: '100%',
-        paddingTop: '10px',
-        paddingBottom: '50px', // Increased padding for safety
+        paddingTop: '5px',
+        paddingBottom: '10px', 
         display: 'flex',
         flexDirection: 'column' as const,
         justifyContent: 'center', 
@@ -114,7 +114,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                         <React.Fragment key={id}>
                             {showHeader && ( 
                                 <> 
-                                    <div className="surah-header my-6 flex items-center justify-center gap-32">
+                                    <div className="surah-header my-4 flex items-center justify-between w-full px-2">
                                         <span className="surah-info-right">{SURAH_INFO[ayah.sNum]?.type}</span>
                                         <span className="surah-name">{ayah.sName.replace('سورة', '').trim()}</span>
                                         <span className="surah-info-left">آياتها {toArabic(SURAH_INFO[ayah.sNum]?.ayahs || 0)}</span>
