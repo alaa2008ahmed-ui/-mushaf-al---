@@ -5,9 +5,11 @@ interface SettingsModalProps {
     onClose: () => void;
     onOpenModal: (modalName: string) => void;
     showToast: (msg: string) => void;
+    isLandscape: boolean;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, showToast }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, showToast, isLandscape }) => {
+    const modeSuffix = isLandscape ? '_h' : '_v';
     const [isClosing, setIsClosing] = useState(false);
 
     const handleClose = () => {
@@ -15,7 +17,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
     };
 
     const [settings, setSettings] = useState(() => {
-        const saved = localStorage.getItem('quran_settings');
+        const saved = localStorage.getItem('quran_settings' + modeSuffix);
         const defaultTheme = THEMES['default'];
         return saved ? JSON.parse(saved) : {
             fontSize: 1.7,
@@ -34,14 +36,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
         const saved = localStorage.getItem('show_sajdah_card');
         return saved !== null ? saved === 'true' : true;
     });
-    const [useTajweed, setUseTajweed] = useState(() => localStorage.getItem('use_tajweed_quran') === 'true');
+    const [useTajweed, setUseTajweed] = useState(() => localStorage.getItem('use_tajweed_quran' + modeSuffix) === 'true');
 
 
 
     const updateSetting = (key: string, value: any) => {
         const newSettings = { ...settings, [key]: value };
         setSettings(newSettings);
-        localStorage.setItem('quran_settings', JSON.stringify(newSettings));
+        localStorage.setItem('quran_settings' + modeSuffix, JSON.stringify(newSettings));
         // Dispatch event for live updates
         window.dispatchEvent(new Event('settings-change'));
     };
@@ -62,7 +64,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
 
     const handleTajweedToggle = (checked: boolean) => {
         setUseTajweed(checked);
-        localStorage.setItem('use_tajweed_quran', String(checked));
+        localStorage.setItem('use_tajweed_quran' + modeSuffix, String(checked));
         window.dispatchEvent(new Event('settings-change'));
         showToast(checked ? 'تم تفعيل المصحف المجود' : 'تم إيقاف المصحف المجود');
     };

@@ -7,16 +7,18 @@ interface ToolbarColorPickerModalProps {
     showToast: (msg: string) => void;
     currentTheme: any;
     toolbarColors: any;
+    isLandscape: boolean;
 }
 
 // FIX: Add `onOpenModal` to props destructuring to make it available in the component.
-const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClose, onOpenModal, showToast, currentTheme, toolbarColors }) => {
+const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClose, onOpenModal, showToast, currentTheme, toolbarColors, isLandscape }) => {
+    const modeSuffix = isLandscape ? '_h' : '_v';
     const [isClosing, setIsClosing] = useState(false);
 
     const handleClose = () => {
         onClose();
     };
-    const [isTransparentMode, setIsTransparentMode] = useState(() => localStorage.getItem('transparent_mode') === 'true');
+    const [isTransparentMode, setIsTransparentMode] = useState(() => localStorage.getItem('transparent_mode' + modeSuffix) === 'true');
     const [headerSync, setHeaderSync] = useState(false);
     const [footerSync, setFooterSync] = useState(false);
     const [editingType, setEditingType] = useState<string | null>(null);
@@ -38,7 +40,7 @@ const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClo
 
     const toggleTransparentMode = (checked: boolean) => {
         setIsTransparentMode(checked);
-        localStorage.setItem('transparent_mode', String(checked));
+        localStorage.setItem('transparent_mode' + modeSuffix, String(checked));
         window.dispatchEvent(new Event('theme-change')); // Trigger theme re-application
         showToast(checked ? 'تم تفعيل وضع الأشرطة العائمة' : 'تم إلغاء وضع الأشرطة العائمة');
     };
@@ -81,7 +83,7 @@ const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClo
     const saveElementChanges = () => {
         if (!editingType) return;
         
-        const colors = JSON.parse(localStorage.getItem('toolbar_colors') || '{}');
+        const colors = JSON.parse(localStorage.getItem('toolbar_colors' + modeSuffix) || '{}');
         const newConfig = { ...editConfig };
         
         colors[editingType] = newConfig;
@@ -104,7 +106,7 @@ const ToolbarColorPickerModal: React.FC<ToolbarColorPickerModalProps> = ({ onClo
             delete colors.unifiedApplied;
         }
         
-        localStorage.setItem('toolbar_colors', JSON.stringify(colors));
+        localStorage.setItem('toolbar_colors' + modeSuffix, JSON.stringify(colors));
         window.dispatchEvent(new Event('theme-change'));
         setEditingType(null);
         showToast('تم حفظ التعديلات');

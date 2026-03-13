@@ -93,25 +93,56 @@ const getCountryInfo = (countryCode: string, countryName: string, cityName: stri
 
     let baseDialCode = dialCodes[code] || '';
     let fullName = fullNames[code] || countryName;
-    let combinedCode = baseDialCode;
+    let combinedCode = baseDialCode; // Keep it simple: just the dial code
 
-    if (code === 'sa') {
-        for (const [key, val] of Object.entries(saudiCities)) {
-            if (cityName.includes(key)) {
-                combinedCode = baseDialCode + val;
-                break;
+    return { fullName, combinedCode };
+};
+
+const getCalculationParams = (date: Date, locationData?: any) => {
+    let params = CalculationMethod.MuslimWorldLeague();
+    let methodId = 3; // MWL
+
+    const country = locationData?.fullCountry || '';
+    const code = locationData?.combinedCode || '';
+
+    if (code.startsWith('+20') || country.includes('مصر')) {
+        params = CalculationMethod.Egyptian();
+        methodId = 5;
+    } else if (code.startsWith('+966') || country.includes('السعودية')) {
+        params = CalculationMethod.UmmAlQura();
+        methodId = 4;
+    } else if (code.startsWith('+971') || country.includes('الإمارات')) {
+        params = CalculationMethod.Dubai();
+        methodId = 16;
+    } else if (code.startsWith('+965') || country.includes('الكويت')) {
+        params = CalculationMethod.Kuwait();
+        methodId = 9;
+    } else if (code.startsWith('+974') || country.includes('قطر')) {
+        params = CalculationMethod.Qatar();
+        methodId = 10;
+    } else if (code.startsWith('+1') || country.includes('أمريكا') || country.includes('كندا')) {
+        params = CalculationMethod.NorthAmerica();
+        methodId = 2;
+    } else if (code.startsWith('+90') || country.includes('تركيا')) {
+        params = CalculationMethod.Turkey();
+        methodId = 13;
+    } else if (code.startsWith('+92') || country.includes('باكستان')) {
+        params = CalculationMethod.Karachi();
+        methodId = 1;
+    }
+
+    if (code.startsWith('+966') || country.includes('السعودية')) {
+        try {
+            const hijriMonth = new Intl.DateTimeFormat('en-US-u-ca-islamic', { month: 'numeric' }).format(date);
+            if (hijriMonth === '9') {
+                params.ishaInterval = 120;
             }
-        }
-    } else if (code === 'eg') {
-        for (const [key, val] of Object.entries(egyptCities)) {
-            if (cityName.includes(key)) {
-                combinedCode = baseDialCode + val;
-                break;
-            }
+        } catch (e) {
+            console.error("Error formatting Islamic date:", e);
         }
     }
 
-    return { fullName, combinedCode: combinedCode || baseDialCode };
+    return { params, methodId };
 };
 
 const PrayerTimesContext = createContext<PrayerTimesContextType | undefined>(undefined);
@@ -142,33 +173,70 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
     const fetchTimesForLocation = useCallback(async (locationData: any) => {
         const { lat, lng } = locationData;
         try {
-            const coordinates = new Coordinates(lat, lng);
-            const params = CalculationMethod.UmmAlQura();
             const date = new Date();
-            const prayerTimes = new AdhanPrayerTimes(coordinates, date, params);
-
-            const formatTime = (d: Date) => {
-                return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
-            };
-
-            const timings = {
-                Fajr: formatTime(prayerTimes.fajr),
-                Sunrise: formatTime(prayerTimes.sunrise),
-                Dhuhr: formatTime(prayerTimes.dhuhr),
-                Asr: formatTime(prayerTimes.asr),
-                Maghrib: formatTime(prayerTimes.maghrib),
-                Isha: formatTime(prayerTimes.isha),
-            };
-
-            const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
-                day: 'numeric', month: 'long', year: 'numeric'
-            });
-            const hijriDate = hijriFormatter.format(date);
+            const { params, methodId } = getCalculationParams(date, locationData);
             
-            const gregorianFormatter = new Intl.DateTimeFormat('ar-EG', {
-                day: 'numeric', month: 'long', year: 'numeric'
-            });
-            const gregorianDate = gregorianFormatter.format(date);
+            let timings: any = null;
+            let hijriDate = "";
+            let gregorianDate = "";
+
+            // Try AlAdhan API first for maximum accuracy and official times
+            try {
+                const timestamp = Math.floor(date.getTime() / 1000);
+                const apiRes = await fetch(`https://api.aladhan.com/v1/timings/${timestamp}?latitude=${lat}&longitude=${lng}&method=${methodId}`);
+                const apiData = await apiRes.json();
+                
+                if (apiData && apiData.code === 200) {
+                    const data = apiData.data;
+                    timings = {
+                        Fajr: data.timings.Fajr,
+                        Sunrise: data.timings.Sunrise,
+                        Dhuhr: data.timings.Dhuhr,
+                        Asr: data.timings.Asr,
+                        Maghrib: data.timings.Maghrib,
+                        Isha: data.timings.Isha,
+                    };
+                    
+                    // Use API dates for consistency
+                    hijriDate = `${data.date.hijri.day} ${data.date.hijri.month.ar} ${data.date.hijri.year}`;
+                    gregorianDate = `${data.date.gregorian.day} ${data.date.gregorian.month.en} ${data.date.gregorian.year}`;
+                    
+                    // Store timezone offset for countdown logic
+                    const timezone = data.meta.timezone;
+                    localStorage.setItem('grandLocationTimezone', timezone);
+                }
+            } catch (apiErr) {
+                console.warn("AlAdhan API failed, falling back to local calculation:", apiErr);
+            }
+
+            // Fallback to local calculation if API fails
+            if (!timings) {
+                const coordinates = new Coordinates(lat, lng);
+                const prayerTimes = new AdhanPrayerTimes(coordinates, date, params);
+
+                const formatTime = (d: Date) => {
+                    return d.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+                };
+
+                timings = {
+                    Fajr: formatTime(prayerTimes.fajr),
+                    Sunrise: formatTime(prayerTimes.sunrise),
+                    Dhuhr: formatTime(prayerTimes.dhuhr),
+                    Asr: formatTime(prayerTimes.asr),
+                    Maghrib: formatTime(prayerTimes.maghrib),
+                    Isha: formatTime(prayerTimes.isha),
+                };
+
+                const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+                hijriDate = hijriFormatter.format(date);
+                
+                const gregorianFormatter = new Intl.DateTimeFormat('ar-EG', {
+                    day: 'numeric', month: 'long', year: 'numeric'
+                });
+                gregorianDate = gregorianFormatter.format(date);
+            }
 
             const datesData = { hijri: hijriDate, gregorian: gregorianDate };
 
@@ -325,7 +393,7 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                             
                             // Recalculate times for that specific day
                             const coordinates = new Coordinates(config.location.lat, config.location.lng);
-                            const params = CalculationMethod.UmmAlQura();
+                            const { params } = getCalculationParams(date, config.location);
                             const prayerTimes = new AdhanPrayerTimes(coordinates, date, params);
                             
                             const dayTimings: any = {
@@ -475,7 +543,21 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const findNext = () => {
             if (!Object.keys(times).length) return null;
-            const now = new Date();
+            
+            // Get city timezone if available
+            const cityTimezone = localStorage.getItem('grandLocationTimezone');
+            
+            // Get current time in city's timezone
+            let now = new Date();
+            if (cityTimezone) {
+                try {
+                    const cityTimeStr = now.toLocaleString('en-US', { timeZone: cityTimezone });
+                    now = new Date(cityTimeStr);
+                } catch (e) {
+                    console.error("Timezone conversion failed:", e);
+                }
+            }
+
             const keys = ['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
             let found = null;
 
@@ -483,10 +565,11 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                 const adjustedTime = applyOffset(times[key], config.prayerOffsets[key]);
                 if (adjustedTime && !adjustedTime.includes('--')) {
                     const [h, m] = adjustedTime.split(':');
-                    const pDate = new Date();
+                    const pDate = new Date(now); // Use city's current date
                     pDate.setHours(parseInt(h), parseInt(m), 0, 0);
+                    
                     if (pDate > now) {
-                        found = { key, date: pDate, name: prayerNamesAr[key] };
+                        found = { key, date: pDate, name: prayerNamesAr[key], cityNow: now };
                         break;
                     }
                 }
@@ -496,10 +579,10 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
                 const fajrTime = applyOffset(times.Fajr, config.prayerOffsets.Fajr);
                 if (fajrTime && !fajrTime.includes('--')) {
                     const [h, m] = fajrTime.split(':');
-                    const pDate = new Date();
+                    const pDate = new Date(now);
                     pDate.setDate(pDate.getDate() + 1);
                     pDate.setHours(parseInt(h), parseInt(m), 0, 0);
-                    found = { key: 'Fajr', date: pDate, name: prayerNamesAr['Fajr'] };
+                    found = { key: 'Fajr', date: pDate, name: prayerNamesAr['Fajr'], cityNow: now };
                 }
             }
             return found;
@@ -509,8 +592,8 @@ export const PrayerTimesProvider = ({ children }: { children: ReactNode }) => {
             const next = findNext();
             setNextPrayer(next);
             
-            if (next) {
-                const diff = next.date.getTime() - new Date().getTime();
+            if (next && next.cityNow) {
+                const diff = next.date.getTime() - next.cityNow.getTime();
                 if (diff > 0) {
                     const h = Math.floor(diff / 3600000);
                     const m = Math.floor((diff % 3600000) / 60000);

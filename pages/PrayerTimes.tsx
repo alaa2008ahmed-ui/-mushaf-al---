@@ -272,7 +272,9 @@ function PrayerTimes({ onBack }) {
                     </div>
                      <div className="flex items-center justify-center gap-2" dir="rtl">
                         <p className="text-xs font-bold" style={{ color: primaryColor }}>{config.location.fullCountry}</p>
-                        <span className="text-xs font-black text-white bg-black/20 px-2 py-0.5 rounded-md border border-white/20" dir="ltr">{config.location.combinedCode}</span>
+                        {config.location.combinedCode && (
+                            <span className="text-xs font-black text-white bg-black/20 px-2 py-0.5 rounded-md border border-white/20" dir="ltr">{config.location.combinedCode}</span>
+                        )}
                     </div>
                 </div>
             </header>
