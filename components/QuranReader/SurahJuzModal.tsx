@@ -6,9 +6,10 @@ interface SurahJuzModalProps {
     quranData: any;
     onSelect: (surahOrJuz: number, ayah?: number) => void;
     onClose: () => void;
+    isLandscape?: boolean;
 }
 
-const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect, onClose }) => {
+const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect, onClose, isLandscape }) => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const removeDiacritics = (text: string) => {
@@ -60,7 +61,7 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
                         </div>
                     )}
                 </div>
-                <div className="overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 flex-1">
+                <div className={`overflow-y-auto p-4 grid ${isLandscape ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'} gap-3 flex-1`}>
                     {type === 'surah' ? (
                         filteredSurahs?.length > 0 ? (
                             filteredSurahs.map((s: any) => (

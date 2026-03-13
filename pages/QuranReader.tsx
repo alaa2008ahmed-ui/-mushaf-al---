@@ -1435,13 +1435,14 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                 </button>
                 <button id="btn-home" onClick={onBack} className="bottom-bar-button btn-green flex-1 mx-1" style={getToolbarStyle('btn-home', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><i className="fa-solid fa-home"></i><span className="hidden sm:inline">الرئيسية</span></button>
             </footer>
-            {activeModals.includes('surah-modal') && <SurahJuzModal type="surah" quranData={quranData} onSelect={(s, a) => { closeModal('surah-modal'); setTimeout(() => jumpToAyah(s, a, true), 0); }} onClose={() => closeModal('surah-modal')} />}
-            {activeModals.includes('juz-modal') && <SurahJuzModal type="juz" quranData={quranData} onSelect={(j: number) => { closeModal('juz-modal'); setTimeout(() => jumpToAyah(JUZ_MAP[j - 1].s, JUZ_MAP[j - 1].a, true), 0); }} onClose={() => closeModal('juz-modal')} />}
+            {activeModals.includes('surah-modal') && <SurahJuzModal type="surah" quranData={quranData} onSelect={(s, a) => { closeModal('surah-modal'); setTimeout(() => jumpToAyah(s, a, true), 0); }} onClose={() => closeModal('surah-modal')} isLandscape={isLandscape} />}
+            {activeModals.includes('juz-modal') && <SurahJuzModal type="juz" quranData={quranData} onSelect={(j: number) => { closeModal('juz-modal'); setTimeout(() => jumpToAyah(JUZ_MAP[j - 1].s, JUZ_MAP[j - 1].a, true), 0); }} onClose={() => closeModal('juz-modal')} isLandscape={isLandscape} />}
             {activeModals.includes('bookmarks-modal') && (
                 <BookmarksModal 
                     bookmarks={bookmarks} 
                     quranData={quranData} 
                     filterLandscape={bookmarksFilter}
+                    isLandscape={isLandscape}
                     onSelect={(s, a, isL) => {
                         if (isL !== isLandscapeRef.current) {
                             setIsLandscape(isL);
@@ -1458,7 +1459,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             {activeModals.includes('search-modal') && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onClose={() => closeModal('search-modal')} />}
             {activeModals.includes('themes-modal') && <ThemesModal onClose={() => closeModal('themes-modal')} showToast={showToast} isLandscape={isLandscape} />}
             {activeModals.includes('settings-modal') && <SettingsModal onClose={() => closeModal('settings-modal')} onOpenModal={openModal} showToast={showToast} isLandscape={isLandscape} />}
-            {activeModals.includes('reciter-modal') && <ReciterSelectModal onClose={() => closeModal('reciter-modal')} currentReader={settings.reader} onSelect={(id) => {
+            {activeModals.includes('reciter-modal') && <ReciterSelectModal onClose={() => closeModal('reciter-modal')} currentReader={settings.reader} isLandscape={isLandscape} onSelect={(id) => {
                 const newSettings = { ...settings, reader: id };
                 setSettings(newSettings);
                 localStorage.setItem('quran_settings' + modeSuffix, JSON.stringify(newSettings));
@@ -1483,6 +1484,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             />
             <TafseerSelectionModal 
                 isOpen={tafseerSelectionInfo.isOpen} 
+                isLandscape={isLandscape}
                 onClose={() => {
                     if (tafseerSelectionInfo.wasAutoscrolling) {
                         autoScrollPausedRef.current = false;
@@ -1495,6 +1497,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             />
             <MushafSelectionModal
                 isOpen={activeModals.includes('mushaf-selection-modal')}
+                isLandscape={isLandscape}
                 onClose={() => closeModal('mushaf-selection-modal')}
                 onSelect={handleMushafTypeSelect}
                 currentType={useTajweed ? 'tajweed' : 'uthmani'}
