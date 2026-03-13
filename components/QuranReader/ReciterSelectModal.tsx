@@ -27,12 +27,12 @@ const ReciterSelectModal: React.FC<ReciterSelectModalProps> = ({ onClose, curren
                     <h2 className="text-lg font-bold">اختر القارئ</h2>
                     <button onClick={handleClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
-                <div className={`p-3 overflow-y-auto flex-1 ${isLandscape ? 'flex overflow-x-auto gap-3 no-scrollbar items-center' : 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2'}`}>
+                <div className={`p-3 overflow-y-auto flex-1 grid ${isLandscape ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3' : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2'}`}>
                     {READERS.map(r => (
                         <button 
                             key={r.id} 
                             onClick={() => handleSelect(r.id)}
-                            className={`${isLandscape ? 'min-w-[180px] h-24' : 'w-full'} text-right p-3 rounded-xl border-2 transition-all font-bold flex flex-col justify-center items-center text-center ${currentReader === r.id ? 'theme-accent-btn' : 'border-transparent hover:opacity-80'}`}
+                            className={`w-full text-right p-3 rounded-xl border-2 transition-all font-bold flex flex-col justify-center items-center text-center ${currentReader === r.id ? 'theme-accent-btn' : 'border-transparent hover:opacity-80'}`}
                             style={currentReader !== r.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
                         >
                             <div className="flex flex-col justify-center items-center w-full gap-2">

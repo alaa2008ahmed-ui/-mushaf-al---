@@ -5,6 +5,7 @@ interface DownloadModalProps {
     onClose: () => void;
     quranData: any;
     showToast: (msg: string) => void;
+    isLandscape?: boolean;
 }
 
 // --- Helper Functions ---
@@ -124,7 +125,7 @@ const storeTafsirOffline = (fileName: string, data: any) => {
     }
 };
 
-export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, quranData, showToast }) => {
+export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, quranData, showToast, isLandscape }) => {
     const [selectedReader, setSelectedReader] = useState('');
     const [selectedSurah, setSelectedSurah] = useState('');
     const [isDownloading, setIsDownloading] = useState(false);
@@ -241,36 +242,54 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
 
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[155] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full ${isLandscape ? 'max-w-4xl' : 'max-w-md'} rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]`} onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">تحميل القرآن الكريم</h2>
                     <button onClick={onClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
-                <div className="p-3 space-y-2 overflow-y-auto text-center flex-1">
-                    <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
-                        <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-sm h-8 themed-card-bg">{READERS.find(r => r.id === selectedReader)?.name || "اختر القارئ"}</div>
-                            <select value={selectedReader} onChange={(e) => setSelectedReader(e.target.value)} className="custom-select-design">
-                                <option value="">اختر القارئ</option>
-                                {READERS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                            </select>
-                        </div>
-                        
-                        <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-sm h-8 themed-card-bg">
-                                {selectedSurah === 'all' ? "تحميل المصحف كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
-                            </div>
-                            <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
-                                <option value="">اختر السورة</option>
-                                <option value="all">تحميل المصحف كاملاً</option>
-                                {quranData?.surahs.map((s: any) => (
-                                    <option key={s.number} value={s.number}>{s.name}</option>
+                <div className="p-3 space-y-4 overflow-y-auto text-center flex-1">
+                    <div className="space-y-4">
+                        <div className="text-right">
+                            <label className="text-xs font-bold opacity-70 block mb-2">اختر القارئ</label>
+                            <div className={`grid ${isLandscape ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2'} gap-2 p-1 themed-card-bg rounded-lg`}>
+                                {READERS.map(r => (
+                                    <button 
+                                        key={r.id} 
+                                        onClick={() => setSelectedReader(r.id)}
+                                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedReader === r.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                        style={selectedReader !== r.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                    >
+                                        {r.name}
+                                    </button>
                                 ))}
-                            </select>
+                            </div>
+                        </div>
+
+                        <div className="text-right">
+                            <label className="text-xs font-bold opacity-70 block mb-2">اختر السورة</label>
+                            <div className={`grid ${isLandscape ? 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3'} gap-2 p-1 themed-card-bg rounded-lg max-h-[30vh] overflow-y-auto custom-scrollbar`}>
+                                <button 
+                                    onClick={() => setSelectedSurah('all')}
+                                    className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedSurah === 'all' ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                    style={selectedSurah !== 'all' ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                >
+                                    المصحف كاملاً
+                                </button>
+                                {quranData?.surahs.map((s: any) => (
+                                    <button 
+                                        key={s.number} 
+                                        onClick={() => setSelectedSurah(String(s.number))}
+                                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedSurah === String(s.number) ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                        style={selectedSurah !== String(s.number) ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                    >
+                                        {s.name.replace('سورة', '').trim()}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         
                         {!isDownloading ? (
-                            <button onClick={downloadSurahAudio} className="w-full theme-btn-bg py-2.5 rounded-lg shadow font-bold text-sm">تحميل</button>
+                            <button onClick={downloadSurahAudio} disabled={!selectedReader || !selectedSurah} className={`w-full theme-btn-bg py-2.5 rounded-lg shadow font-bold text-sm ${(!selectedReader || !selectedSurah) ? 'opacity-50 cursor-not-allowed' : ''}`}>تحميل</button>
                         ) : (
                             <div className="mt-2">
                                 <div className="text-xs font-bold mb-1">{status}</div>
@@ -290,7 +309,7 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
     );
 };
 
-export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, quranData, showToast }) => {
+export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, quranData, showToast, isLandscape }) => {
     const [selectedTafsir, setSelectedTafsir] = useState('');
     const [selectedSurah, setSelectedSurah] = useState('');
     const [isDownloading, setIsDownloading] = useState(false);
@@ -379,36 +398,54 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
 
     return (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[156] flex items-center justify-center p-4 animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]" onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full ${isLandscape ? 'max-w-4xl' : 'max-w-md'} rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]`} onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">تحميل التفسير</h2>
                     <button onClick={onClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
-                <div className="p-3 space-y-2 overflow-y-auto text-center flex-1">
-                    <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
-                        <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-sm h-8 themed-card-bg">{TAFSEERS.find(t => t.id === selectedTafsir)?.name || "اختر التفسير"}</div>
-                            <select value={selectedTafsir} onChange={(e) => setSelectedTafsir(e.target.value)} className="custom-select-design">
-                                <option value="">اختر التفسير</option>
-                                {TAFSEERS.filter(t => t.id !== 'ar.jalalayn').map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                            </select>
-                        </div>
-                        
-                        <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-sm h-8 themed-card-bg">
-                                {selectedSurah === 'all' ? "تحميل التفاسير كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
-                            </div>
-                            <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
-                                <option value="">اختر السورة</option>
-                                <option value="all">تحميل التفاسير كاملاً</option>
-                                {quranData?.surahs.map((s: any) => (
-                                    <option key={s.number} value={s.number}>{s.name}</option>
+                <div className="p-3 space-y-4 overflow-y-auto text-center flex-1">
+                    <div className="space-y-4">
+                        <div className="text-right">
+                            <label className="text-xs font-bold opacity-70 block mb-2">اختر التفسير</label>
+                            <div className={`grid ${isLandscape ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2'} gap-2 p-1 themed-card-bg rounded-lg`}>
+                                {TAFSEERS.filter(t => t.id !== 'ar.jalalayn').map(t => (
+                                    <button 
+                                        key={t.id} 
+                                        onClick={() => setSelectedTafsir(t.id)}
+                                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedTafsir === t.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                        style={selectedTafsir !== t.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                    >
+                                        {t.name}
+                                    </button>
                                 ))}
-                            </select>
+                            </div>
+                        </div>
+
+                        <div className="text-right">
+                            <label className="text-xs font-bold opacity-70 block mb-2">اختر السورة</label>
+                            <div className={`grid ${isLandscape ? 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3'} gap-2 p-1 themed-card-bg rounded-lg max-h-[30vh] overflow-y-auto custom-scrollbar`}>
+                                <button 
+                                    onClick={() => setSelectedSurah('all')}
+                                    className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedSurah === 'all' ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                    style={selectedSurah !== 'all' ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                >
+                                    التفاسير كاملاً
+                                </button>
+                                {quranData?.surahs.map((s: any) => (
+                                    <button 
+                                        key={s.number} 
+                                        onClick={() => setSelectedSurah(String(s.number))}
+                                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedSurah === String(s.number) ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                        style={selectedSurah !== String(s.number) ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                    >
+                                        {s.name.replace('سورة', '').trim()}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                         
                         {!isDownloading ? (
-                            <button onClick={downloadTafsir} className="w-full theme-btn-bg py-2.5 rounded-lg shadow font-bold text-sm">تحميل</button>
+                            <button onClick={downloadTafsir} disabled={!selectedTafsir || !selectedSurah} className={`w-full theme-btn-bg py-2.5 rounded-lg shadow font-bold text-sm ${(!selectedTafsir || !selectedSurah) ? 'opacity-50 cursor-not-allowed' : ''}`}>تحميل</button>
                         ) : (
                             <div className="mt-2">
                                 <div className="text-xs font-bold mb-1">{status}</div>
