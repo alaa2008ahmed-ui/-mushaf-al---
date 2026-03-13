@@ -90,7 +90,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
 
     return (
         <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[150] flex items-center justify-center p-4 animate-fadeIn`} onClick={handleClose}>
-            <div className={`modal-skinned w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full max-w-md sm:max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">إعدادات العرض</h2>
                     <button onClick={handleClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
@@ -183,12 +183,26 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                         <div className="flex items-center justify-between">
                             <label className="text-sm font-bold opacity-80">سرعة التمرير (وقت الجزء)</label>
                         </div>
-                        <div className="custom-select-wrapper mt-1">
-                             <div className="custom-select-display text-xs h-7 themed-card-bg">{settings.scrollMinutes} دقيقة</div>
-                             <select value={settings.scrollMinutes} onChange={(e) => updateSetting('scrollMinutes', parseInt(e.target.value))} className="custom-select-design">
-                                {Array.from({length: 56}, (_, i) => i + 5).map(i => <option key={i} value={i}>{i} دقيقة</option>)}
-                             </select>
-                        </div>
+                        {isLandscape ? (
+                            <div className="grid grid-cols-4 sm:grid-cols-6 gap-1 max-h-32 overflow-y-auto p-1 themed-card-bg rounded-lg">
+                                {Array.from({length: 56}, (_, i) => i + 5).map(i => (
+                                    <button 
+                                        key={i} 
+                                        onClick={() => updateSetting('scrollMinutes', i)}
+                                        className={`text-[10px] p-1 rounded transition-all ${settings.scrollMinutes === i ? 'theme-accent-btn' : 'hover:bg-white/10'}`}
+                                    >
+                                        {i} د
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="custom-select-wrapper mt-1">
+                                 <div className="custom-select-display text-xs h-7 themed-card-bg">{settings.scrollMinutes} دقيقة</div>
+                                 <select value={settings.scrollMinutes} onChange={(e) => updateSetting('scrollMinutes', parseInt(e.target.value))} className="custom-select-design">
+                                    {Array.from({length: 56}, (_, i) => i + 5).map(i => <option key={i} value={i}>{i} دقيقة</option>)}
+                                 </select>
+                            </div>
+                        )}
                         <div className="pt-3">
                             <div className="flex items-center justify-between">
                                 <label className="text-sm font-bold opacity-80">إخفاء الأزرار أثناء التمرير</label>
