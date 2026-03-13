@@ -128,93 +128,151 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">نوع الخط</label>
                         <div className="mt-1">
-                            <div className={`grid ${isLandscape ? 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5' : 'grid-cols-2 sm:grid-cols-3'} gap-2 p-1 themed-card-bg rounded-lg`}>
-                                {[
-                                    { id: "var(--font-amiri-quran)", name: "حفص" },
-                                    { id: "var(--font-amiri)", name: "نسخ" },
-                                    { id: "var(--font-scheherazade)", name: "مجود" },
-                                    { id: "var(--font-lateef)", name: "تراثي" },
-                                    { id: "var(--font-harmattan)", name: "ورش" },
-                                    { id: "var(--font-aref)", name: "رقعة" },
-                                    { id: "var(--font-gulzar)", name: "نستعليق" },
-                                    { id: "var(--font-kufi)", name: "كوفي" },
-                                    { id: "var(--font-kufam)", name: "كوفي حديث" },
-                                    { id: "var(--font-noto)", name: "نسخ حديث" },
-                                    { id: "var(--font-cairo)", name: "القاهرة" },
-                                    { id: "var(--font-messiri)", name: "المسيري" },
-                                    { id: "var(--font-rakkas)", name: "رقاص" },
-                                    { id: "var(--font-lalezar)", name: "لالزار" },
-                                    { id: "var(--font-katibeh)", name: "قطيبة" },
-                                    { id: "var(--font-tajawal)", name: "تجوّل" },
-                                    { id: "var(--font-changa)", name: "شنقة" },
-                                    { id: "var(--font-mirza)", name: "ميرزا" },
-                                    { id: "var(--font-qalam)", name: "قلم" },
-                                    { id: "var(--font-thuluth)", name: "ثلوث" },
-                                    { id: "var(--font-digital)", name: "رقمي" },
-                                    { id: "'KFGQPC Uthman Taha Naskh'", name: "مجمع الملك فهد" },
-                                    { id: "'Me Quran'", name: "خط المصحف" }
-                                ].map(f => (
-                                    <button 
-                                        key={f.id} 
-                                        onClick={() => updateSetting('fontFamily', f.id)}
-                                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.fontFamily === f.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                        style={{ fontFamily: f.id, backgroundColor: settings.fontFamily === f.id ? '' : 'var(--qr-card-bg)', color: settings.fontFamily === f.id ? '' : 'var(--qr-card-text)', borderColor: settings.fontFamily === f.id ? '' : 'var(--qr-card-border)' }}
-                                    >
-                                        {f.name}
-                                    </button>
-                                ))}
-                            </div>
+                            {isLandscape ? (
+                                <div className={`grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 p-1 themed-card-bg rounded-lg`}>
+                                    {[
+                                        { id: "var(--font-amiri-quran)", name: "حفص" },
+                                        { id: "var(--font-amiri)", name: "نسخ" },
+                                        { id: "var(--font-scheherazade)", name: "مجود" },
+                                        { id: "var(--font-lateef)", name: "تراثي" },
+                                        { id: "var(--font-harmattan)", name: "ورش" },
+                                        { id: "var(--font-aref)", name: "رقعة" },
+                                        { id: "var(--font-gulzar)", name: "نستعليق" },
+                                        { id: "var(--font-kufi)", name: "كوفي" },
+                                        { id: "var(--font-kufam)", name: "كوفي حديث" },
+                                        { id: "var(--font-noto)", name: "نسخ حديث" },
+                                        { id: "var(--font-cairo)", name: "القاهرة" },
+                                        { id: "var(--font-messiri)", name: "المسيري" },
+                                        { id: "var(--font-rakkas)", name: "رقاص" },
+                                        { id: "var(--font-lalezar)", name: "لالزار" },
+                                        { id: "var(--font-katibeh)", name: "قطيبة" },
+                                        { id: "var(--font-tajawal)", name: "تجوّل" },
+                                        { id: "var(--font-changa)", name: "شنقة" },
+                                        { id: "var(--font-mirza)", name: "ميرزا" },
+                                        { id: "var(--font-qalam)", name: "قلم" },
+                                        { id: "var(--font-thuluth)", name: "ثلوث" },
+                                        { id: "var(--font-digital)", name: "رقمي" },
+                                        { id: "'KFGQPC Uthman Taha Naskh'", name: "مجمع الملك فهد" },
+                                        { id: "'Me Quran'", name: "خط المصحف" }
+                                    ].map(f => (
+                                        <button 
+                                            key={f.id} 
+                                            onClick={() => updateSetting('fontFamily', f.id)}
+                                            className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.fontFamily === f.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                            style={{ fontFamily: f.id, backgroundColor: settings.fontFamily === f.id ? '' : 'var(--qr-card-bg)', color: settings.fontFamily === f.id ? '' : 'var(--qr-card-text)', borderColor: settings.fontFamily === f.id ? '' : 'var(--qr-card-border)' }}
+                                        >
+                                            {f.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="custom-select-wrapper mt-0.5">
+                                    <div className="custom-select-display text-xs h-7 themed-card-bg">{getFontName(settings.fontFamily)}</div>
+                                    <select value={settings.fontFamily} onChange={(e) => updateSetting('fontFamily', e.target.value)} className="custom-select-design">
+                                        <option value="var(--font-amiri-quran)">حفص</option>
+                                        <option value="var(--font-amiri)">نسخ</option>
+                                        <option value="var(--font-scheherazade)">مجود</option>
+                                        <option value="var(--font-lateef)">تراثي</option>
+                                        <option value="var(--font-harmattan)">ورش</option>
+                                        <option value="var(--font-aref)">رقعة</option>
+                                        <option value="var(--font-gulzar)">نستعليق</option>
+                                        <option value="var(--font-kufi)">كوفي</option>
+                                        <option value="var(--font-kufam)">كوفي حديث</option>
+                                        <option value="var(--font-noto)">نسخ حديث</option>
+                                        <option value="var(--font-cairo)">القاهرة</option>
+                                        <option value="var(--font-messiri)">المسيري</option>
+                                        <option value="var(--font-rakkas)">رقاص</option>
+                                        <option value="var(--font-lalezar)">لالزار</option>
+                                        <option value="var(--font-katibeh)">قطيبة</option>
+                                        <option value="var(--font-tajawal)">تجوّل</option>
+                                        <option value="var(--font-changa)">شنقة</option>
+                                        <option value="var(--font-mirza)">ميرزا</option>
+                                        <option value="var(--font-qalam)">قلم</option>
+                                        <option value="var(--font-thuluth)">ثلوث</option>
+                                        <option value="var(--font-digital)">رقمي</option>
+                                        <option value="'KFGQPC Uthman Taha Naskh'">مجمع الملك فهد (عثماني)</option>
+                                        <option value="'Me Quran'">خط المصحف (عثماني)</option>
+                                    </select>
+                                </div>
+                            )}
                         </div>
                     </div>
 
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">القارئ</label>
-                        <div className={`grid ${isLandscape ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2'} gap-2 p-1 themed-card-bg rounded-lg mt-1`}>
-                            {READERS.map(r => (
-                                <button 
-                                    key={r.id} 
-                                    onClick={() => updateSetting('reader', r.id)}
-                                    className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.reader === r.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                    style={settings.reader !== r.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                >
-                                    {r.name}
-                                </button>
-                            ))}
-                        </div>
+                        {isLandscape ? (
+                            <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 p-1 themed-card-bg rounded-lg mt-1`}>
+                                {READERS.map(r => (
+                                    <button 
+                                        key={r.id} 
+                                        onClick={() => updateSetting('reader', r.id)}
+                                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.reader === r.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                        style={settings.reader !== r.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                    >
+                                        {r.name}
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="custom-select-wrapper">
+                                <div className="custom-select-display text-xs h-7 themed-card-bg">{getReaderName(settings.reader)}</div>
+                                <select value={settings.reader} onChange={(e) => updateSetting('reader', e.target.value)} className="custom-select-design">
+                                    {READERS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                </select>
+                            </div>
+                        )}
                     </div>
 
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">التفسير</label>
-                        <div className={`grid ${isLandscape ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2'} gap-2 p-1 themed-card-bg rounded-lg mt-1`}>
-                            {TAFSEERS.map(t => (
-                                <button 
-                                    key={t.id} 
-                                    onClick={() => updateSetting('tafseer', t.id)}
-                                    className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.tafseer === t.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                    style={settings.tafseer !== t.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                >
-                                    {t.name}
-                                </button>
-                            ))}
-                        </div>
+                        {isLandscape ? (
+                            <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 p-1 themed-card-bg rounded-lg mt-1`}>
+                                {TAFSEERS.map(t => (
+                                    <button 
+                                        key={t.id} 
+                                        onClick={() => updateSetting('tafseer', t.id)}
+                                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.tafseer === t.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                        style={settings.tafseer !== t.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                    >
+                                        {t.name}
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="custom-select-wrapper">
+                                <div className="custom-select-display text-xs h-7 themed-card-bg">{getTafseerName(settings.tafseer)}</div>
+                                <select value={settings.tafseer} onChange={(e) => updateSetting('tafseer', e.target.value)} className="custom-select-design">
+                                    {TAFSEERS.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                </select>
+                            </div>
+                        )}
                     </div>
 
                     <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
                         <div className="flex items-center justify-between">
                             <label className="text-sm font-bold opacity-80">سرعة التمرير (وقت الجزء)</label>
                         </div>
-                        <div className={`grid ${isLandscape ? 'grid-cols-5 sm:grid-cols-8 lg:grid-cols-10' : 'grid-cols-4 sm:grid-cols-6'} gap-1 p-1 themed-card-bg rounded-lg`}>
-                            {Array.from({length: 56}, (_, i) => i + 5).map(i => (
-                                <button 
-                                    key={i} 
-                                    onClick={() => updateSetting('scrollMinutes', i)}
-                                    className={`px-1 py-1 rounded-lg text-[10px] font-bold transition-all border ${settings.scrollMinutes === i ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                    style={settings.scrollMinutes !== i ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                >
-                                    {i} د
-                                </button>
-                            ))}
-                        </div>
+                        {isLandscape ? (
+                            <div className={`grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-10 gap-1 p-1 themed-card-bg rounded-lg`}>
+                                {Array.from({length: 56}, (_, i) => i + 5).map(i => (
+                                    <button 
+                                        key={i} 
+                                        onClick={() => updateSetting('scrollMinutes', i)}
+                                        className={`px-1 py-1 rounded-lg text-[10px] font-bold transition-all border ${settings.scrollMinutes === i ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                        style={settings.scrollMinutes !== i ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                    >
+                                        {i} د
+                                    </button>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="custom-select-wrapper mt-1">
+                                 <div className="custom-select-display text-xs h-7 themed-card-bg">{settings.scrollMinutes} دقيقة</div>
+                                 <select value={settings.scrollMinutes} onChange={(e) => updateSetting('scrollMinutes', parseInt(e.target.value))} className="custom-select-design">
+                                    {Array.from({length: 56}, (_, i) => i + 5).map(i => <option key={i} value={i}>{i} دقيقة</option>)}
+                                 </select>
+                            </div>
+                        )}
                         <div className="pt-3">
                             <div className="flex items-center justify-between">
                                 <label className="text-sm font-bold opacity-80">إخفاء الأزرار أثناء التمرير</label>
