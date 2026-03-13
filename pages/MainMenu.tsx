@@ -17,10 +17,10 @@ const DEFAULT_MENU_ITEMS = [
     { id: 'sabah-masaa', label: "الأذكار ☀️", className: "h-10", colorIndex: 1 },
     { id: 'prayer-times', label: "مواقيت الصلاة ⏱️", className: "h-10", colorIndex: 1 },
     { id: 'qibla', label: "القبلة 🧭", className: "h-10", colorIndex: 1 },
-    { id: 'tasbeeh', label: "السبحة 📿", className: "h-10", colorIndex: 1 },
-    { id: 'calendar', label: "التقويم 📅", className: "h-10", colorIndex: 0, customColor: "#8b5cf6" },
     { id: 'hisn-muslim', label: "حصن المسلم 🛡️", className: "h-10", colorIndex: 0 },
     { id: 'calculators', label: "الحاسبة الشرعية 🧮", className: "h-10", colorIndex: 1, customColor: "#10b981" },
+    { id: 'tasbeeh', label: "السبحة 📿", className: "h-10", colorIndex: 1 },
+    { id: 'calendar', label: "التقويم 📅", className: "h-10", colorIndex: 0, customColor: "#8b5cf6" },
     { id: 'hajj-umrah', label: "الحج والعمرة 🕋", className: "h-10", colorIndex: 1 },
     { id: 'nawawi', label: "الأربعون النووية 📚", className: "h-10", colorIndex: 1 },
 ];
@@ -113,11 +113,11 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                 return item;
             });
             
-            const sabahIndex = updated.findIndex((i: any) => i.id === 'sabah-masaa');
-            const prayerIndex = updated.findIndex((i: any) => i.id === 'prayer-times');
+            const qiblaIndex = updated.findIndex((i: any) => i.id === 'qibla');
+            const hisnIndex = updated.findIndex((i: any) => i.id === 'hisn-muslim');
             
-            // If prayer-times is not right after sabah-masaa (or adia), force reset to apply new order
-            if (prayerIndex > sabahIndex + 2) {
+            // If hisn-muslim is not right after qibla, force reset to apply new order
+            if (hisnIndex > qiblaIndex + 2) {
                 localStorage.removeItem('menuLayout');
                 setMenuItems(DEFAULT_MENU_ITEMS);
                 return;
@@ -353,7 +353,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                   <h1 className={`text-4xl font-black tracking-tight transition-transform ${isEditMode ? 'scale-110 text-yellow-400' : ''}`} style={{ color: isEditMode ? undefined : theme.textColor }}>
                       مُصْحَفُ أَحْمَدَ وَلَيْلَى
                   </h1>
-                  <p className="text-[16px] font-black mt-3" style={{ color: theme.textColor }}>
+                  <p className="text-[16px] font-black mt-3" style={{ color: isEditMode ? theme.textColor : '#8b5cf6' }}>
                       {isEditMode ? 'اسحب الأزرار لترتيبها' : 'نرجوا الدعاء لهم بالرحمة والمغفرة'}
                   </p>
                   
@@ -430,7 +430,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
               {/* Footer/Save Button */}
               {!isEditMode && (
                   <div className="themed-card p-2.5 rounded-2xl text-center w-full max-w-sm mx-auto mt-4 mb-4 relative">
-                      <p className="text-[14px] font-bold" style={{ color: theme.textColor }}>
+                      <p className="text-[14px] font-bold" style={{ color: '#10b981' }}>
                           اللهم ارحمهما واغفر لهما واجعل مثواهما الجنة
                       </p>
                   </div>
