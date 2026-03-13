@@ -11,6 +11,11 @@ interface SettingsModalProps {
 const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, showToast, isLandscape }) => {
     const modeSuffix = isLandscape ? '_h' : '_v';
     const [isClosing, setIsClosing] = useState(false);
+    const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+    const toggleMenu = (menu: string) => {
+        setOpenMenu(openMenu === menu ? null : menu);
+    };
 
     const handleClose = () => {
         onClose();
@@ -129,41 +134,49 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                         <label className="text-xs font-bold block opacity-80">نوع الخط</label>
                         <div className="mt-1">
                             {isLandscape ? (
-                                <div className={`grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2 p-1 themed-card-bg rounded-lg`}>
-                                    {[
-                                        { id: "var(--font-amiri-quran)", name: "حفص" },
-                                        { id: "var(--font-amiri)", name: "نسخ" },
-                                        { id: "var(--font-scheherazade)", name: "مجود" },
-                                        { id: "var(--font-lateef)", name: "تراثي" },
-                                        { id: "var(--font-harmattan)", name: "ورش" },
-                                        { id: "var(--font-aref)", name: "رقعة" },
-                                        { id: "var(--font-gulzar)", name: "نستعليق" },
-                                        { id: "var(--font-kufi)", name: "كوفي" },
-                                        { id: "var(--font-kufam)", name: "كوفي حديث" },
-                                        { id: "var(--font-noto)", name: "نسخ حديث" },
-                                        { id: "var(--font-cairo)", name: "القاهرة" },
-                                        { id: "var(--font-messiri)", name: "المسيري" },
-                                        { id: "var(--font-rakkas)", name: "رقاص" },
-                                        { id: "var(--font-lalezar)", name: "لالزار" },
-                                        { id: "var(--font-katibeh)", name: "قطيبة" },
-                                        { id: "var(--font-tajawal)", name: "تجوّل" },
-                                        { id: "var(--font-changa)", name: "شنقة" },
-                                        { id: "var(--font-mirza)", name: "ميرزا" },
-                                        { id: "var(--font-qalam)", name: "قلم" },
-                                        { id: "var(--font-thuluth)", name: "ثلوث" },
-                                        { id: "var(--font-digital)", name: "رقمي" },
-                                        { id: "'KFGQPC Uthman Taha Naskh'", name: "مجمع الملك فهد" },
-                                        { id: "'Me Quran'", name: "خط المصحف" }
-                                    ].map(f => (
-                                        <button 
-                                            key={f.id} 
-                                            onClick={() => updateSetting('fontFamily', f.id)}
-                                            className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.fontFamily === f.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                            style={{ fontFamily: f.id, backgroundColor: settings.fontFamily === f.id ? '' : 'var(--qr-card-bg)', color: settings.fontFamily === f.id ? '' : 'var(--qr-card-text)', borderColor: settings.fontFamily === f.id ? '' : 'var(--qr-card-border)' }}
-                                        >
-                                            {f.name}
-                                        </button>
-                                    ))}
+                                <div className="flex flex-col gap-2">
+                                    <button onClick={() => toggleMenu('font')} className="custom-select-display text-xs h-8 themed-card-bg flex items-center justify-between px-3 w-full">
+                                        <span style={{ fontFamily: settings.fontFamily }}>{getFontName(settings.fontFamily)}</span>
+                                        <i className={`fa-solid fa-chevron-${openMenu === 'font' ? 'up' : 'down'} text-[10px] opacity-50`}></i>
+                                    </button>
+                                    {openMenu === 'font' && (
+                                        <div className={`flex overflow-x-auto gap-2 p-1 themed-card-bg rounded-lg no-scrollbar animate-fadeIn`}>
+                                            {[
+                                                { id: "var(--font-amiri-quran)", name: "حفص" },
+                                                { id: "var(--font-amiri)", name: "نسخ" },
+                                                { id: "var(--font-scheherazade)", name: "مجود" },
+                                                { id: "var(--font-lateef)", name: "تراثي" },
+                                                { id: "var(--font-harmattan)", name: "ورش" },
+                                                { id: "var(--font-aref)", name: "رقعة" },
+                                                { id: "var(--font-gulzar)", name: "نستعليق" },
+                                                { id: "var(--font-kufi)", name: "كوفي" },
+                                                { id: "var(--font-kufam)", name: "كوفي حديث" },
+                                                { id: "var(--font-noto)", name: "نسخ حديث" },
+                                                { id: "var(--font-cairo)", name: "القاهرة" },
+                                                { id: "var(--font-messiri)", name: "المسيري" },
+                                                { id: "var(--font-rakkas)", name: "رقاص" },
+                                                { id: "var(--font-lalezar)", name: "لالزار" },
+                                                { id: "var(--font-katibeh)", name: "قطيبة" },
+                                                { id: "var(--font-tajawal)", name: "تجوّل" },
+                                                { id: "var(--font-changa)", name: "شنقة" },
+                                                { id: "var(--font-mirza)", name: "ميرزا" },
+                                                { id: "var(--font-qalam)", name: "قلم" },
+                                                { id: "var(--font-thuluth)", name: "ثلوث" },
+                                                { id: "var(--font-digital)", name: "رقمي" },
+                                                { id: "'KFGQPC Uthman Taha Naskh'", name: "مجمع الملك فهد" },
+                                                { id: "'Me Quran'", name: "خط المصحف" }
+                                            ].map(f => (
+                                                <button 
+                                                    key={f.id} 
+                                                    onClick={() => { updateSetting('fontFamily', f.id); setOpenMenu(null); }}
+                                                    className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.fontFamily === f.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                                    style={{ fontFamily: f.id, backgroundColor: settings.fontFamily === f.id ? '' : 'var(--qr-card-bg)', color: settings.fontFamily === f.id ? '' : 'var(--qr-card-text)', borderColor: settings.fontFamily === f.id ? '' : 'var(--qr-card-border)' }}
+                                                >
+                                                    {f.name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             ) : (
                                 <div className="custom-select-wrapper mt-0.5">
@@ -201,17 +214,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">القارئ</label>
                         {isLandscape ? (
-                            <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 p-1 themed-card-bg rounded-lg mt-1`}>
-                                {READERS.map(r => (
-                                    <button 
-                                        key={r.id} 
-                                        onClick={() => updateSetting('reader', r.id)}
-                                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.reader === r.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                        style={settings.reader !== r.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                    >
-                                        {r.name}
-                                    </button>
-                                ))}
+                            <div className="flex flex-col gap-2 mt-1">
+                                <button onClick={() => toggleMenu('reader')} className="custom-select-display text-xs h-8 themed-card-bg flex items-center justify-between px-3 w-full">
+                                    <span>{getReaderName(settings.reader)}</span>
+                                    <i className={`fa-solid fa-chevron-${openMenu === 'reader' ? 'up' : 'down'} text-[10px] opacity-50`}></i>
+                                </button>
+                                {openMenu === 'reader' && (
+                                    <div className={`flex overflow-x-auto gap-2 p-1 themed-card-bg rounded-lg no-scrollbar animate-fadeIn`}>
+                                        {READERS.map(r => (
+                                            <button 
+                                                key={r.id} 
+                                                onClick={() => { updateSetting('reader', r.id); setOpenMenu(null); }}
+                                                className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.reader === r.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                                style={settings.reader !== r.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                            >
+                                                {r.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="custom-select-wrapper">
@@ -226,17 +247,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">التفسير</label>
                         {isLandscape ? (
-                            <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 p-1 themed-card-bg rounded-lg mt-1`}>
-                                {TAFSEERS.map(t => (
-                                    <button 
-                                        key={t.id} 
-                                        onClick={() => updateSetting('tafseer', t.id)}
-                                        className={`px-2 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.tafseer === t.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                        style={settings.tafseer !== t.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                    >
-                                        {t.name}
-                                    </button>
-                                ))}
+                            <div className="flex flex-col gap-2 mt-1">
+                                <button onClick={() => toggleMenu('tafseer')} className="custom-select-display text-xs h-8 themed-card-bg flex items-center justify-between px-3 w-full">
+                                    <span>{getTafseerName(settings.tafseer)}</span>
+                                    <i className={`fa-solid fa-chevron-${openMenu === 'tafseer' ? 'up' : 'down'} text-[10px] opacity-50`}></i>
+                                </button>
+                                {openMenu === 'tafseer' && (
+                                    <div className={`flex overflow-x-auto gap-2 p-1 themed-card-bg rounded-lg no-scrollbar animate-fadeIn`}>
+                                        {TAFSEERS.map(t => (
+                                            <button 
+                                                key={t.id} 
+                                                onClick={() => { updateSetting('tafseer', t.id); setOpenMenu(null); }}
+                                                className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${settings.tafseer === t.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                                style={settings.tafseer !== t.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                            >
+                                                {t.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="custom-select-wrapper">
@@ -253,17 +282,25 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                             <label className="text-sm font-bold opacity-80">سرعة التمرير (وقت الجزء)</label>
                         </div>
                         {isLandscape ? (
-                            <div className={`grid grid-cols-5 sm:grid-cols-8 lg:grid-cols-10 gap-1 p-1 themed-card-bg rounded-lg`}>
-                                {Array.from({length: 56}, (_, i) => i + 5).map(i => (
-                                    <button 
-                                        key={i} 
-                                        onClick={() => updateSetting('scrollMinutes', i)}
-                                        className={`px-1 py-1 rounded-lg text-[10px] font-bold transition-all border ${settings.scrollMinutes === i ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                        style={settings.scrollMinutes !== i ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                    >
-                                        {i} د
-                                    </button>
-                                ))}
+                            <div className="flex flex-col gap-2">
+                                <button onClick={() => toggleMenu('scroll')} className="custom-select-display text-xs h-8 themed-card-bg flex items-center justify-between px-3 w-full">
+                                    <span>{settings.scrollMinutes} دقيقة</span>
+                                    <i className={`fa-solid fa-chevron-${openMenu === 'scroll' ? 'up' : 'down'} text-[10px] opacity-50`}></i>
+                                </button>
+                                {openMenu === 'scroll' && (
+                                    <div className={`flex overflow-x-auto gap-1 p-1 themed-card-bg rounded-lg no-scrollbar animate-fadeIn`}>
+                                        {Array.from({length: 56}, (_, i) => i + 5).map(i => (
+                                            <button 
+                                                key={i} 
+                                                onClick={() => { updateSetting('scrollMinutes', i); setOpenMenu(null); }}
+                                                className={`whitespace-nowrap px-3 py-1 rounded-lg text-[10px] font-bold transition-all border ${settings.scrollMinutes === i ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
+                                                style={settings.scrollMinutes !== i ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
+                                            >
+                                                {i} د
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="custom-select-wrapper mt-1">
