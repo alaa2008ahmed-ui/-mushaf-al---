@@ -228,7 +228,7 @@ function PrayerTimes({ onBack }) {
         if (!currentEditingKey) return null;
         
         const currentTone = config.tones[currentEditingKey];
-        let selectValue = 'none';
+        let selectValue = '/assets/audio/takbeer2.mp3'; // Default to Takbeer 2
         if (currentTone) {
             if (currentTone.data === 'none') {
                 selectValue = 'none';

@@ -39,7 +39,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
     const [activeModals, setActiveModals] = useState<string[]>([]);
     const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
     const [isLandscape, setIsLandscape] = useState(initialLandscape);
-    const [isLandscapeUIHidden, setIsLandscapeUIHidden] = useState(false);
+    const [isLandscapeUIHidden, setIsLandscapeUIHidden] = useState(initialLandscape);
     const isLandscapeUIHiddenRef = useRef(false);
     useEffect(() => { isLandscapeUIHiddenRef.current = isLandscapeUIHidden; }, [isLandscapeUIHidden]);
     const isLandscapeRef = useRef(false);

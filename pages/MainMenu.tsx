@@ -15,12 +15,12 @@ const DEFAULT_MENU_ITEMS = [
     { id: 'salah-adhkar', label: "أذكار الصلاة 🕌", className: "col-span-2 h-10", colorIndex: 0 },
     { id: 'adia', label: "الأدعية 🤲", className: "h-10", colorIndex: 1 },
     { id: 'sabah-masaa', label: "الأذكار ☀️", className: "h-10", colorIndex: 1 },
-    { id: 'tasbeeh', label: "السبحة 📿", className: "h-10", colorIndex: 1 },
-    { id: 'calendar', label: "التقويم 📅", className: "h-10", colorIndex: 0 },
-    { id: 'hisn-muslim', label: "حصن المسلم 🛡️", className: "h-10", colorIndex: 0 },
-    { id: 'calculators', label: "الحاسبة الشرعية 🧮", className: "h-10", colorIndex: 1 },
     { id: 'prayer-times', label: "مواقيت الصلاة ⏱️", className: "h-10", colorIndex: 1 },
     { id: 'qibla', label: "القبلة 🧭", className: "h-10", colorIndex: 1 },
+    { id: 'tasbeeh', label: "السبحة 📿", className: "h-10", colorIndex: 1 },
+    { id: 'calendar', label: "التقويم 📅", className: "h-10", colorIndex: 0, customColor: "#8b5cf6" },
+    { id: 'hisn-muslim', label: "حصن المسلم 🛡️", className: "h-10", colorIndex: 0 },
+    { id: 'calculators', label: "الحاسبة الشرعية 🧮", className: "h-10", colorIndex: 1, customColor: "#10b981" },
     { id: 'hajj-umrah', label: "الحج والعمرة 🕋", className: "h-10", colorIndex: 1 },
     { id: 'nawawi', label: "الأربعون النووية 📚", className: "h-10", colorIndex: 1 },
 ];
@@ -98,12 +98,31 @@ function MainMenu({ onNavigate, onOpenThemes }) {
             const parsed = JSON.parse(savedLayout);
             let changed = false;
             const updated = parsed.map((item: any) => {
+                if (item.id === 'calculators' && item.customColor !== '#10b981') {
+                    changed = true;
+                    return { ...item, customColor: '#10b981' };
+                }
+                if (item.id === 'calendar' && item.customColor !== '#8b5cf6') {
+                    changed = true;
+                    return { ...item, customColor: '#8b5cf6' };
+                }
                 if ((item.id === 'hisn-muslim' || item.id === 'calendar') && item.colorIndex === 1) {
                     changed = true;
                     return { ...item, colorIndex: 0 };
                 }
                 return item;
             });
+            
+            const sabahIndex = updated.findIndex((i: any) => i.id === 'sabah-masaa');
+            const prayerIndex = updated.findIndex((i: any) => i.id === 'prayer-times');
+            
+            // If prayer-times is not right after sabah-masaa (or adia), force reset to apply new order
+            if (prayerIndex > sabahIndex + 2) {
+                localStorage.removeItem('menuLayout');
+                setMenuItems(DEFAULT_MENU_ITEMS);
+                return;
+            }
+
             if (changed) {
                 localStorage.setItem('menuLayout', JSON.stringify(updated));
             }
@@ -381,7 +400,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                             label={item.label} 
                             onClick={() => !isEditMode && onNavigate(item.id)} 
                             className="w-full h-full"
-                            color={theme.palette[item.colorIndex]} 
+                            color={item.customColor || theme.palette[item.colorIndex]} 
                             border={theme.btnBorder} 
                             isEditMode={isEditMode}
                             onResize={(e) => handleResize(item.id, e)}
