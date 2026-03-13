@@ -167,7 +167,9 @@
     -webkit-font-variant-ligatures: common-ligatures discretionary-ligatures;
     text-rendering: optimizeLegibility;
 }
-.ayah-text-block:hover { background-color: rgba(16, 185, 129, 0.1); }
+@media (hover: hover) {
+    .ayah-text-block:hover { background-color: rgba(16, 185, 129, 0.1); }
+}
 .ayah-text-block.highlighted { 
     background-color: transparent !important;
     color: var(--qr-highlight-text, #d97706) !important;
@@ -473,15 +475,14 @@
     pointer-events: auto;
 }
 
-@keyframes pulse-green {
-    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-    70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+@keyframes pulse-red {
+    0% { opacity: 1; color: #ef4444; }
+    50% { opacity: 0.3; color: #ef4444; }
+    100% { opacity: 1; color: #ef4444; }
 }
-.btn-autoscroll-active {
-    animation: pulse-green 2s infinite;
-    background-color: #059669 !important;
-    border-color: #047857 !important;
+.icon-autoscroll-active {
+    animation: pulse-red 1s infinite;
+    color: #ef4444 !important;
 }
 
 /* Full Screen Reading Mode */
@@ -513,13 +514,31 @@
     }
 }
 
+/* Fix modals in landscape mode */
+.quran-reader-container.landscape-mode .modal-skinned {
+    max-height: 95% !important;
+    width: 95% !important;
+    max-width: 500px !important;
+}
+
+.quran-reader-container.landscape-mode .modal-skinned > div:nth-child(2) {
+    flex: 1 !important;
+    min-height: 0 !important;
+}
+
 .quran-reader-container.landscape-mode {
-    touch-action: none;
+    touch-action: auto;
 }
 .quran-reader-container.landscape-mode #mushaf-content {
-    /* Increase padding to ensure text is completely clear of the bars */
-    padding-top: 65px !important;
-    padding-bottom: 75px !important;
+    /* Adjust padding to account for app bars (40px/50px) and system safe areas (notches) */
+    padding-top: calc(320px + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(360px + env(safe-area-inset-bottom, 0px)) !important;
+}
+.quran-reader-container.landscape-mode .mushaf-page:first-child {
+    padding-top: 0 !important;
+}
+.quran-reader-container.landscape-mode .mushaf-page:first-child .surah-header-container:first-child {
+    margin-top: 0 !important;
 }
 .quran-reader-container.landscape-mode.landscape-ui-hidden #mushaf-content {
     padding-top: 30px !important;

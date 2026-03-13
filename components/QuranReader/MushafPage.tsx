@@ -163,6 +163,7 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                                 id={id} 
                                 className={`ayah-text-block ${highlightedAyahId === id ? 'highlighted' : ''} ${isSajdah ? 'ayah-sajdah' : ''}`} 
                                 onClick={(e) => {
+                                    e.stopPropagation();
                                     if (!isLongPressTriggered.current) {
                                         onAyahClick(ayah.sNum, ayah.numberInSurah);
                                     }
