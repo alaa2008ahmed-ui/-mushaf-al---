@@ -41,7 +41,7 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
 
     return (
         <div className="fixed inset-0 z-[100] bg-black/30 flex justify-center pt-10 px-4 animate-fadeIn backdrop-blur-sm" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-4xl rounded-t-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full ${isLandscape ? 'max-w-6xl' : 'max-w-4xl'} rounded-t-2xl flex flex-col max-h-[90vh]`} onClick={e => e.stopPropagation()}>
                 <div className="p-4 theme-header-bg rounded-t-2xl flex flex-col gap-3">
                     <div className="flex justify-between items-center">
                         <h3 className="font-bold text-lg">{type === 'surah' ? 'اختر السورة' : 'اختر الجزء'}</h3>

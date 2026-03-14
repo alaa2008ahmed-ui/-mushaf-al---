@@ -90,13 +90,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
 
     return (
         <div className={`fixed inset-0 bg-black/30 backdrop-blur-sm z-[150] flex items-center justify-center p-4 animate-fadeIn`} onClick={handleClose}>
-            <div className={`modal-skinned w-full max-w-md sm:max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full ${isLandscape ? 'max-w-4xl' : 'max-w-md sm:max-w-2xl'} rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-modal-enter`} onClick={e => e.stopPropagation()}>
                 <div className="p-3 flex justify-between items-center h-12 flex-none theme-header-bg">
                     <h2 className="text-lg font-bold">إعدادات العرض</h2>
                     <button onClick={handleClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
-                <div className="p-3 space-y-2 overflow-y-auto text-center flex-1">
-                    <div className="border-b border-gray-200 dark:border-gray-700 py-1">
+                <div className={`p-3 overflow-y-auto text-center flex-1 ${isLandscape ? 'grid grid-cols-2 gap-x-6 gap-y-2' : 'space-y-2'}`}>
+                    <div className={`border-b border-gray-200 dark:border-gray-700 py-1 ${isLandscape ? 'col-span-2' : ''}`}>
                         <div id="settings-preview" className="rounded-lg border p-2 transition-all duration-300 shadow-sm text-center" dir="rtl" style={{ backgroundColor: settings.bgColor, borderColor: settings.barBorder }}>
                             <p className="leading-loose text-center" style={{ fontSize: `${settings.fontSize}rem`, fontFamily: settings.fontFamily, color: settings.textColor }}>﴿إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ﴾</p>
                         </div>
@@ -189,34 +189,36 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                                 {Array.from({length: 56}, (_, i) => i + 5).map(i => <option key={i} value={i}>{i} دقيقة</option>)}
                                 </select>
                         </div>
-                        <div className="pt-3">
-                            <div className="flex items-center justify-between">
-                                <label className="text-sm font-bold opacity-80">إخفاء الأزرار أثناء التمرير</label>
-                                <div className="relative inline-block w-10 align-middle select-none">
-                                    <input type="checkbox" id="hide-ui-scroll" checked={hideUIOnScroll} onChange={(e) => handleHideUIToggle(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer"/>
-                                    <label htmlFor="hide-ui-scroll" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${hideUIOnScroll ? 'bg-emerald-500' : 'bg-gray-300'}`}></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="pt-3">
-                            <div className="flex items-center justify-between">
-                                <label className="text-sm font-bold opacity-80">إظهار بطاقة السجدة</label>
-                                <div className="relative inline-block w-10 align-middle select-none">
-                                    <input type="checkbox" id="show-sajdah-card" checked={showSajdahCard} onChange={(e) => handleSajdahCardToggle(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer"/>
-                                    <label htmlFor="show-sajdah-card" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${showSajdahCard ? 'bg-emerald-500' : 'bg-gray-300'}`}></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="pt-3">
-                            <div className="flex items-center justify-between">
-                                <label className="text-sm font-bold opacity-80">تفعيل المصحف المجود (ملون)</label>
-                                <div className="relative inline-block w-10 align-middle select-none">
-                                    <input type="checkbox" id="use-tajweed" checked={useTajweed} onChange={(e) => handleTajweedToggle(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer"/>
-                                    <label htmlFor="use-tajweed" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${useTajweed ? 'bg-emerald-500' : 'bg-gray-300'}`}></label>
-                                </div>
-                            </div>
-                        </div>
+                    </div>
 
+                    <div className="border-b pb-2 border-gray-200 dark:border-gray-700 py-1">
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-bold opacity-80">إخفاء الأزرار أثناء التمرير</label>
+                            <div className="relative inline-block w-10 align-middle select-none">
+                                <input type="checkbox" id="hide-ui-scroll" checked={hideUIOnScroll} onChange={(e) => handleHideUIToggle(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer"/>
+                                <label htmlFor="hide-ui-scroll" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${hideUIOnScroll ? 'bg-emerald-500' : 'bg-gray-300'}`}></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border-b pb-2 border-gray-200 dark:border-gray-700 py-1">
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-bold opacity-80">إظهار بطاقة السجدة</label>
+                            <div className="relative inline-block w-10 align-middle select-none">
+                                <input type="checkbox" id="show-sajdah-card" checked={showSajdahCard} onChange={(e) => handleSajdahCardToggle(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer"/>
+                                <label htmlFor="show-sajdah-card" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${showSajdahCard ? 'bg-emerald-500' : 'bg-gray-300'}`}></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="border-b pb-2 border-gray-200 dark:border-gray-700 py-1">
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-bold opacity-80">تفعيل المصحف المجود (ملون)</label>
+                            <div className="relative inline-block w-10 align-middle select-none">
+                                <input type="checkbox" id="use-tajweed" checked={useTajweed} onChange={(e) => handleTajweedToggle(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer"/>
+                                <label htmlFor="use-tajweed" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${useTajweed ? 'bg-emerald-500' : 'bg-gray-300'}`}></label>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">

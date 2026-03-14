@@ -1456,7 +1456,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                     }} 
                 />
             )}
-            {activeModals.includes('search-modal') && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onClose={() => closeModal('search-modal')} />}
+            {activeModals.includes('search-modal') && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onClose={() => closeModal('search-modal')} isLandscape={isLandscape} />}
             {activeModals.includes('themes-modal') && <ThemesModal onClose={() => closeModal('themes-modal')} showToast={showToast} isLandscape={isLandscape} />}
             {activeModals.includes('settings-modal') && <SettingsModal onClose={() => closeModal('settings-modal')} onOpenModal={openModal} showToast={showToast} isLandscape={isLandscape} />}
             {activeModals.includes('reciter-modal') && <ReciterSelectModal onClose={() => closeModal('reciter-modal')} currentReader={settings.reader} isLandscape={isLandscape} onSelect={(id) => {
@@ -1472,6 +1472,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             <TafseerModal 
                 isOpen={tafseerInfo.isOpen} 
                 isLoading={isTafseerLoading} 
+                isLandscape={isLandscape}
                 title={`${tafseerName} - ${tafseerInfo.surahName.replace('سورة','').trim()} - آية ${toArabic(tafseerInfo.a)}`} 
                 text={tafseerInfo.text} 
                 onClose={() => {
@@ -1502,7 +1503,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                 onSelect={handleMushafTypeSelect}
                 currentType={useTajweed ? 'tajweed' : 'uthmani'}
             />
-            <SajdahCardModal info={sajdahCardInfo} onClose={handleCloseSajdahCard} />
+            <SajdahCardModal info={sajdahCardInfo} onClose={handleCloseSajdahCard} isLandscape={isLandscape} />
             <Toast message={toast.message} show={toast.show} onClose={handleToastClose} />
         </div>
     );

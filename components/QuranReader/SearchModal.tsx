@@ -5,9 +5,10 @@ interface SearchModalProps {
     quranData: any;
     onSelect: (surah: number, ayah: number) => void;
     onClose: () => void;
+    isLandscape?: boolean;
 }
 
-const SearchModal: React.FC<SearchModalProps> = ({ quranData, onSelect, onClose }) => {
+const SearchModal: React.FC<SearchModalProps> = ({ quranData, onSelect, onClose, isLandscape }) => {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState<any[]>([]);
     const [isSearching, setIsSearching] = useState(false);
@@ -134,7 +135,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ quranData, onSelect, onClose 
 
     return (
         <div className="fixed inset-0 z-[200] bg-black/30 flex justify-center items-center px-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-lg rounded-2xl flex flex-col max-h-[90vh] shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full ${isLandscape ? 'max-w-4xl' : 'max-w-lg'} rounded-2xl flex flex-col max-h-[90vh] shadow-2xl`} onClick={e => e.stopPropagation()}>
                 <div className="p-4 rounded-t-2xl flex justify-between items-center shadow-md theme-header-bg">
                     <h3 className="font-bold text-lg">البحث في المصحف</h3>
                     <button onClick={onClose} className="text-2xl hover:opacity-80 transition">&times;</button>
@@ -155,7 +156,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ quranData, onSelect, onClose 
                     </div>
                     <div className="text-xs text-center mt-2 opacity-60 font-bold">{searchStats}</div>
                 </div>
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 relative themed-bg">
+                <div className={`flex-1 overflow-y-auto p-4 relative themed-bg ${isLandscape ? 'grid grid-cols-2 gap-3' : 'space-y-3'}`}>
                     {isSearching && (
                         <div className="text-center mt-8">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto"></div>

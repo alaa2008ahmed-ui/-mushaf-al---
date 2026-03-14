@@ -15,10 +15,10 @@ const DEFAULT_MENU_ITEMS = [
     { id: 'prayer-times', label: "⏱️ مواقيت الصلاة", className: "col-span-2 h-10", colorIndex: 0 },
     { id: 'adia', label: "🤲 الأدعية", className: "h-10", colorIndex: 1 },
     { id: 'sabah-masaa', label: "☀️ الأذكار", className: "h-10", colorIndex: 1 },
-    { id: 'tasbeeh', label: "📿 السبحة", className: "h-10", colorIndex: 1 },
-    { id: 'calendar', label: "📅 التقويم", className: "h-10", colorIndex: 0 },
     { id: 'salah-adhkar', label: "🕌 أذكار الصلاة", className: "h-10", colorIndex: 1 },
     { id: 'hisn-muslim', label: "🛡️ حصن المسلم", className: "h-10", colorIndex: 1 },
+    { id: 'tasbeeh', label: "📿 السبحة", className: "h-10", colorIndex: 1 },
+    { id: 'calendar', label: "📅 التقويم", className: "h-10", colorIndex: 0 },
     { id: 'qibla', label: "🧭 القبلة", className: "h-10", colorIndex: 0 },
     { id: 'calculators', label: "🧮 الحاسبة الشرعية", className: "h-10", colorIndex: 1 },
     { id: 'hajj-umrah', label: "🕋 الحج والعمرة", className: "h-10", colorIndex: 1 },
@@ -394,11 +394,12 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                             onClick={() => !isEditMode && onNavigate(item.id)} 
                             className="w-full h-full"
                             color={
-                                (item.id === 'hisn-muslim' && themeKey === 'default') ? '#10b981' : 
-                                (item.id === 'salah-adhkar' && themeKey === 'default') ? '#10b981' : 
+                                (item.id === 'tasbeeh' && themeKey === 'default') ? '#10b981' : 
+                                (item.id === 'calendar' && themeKey === 'default') ? '#10b981' : 
                                 (item.id === 'qibla' && themeKey === 'default') ? '#8b5cf6' : 
                                 (item.id === 'calculators' && themeKey === 'default') ? '#8b5cf6' : 
-                                (item.id === 'calendar' && themeKey === 'default') ? '#8b5cf6' : 
+                                (item.id === 'hisn-muslim' && themeKey === 'default') ? '#8b5cf6' : 
+                                (item.id === 'salah-adhkar' && themeKey === 'default') ? '#8b5cf6' : 
                                 (item.customColor || theme.palette[item.colorIndex])
                             } 
                             border={theme.btnBorder} 

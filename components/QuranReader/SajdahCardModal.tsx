@@ -3,13 +3,14 @@ import { toArabic } from './constants';
 
 const SajdahCardModal: FC<{
     info: { show: boolean, surah: string, ayah: number, juz: number, page: number },
-    onClose: () => void
-}> = ({ info, onClose }) => {
+    onClose: () => void,
+    isLandscape?: boolean
+}> = ({ info, onClose, isLandscape }) => {
     if (!info.show) return null;
 
     return (
         <div className="fixed inset-0 z-[250] bg-black/30 flex items-center justify-center p-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl shadow-2xl flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full ${isLandscape ? 'max-w-4xl' : 'max-w-md'} rounded-2xl shadow-2xl flex flex-col max-h-[90vh]`} onClick={e => e.stopPropagation()}>
                 <div className="p-4 theme-header-bg rounded-t-2xl text-center">
                     <h3 className="font-bold text-lg">أحكام سجود التلاوة</h3>
                     <p className="text-xs opacity-80 mt-1">
@@ -26,7 +27,7 @@ const SajdahCardModal: FC<{
                     <div>
                         <p><b>2. عدد آيات السجدة ومواضعها</b></p>
                         <p className="mt-1 mb-2">اتفق جمهور العلماء على وجود آيات السجود في القرآن، وأشهر الآراء أنها 15 سجدة، وهي موزعة كالآتي:</p>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs p-3 rounded-lg themed-card-bg">
+                        <div className={`grid ${isLandscape ? 'grid-cols-3 sm:grid-cols-4 lg:grid-cols-5' : 'grid-cols-2'} gap-x-4 gap-y-1 text-xs p-3 rounded-lg themed-card-bg`}>
                             <div className="text-right">الأعراف: <b>{toArabic(206)}</b></div>
                             <div className="text-right">النمل: <b>{toArabic(26)}</b></div>
                             <div className="text-right">الرعد: <b>{toArabic(15)}</b></div>

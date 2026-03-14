@@ -6,14 +6,15 @@ interface TafseerModalProps {
     title: string;
     text: string;
     onClose: () => void;
+    isLandscape?: boolean;
 }
 
-const TafseerModal: React.FC<TafseerModalProps> = ({ isOpen, isLoading, title, text, onClose }) => {
+const TafseerModal: React.FC<TafseerModalProps> = ({ isOpen, isLoading, title, text, onClose, isLandscape }) => {
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-[180] bg-black/30 flex justify-center items-center px-4 backdrop-blur-sm animate-fadeIn" onClick={onClose}>
-            <div className="modal-skinned w-full max-w-md rounded-2xl flex flex-col max-h-[85vh] shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className={`modal-skinned w-full ${isLandscape ? 'max-w-4xl' : 'max-w-md'} rounded-2xl flex flex-col max-h-[85vh] shadow-2xl`} onClick={e => e.stopPropagation()}>
                 <div className="p-4 rounded-t-2xl flex justify-between items-center shadow-md theme-header-bg">
                     <h3 className="font-bold text-lg">{title}</h3>
                     <button onClick={onClose} className="text-2xl hover:opacity-80 transition">&times;</button>
