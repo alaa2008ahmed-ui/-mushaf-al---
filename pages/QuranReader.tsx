@@ -110,6 +110,10 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         let isScrolling = false;
 
         const handleTouchStart = (e: TouchEvent) => {
+            // Only apply custom touch handler if device is in portrait orientation
+            // (meaning we are using CSS rotation fallback)
+            if (!window.matchMedia('(orientation: portrait)').matches) return;
+            
             if (e.touches.length !== 1) return;
             touchStartX = e.touches[0].clientX;
             touchStartY = e.touches[0].clientY;
@@ -119,6 +123,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         };
 
         const handleTouchMove = (e: TouchEvent) => {
+            if (!window.matchMedia('(orientation: portrait)').matches) return;
+            
             if (e.touches.length !== 1) return;
             
             const currentX = e.touches[0].clientX;
@@ -174,6 +180,26 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         return () => {
             document.removeEventListener('touchstart', handleTouchStart);
             document.removeEventListener('touchmove', handleTouchMove);
+        };
+    }, [isLandscape]);
+
+    useEffect(() => {
+        const updateOrientation = async () => {
+            try {
+                if (isLandscape) {
+                    await ScreenOrientation.lock({ orientation: 'landscape' });
+                } else {
+                    await ScreenOrientation.unlock();
+                }
+            } catch (e) {
+                console.log('ScreenOrientation API failed, falling back to CSS rotation', e);
+            }
+        };
+        updateOrientation();
+
+        return () => {
+            // Unlock orientation when leaving the Quran reader
+            ScreenOrientation.unlock().catch(e => console.log('Failed to unlock orientation on unmount', e));
         };
     }, [isLandscape]);
 
@@ -1344,8 +1370,11 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         }, 100);
     }, [activeModals, tafseerInfo.isOpen, tafseerSelectionInfo.isOpen]);
 
+    const isInputModalOpen = activeModals.includes('search-modal') || activeModals.includes('surah-modal') || activeModals.includes('juz-modal') || isPageInputActive;
+    const shouldApplyLandscapeClass = isLandscape && !isInputModalOpen;
+
     return (
-        <div className={`quran-reader-container ${isPageInputActive ? 'force-ui-visible' : ''} ${isLandscape ? 'landscape-mode' : ''} ${isLandscapeUIHidden ? 'landscape-ui-hidden' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
+        <div className={`quran-reader-container ${isPageInputActive ? 'force-ui-visible' : ''} ${shouldApplyLandscapeClass ? 'landscape-mode' : ''} ${isLandscapeUIHidden ? 'landscape-ui-hidden' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
             <header id="header" className="header-default flex-none z-50 flex items-center px-4 justify-between border-b shadow-xl w-full gap-2" style={getToolbarStyle('top-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button 
                     id="surah-name-header" 
