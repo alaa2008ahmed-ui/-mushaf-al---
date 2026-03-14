@@ -8,7 +8,6 @@ interface MushafPageProps {
     onAyahClick: (surah: number, ayah: number) => void;
     onVerseClick: (surah: number, ayah: number, event: React.MouseEvent) => void;
     onVerseLongPress?: (surah: number, ayah: number) => void;
-    onAyahTextLongPress?: (surah: number, ayah: number) => void;
     onInteractionStart?: () => void;
     onInteractionEnd?: () => void;
     settings?: {
@@ -49,7 +48,7 @@ const renderTajweedText = (text: string) => {
     return parts;
 };
 
-const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, highlightedAyahId, onAyahClick, onVerseClick, onVerseLongPress, onAyahTextLongPress, onInteractionStart, onInteractionEnd, settings }) => {
+const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, highlightedAyahId, onAyahClick, onVerseClick, onVerseLongPress, onInteractionStart, onInteractionEnd, settings }) => {
     const pageRef = useRef<HTMLDivElement | null>(null);
     const longPressTimer = useRef<number | null>(null);
     const isLongPressTriggered = useRef(false);
@@ -61,18 +60,6 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
         longPressTimer.current = window.setTimeout(() => {
             if (onVerseLongPress) {
                 onVerseLongPress(s, a);
-                isLongPressTriggered.current = true;
-            }
-            longPressTimer.current = null;
-        }, 600);
-    };
-
-    const handleAyahTextPointerDown = (s: number, a: number, e: React.PointerEvent) => {
-        if (onInteractionStart) onInteractionStart();
-        isLongPressTriggered.current = false;
-        longPressTimer.current = window.setTimeout(() => {
-            if (onAyahTextLongPress) {
-                onAyahTextLongPress(s, a);
                 isLongPressTriggered.current = true;
             }
             longPressTimer.current = null;
@@ -168,7 +155,6 @@ const MushafPage: React.FC<MushafPageProps> = React.memo(({ pageNum, pageData, h
                                         onAyahClick(ayah.sNum, ayah.numberInSurah);
                                     }
                                 }}
-                                onPointerDown={(e) => handleAyahTextPointerDown(ayah.sNum, ayah.numberInSurah, e as any)}
                                 onPointerUp={handlePointerUp}
                                 onPointerLeave={handlePointerLeave}
                                 onContextMenu={(e) => e.preventDefault()}

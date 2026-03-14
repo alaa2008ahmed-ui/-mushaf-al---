@@ -262,17 +262,22 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
 
                         <div className="text-right">
                             <label className="text-xs font-bold opacity-70 block mb-2">اختر السورة</label>
-                            <div className="custom-select-wrapper">
-                                <div className="custom-select-display text-sm h-8 themed-card-bg">
-                                    {selectedSurah === 'all' ? "تحميل المصحف كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
-                                </div>
-                                <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
-                                    <option value="">اختر السورة</option>
-                                    <option value="all">تحميل المصحف كاملاً</option>
-                                    {quranData?.surahs.map((s: any) => (
-                                        <option key={s.number} value={s.number}>{s.name}</option>
-                                    ))}
-                                </select>
+                            <div className={`grid ${isLandscape ? 'grid-cols-4 sm:grid-cols-5 md:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3'} gap-2 ${isLandscape ? 'max-h-40' : 'max-h-60'} overflow-y-auto p-2 border rounded-lg themed-card-bg custom-scrollbar`} dir="rtl">
+                                <button 
+                                    onClick={() => setSelectedSurah('all')}
+                                    className={`text-[10px] sm:text-xs p-2 rounded-md border transition-all font-bold ${selectedSurah === 'all' ? 'theme-btn-bg border-transparent' : 'bg-black/5 border-gray-200 dark:border-gray-700'}`}
+                                >
+                                    المصحف كاملاً
+                                </button>
+                                {quranData?.surahs.map((s: any) => (
+                                    <button 
+                                        key={s.number}
+                                        onClick={() => setSelectedSurah(s.number.toString())}
+                                        className={`text-[10px] sm:text-xs p-2 rounded-md border transition-all font-bold ${selectedSurah === s.number.toString() ? 'theme-btn-bg border-transparent' : 'bg-black/5 border-gray-200 dark:border-gray-700'}`}
+                                    >
+                                        {s.name.replace('سورة', '').trim()}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                         
@@ -406,17 +411,22 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
 
                         <div className="text-right">
                             <label className="text-xs font-bold opacity-70 block mb-2">اختر السورة</label>
-                            <div className="custom-select-wrapper">
-                                <div className="custom-select-display text-sm h-8 themed-card-bg">
-                                    {selectedSurah === 'all' ? "تحميل التفاسير كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
-                                </div>
-                                <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
-                                    <option value="">اختر السورة</option>
-                                    <option value="all">تحميل التفاسير كاملاً</option>
-                                    {quranData?.surahs.map((s: any) => (
-                                        <option key={s.number} value={s.number}>{s.name}</option>
-                                    ))}
-                                </select>
+                            <div className={`grid ${isLandscape ? 'grid-cols-4 sm:grid-cols-5 md:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3'} gap-2 ${isLandscape ? 'max-h-40' : 'max-h-60'} overflow-y-auto p-2 border rounded-lg themed-card-bg custom-scrollbar`} dir="rtl">
+                                <button 
+                                    onClick={() => setSelectedSurah('all')}
+                                    className={`text-[10px] sm:text-xs p-2 rounded-md border transition-all font-bold ${selectedSurah === 'all' ? 'theme-btn-bg border-transparent' : 'bg-black/5 border-gray-200 dark:border-gray-700'}`}
+                                >
+                                    تحميل التفاسير كاملاً
+                                </button>
+                                {quranData?.surahs.map((s: any) => (
+                                    <button 
+                                        key={s.number}
+                                        onClick={() => setSelectedSurah(s.number.toString())}
+                                        className={`text-[10px] sm:text-xs p-2 rounded-md border transition-all font-bold ${selectedSurah === s.number.toString() ? 'theme-btn-bg border-transparent' : 'bg-black/5 border-gray-200 dark:border-gray-700'}`}
+                                    >
+                                        {s.name.replace('سورة', '').trim()}
+                                    </button>
+                                ))}
                             </div>
                         </div>
                         

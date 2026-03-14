@@ -96,12 +96,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     <button onClick={handleClose} className="hover:opacity-80 rounded-full bg-white/20 w-8 h-8 flex items-center justify-center">✕</button>
                 </div>
                 <div className={`p-3 overflow-y-auto text-center flex-1 ${isLandscape ? 'grid grid-cols-2 gap-x-6 gap-y-2' : 'space-y-2'}`}>
-                    <div className={`border-b border-gray-200 dark:border-gray-700 py-1 ${isLandscape ? 'col-span-2' : ''}`}>
-                        <div id="settings-preview" className="rounded-lg border p-2 transition-all duration-300 shadow-sm text-center" dir="rtl" style={{ backgroundColor: settings.bgColor, borderColor: settings.barBorder }}>
-                            <p className="leading-loose text-center" style={{ fontSize: `${settings.fontSize}rem`, fontFamily: settings.fontFamily, color: settings.textColor }}>﴿إِنَّا أَعْطَيْنَاكَ الْكَوْثَرَ﴾</p>
-                        </div>
-                    </div>
-                    
                     <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
                         <div className="flex items-center justify-between mt-3">
                             <label className="text-sm font-bold opacity-80">حجم الخط</label>
@@ -208,7 +202,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <div className="custom-select-wrapper">
-                            <button onClick={() => { onClose(); onOpenModal('quran-download-modal'); }} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between themed-card-bg">
+                            <button onClick={() => { onOpenModal('quran-download-modal'); }} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between themed-card-bg">
                                 <span>تحميل القرآن الكريم</span>
                                 <i className="fa-solid fa-chevron-left text-gray-500 text-xs"></i>
                             </button>
@@ -217,7 +211,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <div className="custom-select-wrapper">
-                            <button onClick={() => { onClose(); onOpenModal('tafsir-download-modal'); }} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between themed-card-bg">
+                            <button onClick={() => { onOpenModal('tafsir-download-modal'); }} className="custom-select-display text-xs h-8 w-full text-right px-2 flex items-center justify-between themed-card-bg">
                                 <span>تحميل التفسير</span>
                                 <i className="fa-solid fa-chevron-left text-gray-500 text-xs"></i>
                             </button>
