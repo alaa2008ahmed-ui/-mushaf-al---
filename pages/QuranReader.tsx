@@ -17,6 +17,8 @@ import ReciterSelectModal from '../components/QuranReader/ReciterSelectModal';
 import SajdahCardModal from '../components/QuranReader/SajdahCardModal';
 import TafseerSelectionModal from '../components/QuranReader/TafseerSelectionModal';
 import MushafSelectionModal from '../components/QuranReader/MushafSelectionModal';
+import FontSelectModal from '../components/QuranReader/FontSelectModal';
+import ScrollSpeedModal from '../components/QuranReader/ScrollSpeedModal';
 import ReadingTimer from '../components/QuranReader/ReadingTimer';
 import MarkerNotification from '../components/QuranReader/MarkerNotification';
 import quranUthmaniJson from '../data/quran-uthmani.json';
@@ -581,12 +583,18 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
 
     const openModal = useCallback((modalName: string) => { 
         stopAudio(); 
+        let wasScrolling = false;
         if (autoScrollStateRef.current.isActive && !autoScrollStateRef.current.isPaused) {
             autoScrollPausedRef.current = true;
             setAutoScrollState(p => ({ ...p, isPaused: true }));
             wasAutoscrollingBeforeModal.current = true;
+            wasScrolling = true;
         }
-        setActiveModals(p => [...p.filter(m => m !== modalName), modalName]); 
+        if (modalName === 'tafseer-selection-modal') {
+            setTafseerSelectionInfo(p => ({ ...p, isOpen: true, wasAutoscrolling: wasScrolling }));
+        } else {
+            setActiveModals(p => [...p.filter(m => m !== modalName), modalName]); 
+        }
     }, [stopAudio]);
     
     const handleAyahClick = useCallback((s, a) => {
@@ -1459,6 +1467,22 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             {activeModals.includes('search-modal') && <SearchModal quranData={quranData} onSelect={(s,a) => jumpToAyah(s,a, true)} onClose={() => closeModal('search-modal')} isLandscape={isLandscape} />}
             {activeModals.includes('themes-modal') && <ThemesModal onClose={() => closeModal('themes-modal')} showToast={showToast} isLandscape={isLandscape} />}
             {activeModals.includes('settings-modal') && <SettingsModal onClose={() => closeModal('settings-modal')} onOpenModal={openModal} showToast={showToast} isLandscape={isLandscape} />}
+            {activeModals.includes('font-modal') && <FontSelectModal isOpen={true} onClose={() => closeModal('font-modal')} isLandscape={isLandscape} currentFontId={settings.fontFamily} onSelect={(id) => {
+                const newSettings = { ...settings, fontFamily: id };
+                setSettings(newSettings);
+                localStorage.setItem('quran_settings' + modeSuffix, JSON.stringify(newSettings));
+                window.dispatchEvent(new Event('settings-change'));
+                showToast('تم تغيير الخط بنجاح');
+                closeModal('font-modal');
+            }} />}
+            {activeModals.includes('scroll-speed-modal') && <ScrollSpeedModal isOpen={true} onClose={() => closeModal('scroll-speed-modal')} isLandscape={isLandscape} currentMinutes={settings.scrollMinutes} onSelect={(m) => {
+                const newSettings = { ...settings, scrollMinutes: m };
+                setSettings(newSettings);
+                localStorage.setItem('quran_settings' + modeSuffix, JSON.stringify(newSettings));
+                window.dispatchEvent(new Event('settings-change'));
+                showToast('تم تغيير سرعة التمرير');
+                closeModal('scroll-speed-modal');
+            }} />}
             {activeModals.includes('reciter-modal') && <ReciterSelectModal onClose={() => closeModal('reciter-modal')} currentReader={settings.reader} isLandscape={isLandscape} onSelect={(id) => {
                 const newSettings = { ...settings, reader: id };
                 setSettings(newSettings);

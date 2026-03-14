@@ -128,66 +128,42 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">نوع الخط</label>
                         <div className="mt-1">
-                            <div className="custom-select-wrapper mt-0.5">
-                                <div className="custom-select-display text-xs h-7 themed-card-bg">{getFontName(settings.fontFamily)}</div>
-                                <select value={settings.fontFamily} onChange={(e) => updateSetting('fontFamily', e.target.value)} className="custom-select-design">
-                                    <option value="var(--font-amiri-quran)">حفص</option>
-                                    <option value="var(--font-amiri)">نسخ</option>
-                                    <option value="var(--font-scheherazade)">مجود</option>
-                                    <option value="var(--font-lateef)">تراثي</option>
-                                    <option value="var(--font-harmattan)">ورش</option>
-                                    <option value="var(--font-aref)">رقعة</option>
-                                    <option value="var(--font-gulzar)">نستعليق</option>
-                                    <option value="var(--font-kufi)">كوفي</option>
-                                    <option value="var(--font-kufam)">كوفي حديث</option>
-                                    <option value="var(--font-noto)">نسخ حديث</option>
-                                    <option value="var(--font-cairo)">القاهرة</option>
-                                    <option value="var(--font-messiri)">المسيري</option>
-                                    <option value="var(--font-rakkas)">رقاص</option>
-                                    <option value="var(--font-lalezar)">لالزار</option>
-                                    <option value="var(--font-katibeh)">قطيبة</option>
-                                    <option value="var(--font-tajawal)">تجوّل</option>
-                                    <option value="var(--font-changa)">شنقة</option>
-                                    <option value="var(--font-mirza)">ميرزا</option>
-                                    <option value="var(--font-qalam)">قلم</option>
-                                    <option value="var(--font-thuluth)">ثلوث</option>
-                                    <option value="var(--font-digital)">رقمي</option>
-                                    <option value="'KFGQPC Uthman Taha Naskh'">مجمع الملك فهد (عثماني)</option>
-                                    <option value="'Me Quran'">خط المصحف (عثماني)</option>
-                                </select>
-                            </div>
+                            <button onClick={() => onOpenModal('font-modal')} className="w-full p-2 text-xs h-8 themed-card-bg rounded-lg border flex justify-between items-center px-3 font-bold">
+                                <span>{getFontName(settings.fontFamily)}</span>
+                                <i className="fa-solid fa-chevron-left opacity-50"></i>
+                            </button>
                         </div>
                     </div>
 
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">القارئ</label>
-                        <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-xs h-7 themed-card-bg">{getReaderName(settings.reader)}</div>
-                            <select value={settings.reader} onChange={(e) => updateSetting('reader', e.target.value)} className="custom-select-design">
-                                {READERS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                            </select>
+                        <div className="mt-1">
+                            <button onClick={() => onOpenModal('reciter-modal')} className="w-full p-2 text-xs h-8 themed-card-bg rounded-lg border flex justify-between items-center px-3 font-bold">
+                                <span>{getReaderName(settings.reader)}</span>
+                                <i className="fa-solid fa-chevron-left opacity-50"></i>
+                            </button>
                         </div>
                     </div>
 
                     <div className="border-b border-gray-200 dark:border-gray-700 py-1">
                         <label className="text-xs font-bold block opacity-80">التفسير</label>
-                        <div className="custom-select-wrapper">
-                            <div className="custom-select-display text-xs h-7 themed-card-bg">{getTafseerName(settings.tafseer)}</div>
-                            <select value={settings.tafseer} onChange={(e) => updateSetting('tafseer', e.target.value)} className="custom-select-design">
-                                {TAFSEERS.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                            </select>
+                        <div className="mt-1">
+                            <button onClick={() => onOpenModal('tafseer-selection-modal')} className="w-full p-2 text-xs h-8 themed-card-bg rounded-lg border flex justify-between items-center px-3 font-bold">
+                                <span>{getTafseerName(settings.tafseer)}</span>
+                                <i className="fa-solid fa-chevron-left opacity-50"></i>
+                            </button>
                         </div>
                     </div>
 
                     <div className="border-b pb-2 border-gray-200 dark:border-gray-700 space-y-2">
-                        <div className="flex items-center justify-between">
+                        <div className="flex items-center justify-between mt-1">
                             <label className="text-sm font-bold opacity-80">سرعة التمرير (وقت الجزء)</label>
                         </div>
-                        <div className="custom-select-wrapper mt-1">
-                                <div className="custom-select-display text-xs h-7 themed-card-bg">{settings.scrollMinutes} دقيقة</div>
-                                <select value={settings.scrollMinutes} onChange={(e) => updateSetting('scrollMinutes', parseInt(e.target.value))} className="custom-select-design">
-                                {Array.from({length: 56}, (_, i) => i + 5).map(i => <option key={i} value={i}>{i} دقيقة</option>)}
-                                </select>
+                        <div className="mt-1">
+                            <button onClick={() => onOpenModal('scroll-speed-modal')} className="w-full p-2 text-xs h-8 themed-card-bg rounded-lg border flex justify-between items-center px-3 font-bold">
+                                <span>{settings.scrollMinutes} دقيقة</span>
+                                <i className="fa-solid fa-chevron-left opacity-50"></i>
+                            </button>
                         </div>
                     </div>
 
