@@ -142,11 +142,11 @@
     border-bottom: none !important;
 }
 
-.mushaf-page[data-page="1"] {
+.mushaf-page.first-page {
     padding-top: 0 !important;
 }
 
-.mushaf-page[data-page="1"] .page-content .surah-header-container:first-child {
+.mushaf-page.first-page .page-content .surah-header-container:first-child {
     margin-top: 0 !important;
 }
 
