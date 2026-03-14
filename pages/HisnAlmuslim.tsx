@@ -130,12 +130,6 @@ function HisnAlmuslim({ onBack }) {
                                 المصدر: {zoomedItem.source}
                             </p>
                         )}
-                        <button 
-                            onClick={closeZoomModal} 
-                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-600"
-                        >
-                            <i className="fa-solid fa-xmark text-xl"></i>
-                        </button>
                     </div>
                 </div>
             )}

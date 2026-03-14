@@ -283,12 +283,6 @@ function AthkarAlSalah({ onBack }) {
                         <p className="text-lg mt-6 font-bold" style={{ color: theme.palette[0] }}>
                             التكرار المطلوب: {zoomedZikr.note}
                         </p>
-                        <button 
-                            onClick={() => setZoomedZikr(null)} 
-                            className="absolute top-4 right-4 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-colors text-gray-600"
-                        >
-                            <i className="fa-solid fa-xmark text-xl"></i>
-                        </button>
                     </div>
                 </div>
             )}

@@ -19,6 +19,7 @@ import TafseerSelectionModal from '../components/QuranReader/TafseerSelectionMod
 import MushafSelectionModal from '../components/QuranReader/MushafSelectionModal';
 import FontSelectModal from '../components/QuranReader/FontSelectModal';
 import ScrollSpeedModal from '../components/QuranReader/ScrollSpeedModal';
+import AutoScrollSettingsModal from '../components/QuranReader/AutoScrollSettingsModal';
 import ReadingTimer from '../components/QuranReader/ReadingTimer';
 import MarkerNotification from '../components/QuranReader/MarkerNotification';
 import quranUthmaniJson from '../data/quran-uthmani.json';
@@ -198,6 +199,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         return saved !== null ? saved === 'true' : true;
     });
 
+    const [isAutoScrollSettingsOpen, setIsAutoScrollSettingsOpen] = useState(false);
+    const autoScrollButtonTimerRef = useRef<number | null>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isAudioLoading, setIsAudioLoading] = useState(false);
     const [playingAyah, setPlayingAyah] = useState<{s: number; a: number} | null>(null);
@@ -721,6 +724,28 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         if (playButtonTimerRef.current) {
             clearTimeout(playButtonTimerRef.current);
             playButtonTimerRef.current = null;
+        }
+    };
+
+    const handleAutoScrollButtonPointerDown = () => {
+        autoScrollButtonTimerRef.current = window.setTimeout(() => {
+            autoScrollButtonTimerRef.current = null;
+            setIsAutoScrollSettingsOpen(true);
+        }, 500);
+    };
+
+    const handleAutoScrollButtonPointerUp = () => {
+        if (autoScrollButtonTimerRef.current) {
+            clearTimeout(autoScrollButtonTimerRef.current);
+            autoScrollButtonTimerRef.current = null;
+            toggleAutoScroll();
+        }
+    };
+
+    const handleAutoScrollButtonPointerLeave = () => {
+        if (autoScrollButtonTimerRef.current) {
+            clearTimeout(autoScrollButtonTimerRef.current);
+            autoScrollButtonTimerRef.current = null;
         }
     };
 
@@ -1347,7 +1372,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
 
     return (
         <div className={`quran-reader-container ${isPageInputActive ? 'force-ui-visible' : ''} ${isLandscape ? 'landscape-mode' : ''} ${isLandscapeUIHidden ? 'landscape-ui-hidden' : ''} ${autoScrollState.isActive && !autoScrollState.isPaused && settings.hideUIOnAutoScroll ? 'fullscreen-active' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
-            <header id="header" className="header-default flex-none z-50 flex items-center px-4 justify-between border-b shadow-xl w-full gap-2" style={getToolbarStyle('top-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
+            <header id="header" className={`header-default flex-none z-50 flex items-center px-4 justify-between border-b shadow-xl w-full gap-2 ${autoScrollState.isActive && !autoScrollState.isPaused && settings.hideUIOnAutoScroll && !isAutoScrollSettingsOpen ? 'hidden' : ''}`} style={getToolbarStyle('top-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button 
                     id="surah-name-header" 
                     onClick={() => openModal('surah-modal')}
@@ -1414,7 +1439,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                  <button onClick={() => { openModal('themes-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-themes', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الثيمات</span><i className="fa-solid fa-palette"></i></button>
                  <button onClick={() => { openModal('settings-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between" style={getToolbarStyle('btn-settings', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الإعدادات</span><i className="fa-solid fa-cog"></i></button>
             </div>
-            <footer id="bottom-bar" className="footer-default flex-none border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-10 flex justify-around items-center px-1 py-1 w-full" style={getToolbarStyle('bottom-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
+            <footer id="bottom-bar" className={`footer-default flex-none border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-10 flex justify-around items-center px-1 py-1 w-full ${autoScrollState.isActive && !autoScrollState.isPaused && settings.hideUIOnAutoScroll && !isAutoScrollSettingsOpen ? 'hidden' : ''}`} style={getToolbarStyle('bottom-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button ref={menuButtonRef} id="btn-menu" onClick={() => setIsFloatingMenuOpen(p => !p)} className="bottom-bar-button btn-purple flex-1 mx-1" style={getToolbarStyle('btn-menu', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><i className="fa-solid fa-bars"></i><span className="hidden sm:inline">القائمة</span></button>
                 <button 
                     id="btn-bookmark" 
@@ -1427,13 +1452,37 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                     <i className="fa-solid fa-bookmark"></i>
                     <span className="hidden sm:inline">حفظ</span>
                 </button>
-                <button id="btn-autoscroll" onClick={toggleAutoScroll} className="bottom-bar-button btn-purple flex-1 mx-1" style={getToolbarStyle('btn-autoscroll', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}>
+                <button 
+                    id="btn-autoscroll" 
+                    onPointerDown={handleAutoScrollButtonPointerDown}
+                    onPointerUp={handleAutoScrollButtonPointerUp}
+                    onPointerLeave={handleAutoScrollButtonPointerLeave}
+                    className="bottom-bar-button btn-purple flex-1 mx-1" 
+                    style={{...getToolbarStyle('btn-autoscroll', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg), touchAction: 'none'}}
+                >
                     {autoScrollState.isActive ? <i className="fa-solid fa-pause icon-autoscroll-active"></i> : <i className="fa-solid fa-arrow-down"></i>}
                     <span className="hidden sm:inline">{autoScrollState.isActive ? "إيقاف" : "تمرير"}</span>
                 </button>
                 <button id="btn-home" onClick={onBack} className="bottom-bar-button btn-green flex-1 mx-1" style={getToolbarStyle('btn-home', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><i className="fa-solid fa-home"></i><span className="hidden sm:inline">الرئيسية</span></button>
             </footer>
-            {activeModals.includes('surah-modal') && <SurahJuzModal type="surah" quranData={quranData} onSelect={(s, a) => { closeModal('surah-modal'); setTimeout(() => jumpToAyah(s, a, true), 0); }} onClose={() => closeModal('surah-modal')} isLandscape={isLandscape} />}
+            {isAutoScrollSettingsOpen && (
+            <AutoScrollSettingsModal
+                isOpen={isAutoScrollSettingsOpen}
+                onClose={() => setIsAutoScrollSettingsOpen(false)}
+                onSelectTime={(minutes) => {
+                    setSettings(p => ({...p, scrollMinutes: minutes}));
+                    localStorage.setItem('quran_settings' + modeSuffix, JSON.stringify({...settings, scrollMinutes: minutes}));
+                }}
+                onToggleBars={() => {
+                    setSettings(p => ({...p, hideUIOnAutoScroll: !p.hideUIOnAutoScroll}));
+                    localStorage.setItem('quran_settings' + modeSuffix, JSON.stringify({...settings, hideUIOnAutoScroll: !settings.hideUIOnAutoScroll}));
+                }}
+                currentMinutes={settings.scrollMinutes}
+                hideBars={settings.hideUIOnAutoScroll}
+                isLandscape={isLandscape}
+            />
+        )}
+        {activeModals.includes('surah-modal') && <SurahJuzModal type="surah" quranData={quranData} onSelect={(s, a) => { closeModal('surah-modal'); setTimeout(() => jumpToAyah(s, a, true), 0); }} onClose={() => closeModal('surah-modal')} isLandscape={isLandscape} />}
             {activeModals.includes('juz-modal') && <SurahJuzModal type="juz" quranData={quranData} onSelect={(j: number) => { closeModal('juz-modal'); setTimeout(() => jumpToAyah(JUZ_MAP[j - 1].s, JUZ_MAP[j - 1].a, true), 0); }} onClose={() => closeModal('juz-modal')} isLandscape={isLandscape} />}
             {activeModals.includes('bookmarks-modal') && (
                 <BookmarksModal 

@@ -16,23 +16,23 @@ const HadithModal = ({ hadith, onClose }) => {
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4" onClick={onClose}>
-            <div className="themed-card rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-                <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: theme.cardBorder }}>
+            <div className="rounded-2xl shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col bg-white text-gray-900" onClick={(e) => e.stopPropagation()}>
+                <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: '#e5e7eb' }}>
                     <div className="w-10"></div> {/* Spacer for centering */}
-                    <h3 className="text-xl font-bold font-kufi text-center flex-1" style={{ color: primaryColor }}>{hadith.title}</h3>
+                    <h3 className="text-xl font-bold font-kufi text-center flex-1 text-gray-900">{hadith.title}</h3>
                     <button 
                         onClick={increaseFontSize}
-                        className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center transition hover:bg-gray-200 dark:hover:bg-gray-600"
+                        className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center transition hover:bg-gray-200"
                         title="تكبير النص"
                     >
-                        <i className="fas fa-search-plus text-lg" style={{ color: primaryColor }}></i>
+                        <i className="fas fa-search-plus text-lg text-gray-900"></i>
                     </button>
                 </div>
-                <div className="p-6 overflow-y-auto leading-loose text-right font-amiri" style={{ fontSize: `${fontSize}px` }}>
+                <div className="p-6 overflow-y-auto leading-loose text-right font-amiri text-gray-900" style={{ fontSize: `${fontSize}px` }}>
                     <p>{hadith.hadith}</p>
                 </div>
-                <div className="p-3 border-t" style={{ borderColor: theme.cardBorder }}>
-                    <button onClick={onClose} className="w-full bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200 py-2.5 rounded-lg font-bold transition hover:opacity-90">
+                <div className="p-3 border-t" style={{ borderColor: '#e5e7eb' }}>
+                    <button onClick={onClose} className="w-full bg-gray-200 text-gray-800 py-2.5 rounded-lg font-bold transition hover:opacity-90">
                         إغلاق
                     </button>
                 </div>
