@@ -251,12 +251,16 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
                     <div className="space-y-4">
                         <div className="text-right">
                             <label className="text-xs font-bold opacity-70 block mb-2">اختر القارئ</label>
-                            <div className="custom-select-wrapper">
-                                <div className="custom-select-display text-sm h-8 themed-card-bg">{READERS.find(r => r.id === selectedReader)?.name || "اختر القارئ"}</div>
-                                <select value={selectedReader} onChange={(e) => setSelectedReader(e.target.value)} className="custom-select-design">
-                                    <option value="">اختر القارئ</option>
-                                    {READERS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                </select>
+                            <div className={`grid ${isLandscape ? 'grid-cols-4 sm:grid-cols-5 md:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3'} gap-2 ${isLandscape ? 'max-h-40' : 'max-h-60'} overflow-y-auto p-2 border rounded-lg themed-card-bg custom-scrollbar`} dir="rtl">
+                                {READERS.map(r => (
+                                    <button 
+                                        key={r.id}
+                                        onClick={() => setSelectedReader(r.id)}
+                                        className={`text-[10px] sm:text-xs p-2 rounded-md border transition-all font-bold ${selectedReader === r.id ? 'theme-btn-bg border-transparent' : 'bg-black/5 border-gray-200 dark:border-gray-700'}`}
+                                    >
+                                        {r.name}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 
@@ -400,12 +404,16 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
                     <div className="space-y-4">
                         <div className="text-right">
                             <label className="text-xs font-bold opacity-70 block mb-2">اختر التفسير</label>
-                            <div className="custom-select-wrapper">
-                                <div className="custom-select-display text-sm h-8 themed-card-bg">{TAFSEERS.find(t => t.id === selectedTafsir)?.name || "اختر التفسير"}</div>
-                                <select value={selectedTafsir} onChange={(e) => setSelectedTafsir(e.target.value)} className="custom-select-design">
-                                    <option value="">اختر التفسير</option>
-                                    {TAFSEERS.filter(t => t.id !== 'ar.jalalayn').map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                                </select>
+                            <div className={`grid ${isLandscape ? 'grid-cols-4 sm:grid-cols-5 md:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3'} gap-2 ${isLandscape ? 'max-h-40' : 'max-h-60'} overflow-y-auto p-2 border rounded-lg themed-card-bg custom-scrollbar`} dir="rtl">
+                                {TAFSEERS.filter(t => t.id !== 'ar.jalalayn').map(t => (
+                                    <button 
+                                        key={t.id}
+                                        onClick={() => setSelectedTafsir(t.id)}
+                                        className={`text-[10px] sm:text-xs p-2 rounded-md border transition-all font-bold ${selectedTafsir === t.id ? 'theme-btn-bg border-transparent' : 'bg-black/5 border-gray-200 dark:border-gray-700'}`}
+                                    >
+                                        {t.name}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 

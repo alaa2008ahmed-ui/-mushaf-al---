@@ -193,7 +193,6 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
     const [sajdahCardInfo, setSajdahCardInfo] = useState({ show: false, surah: '', ayah: 0, juz: 0, page: 0, wasAutoscrolling: false, wasPlaying: false });
 
     const [autoScrollState, setAutoScrollState] = useState({ isActive: false, isPaused: false, elapsedTime: 0 });
-    const [hideUIOnScroll, setHideUIOnScroll] = useState(() => localStorage.getItem('hide_ui_on_scroll') === 'true');
     const [showSajdahCard, setShowSajdahCard] = useState(() => {
         const saved = localStorage.getItem('show_sajdah_card');
         return saved !== null ? saved === 'true' : true;
@@ -828,7 +827,6 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                 });
             }
             
-            setHideUIOnScroll(localStorage.getItem('hide_ui_on_scroll') === 'true');
             const savedSajdah = localStorage.getItem('show_sajdah_card');
             setShowSajdahCard(savedSajdah !== null ? savedSajdah === 'true' : true);
             setIsTransparentMode(localStorage.getItem('transparent_mode' + mode) === 'true');
@@ -1347,7 +1345,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
     }, [activeModals, tafseerInfo.isOpen, tafseerSelectionInfo.isOpen]);
 
     return (
-        <div className={`quran-reader-container ${autoScrollState.isActive && !autoScrollState.isPaused && hideUIOnScroll && !isPageInputActive ? 'fullscreen-active' : ''} ${isPageInputActive ? 'force-ui-visible' : ''} ${isLandscape ? 'landscape-mode' : ''} ${isLandscapeUIHidden ? 'landscape-ui-hidden' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
+        <div className={`quran-reader-container ${isPageInputActive ? 'force-ui-visible' : ''} ${isLandscape ? 'landscape-mode' : ''} ${isLandscapeUIHidden ? 'landscape-ui-hidden' : ''}`} id="app-container" style={{ backgroundColor: settings.bgColor, color: settings.textColor, fontFamily: settings.fontFamily, position: 'relative', height: '100dvh', overflow: 'hidden' } as React.CSSProperties}>
             <header id="header" className="header-default flex-none z-50 flex items-center px-4 justify-between border-b shadow-xl w-full gap-2" style={getToolbarStyle('top-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
                 <button 
                     id="surah-name-header" 

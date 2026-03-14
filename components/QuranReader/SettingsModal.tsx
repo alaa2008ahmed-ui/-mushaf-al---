@@ -31,7 +31,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
         };
     });
     
-    const [hideUIOnScroll, setHideUIOnScroll] = useState(() => localStorage.getItem('hide_ui_on_scroll') === 'true');
     const [showSajdahCard, setShowSajdahCard] = useState(() => {
         const saved = localStorage.getItem('show_sajdah_card');
         return saved !== null ? saved === 'true' : true;
@@ -46,13 +45,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
         localStorage.setItem('quran_settings' + modeSuffix, JSON.stringify(newSettings));
         // Dispatch event for live updates
         window.dispatchEvent(new Event('settings-change'));
-    };
-
-    const handleHideUIToggle = (checked: boolean) => {
-        setHideUIOnScroll(checked);
-        localStorage.setItem('hide_ui_on_scroll', String(checked));
-        window.dispatchEvent(new Event('settings-change'));
-        showToast(checked ? 'سيتم إخفاء الأزرار أثناء التمرير' : 'سيتم إبقاء الأزرار أثناء التمرير');
     };
 
     const handleSajdahCardToggle = (checked: boolean) => {
@@ -158,16 +150,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                                 <span>{settings.scrollMinutes} دقيقة</span>
                                 <i className="fa-solid fa-chevron-left opacity-50"></i>
                             </button>
-                        </div>
-                    </div>
-
-                    <div className="border-b pb-2 border-gray-200 dark:border-gray-700 py-1">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-bold opacity-80">إخفاء الأزرار أثناء التمرير</label>
-                            <div className="relative inline-block w-10 align-middle select-none">
-                                <input type="checkbox" id="hide-ui-scroll" checked={hideUIOnScroll} onChange={(e) => handleHideUIToggle(e.target.checked)} className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-2 appearance-none cursor-pointer"/>
-                                <label htmlFor="hide-ui-scroll" className={`toggle-label block overflow-hidden h-5 rounded-full cursor-pointer ${hideUIOnScroll ? 'bg-emerald-500' : 'bg-gray-300'}`}></label>
-                            </div>
                         </div>
                     </div>
 
