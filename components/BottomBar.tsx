@@ -3,7 +3,7 @@ import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 
 function BottomBar({ onHomeClick, onThemesClick, showHome = true, showThemes = true }) {
-    const { theme } = useTheme();
+    const { theme, themeKey } = useTheme();
 
     const isSingleButton = !showHome || !showThemes;
     const homeButtonClass = `bar-button btn-3d-effect ${isSingleButton ? 'w-full max-w-xs mx-auto py-2.5 px-12 rounded-xl shadow-lg' : ''}`;
@@ -26,7 +26,12 @@ function BottomBar({ onHomeClick, onThemesClick, showHome = true, showThemes = t
                     <button 
                         onClick={onThemesClick} 
                         className={themesButtonClass}
-                        style={{ background: theme.palette[1], color: 'white', fontFamily: theme.font, border: theme.btnBorder || 'none' }}
+                        style={{ 
+                            background: themeKey === 'default' ? '#10b981' : theme.palette[1], 
+                            color: 'white', 
+                            fontFamily: theme.font, 
+                            border: theme.btnBorder || 'none' 
+                        }}
                         data-id="theme-toggle-button"
                     >
                          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"></path></svg>

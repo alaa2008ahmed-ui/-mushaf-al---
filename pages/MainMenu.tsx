@@ -10,19 +10,19 @@ import MenuCustomizationModal from '../components/MenuCustomizationModal';
 import { registerBackInterceptor } from '../hooks/useBackButton';
 
 const DEFAULT_MENU_ITEMS = [
-    { id: 'quran', label: "القرآن الكريم 📖", className: "col-span-2 h-12", colorIndex: 0 },
-    { id: 'listen', label: "الاستماع للقرآن 🎧", className: "col-span-2 h-10", colorIndex: 0 },
-    { id: 'salah-adhkar', label: "أذكار الصلاة 🕌", className: "col-span-2 h-10", colorIndex: 0 },
-    { id: 'adia', label: "الأدعية 🤲", className: "h-10", colorIndex: 1 },
-    { id: 'sabah-masaa', label: "الأذكار ☀️", className: "h-10", colorIndex: 1 },
-    { id: 'prayer-times', label: "مواقيت الصلاة ⏱️", className: "h-10", colorIndex: 1 },
-    { id: 'qibla', label: "القبلة 🧭", className: "h-10", colorIndex: 1 },
-    { id: 'hisn-muslim', label: "حصن المسلم 🛡️", className: "h-10", colorIndex: 0 },
-    { id: 'calculators', label: "الحاسبة الشرعية 🧮", className: "h-10", colorIndex: 1, customColor: "#10b981" },
-    { id: 'tasbeeh', label: "السبحة 📿", className: "h-10", colorIndex: 1 },
-    { id: 'calendar', label: "التقويم 📅", className: "h-10", colorIndex: 0, customColor: "#8b5cf6" },
-    { id: 'hajj-umrah', label: "الحج والعمرة 🕋", className: "h-10", colorIndex: 1 },
-    { id: 'nawawi', label: "الأربعون النووية 📚", className: "h-10", colorIndex: 1 },
+    { id: 'quran', label: "📖 القرآن الكريم", className: "col-span-2 h-12", colorIndex: 0 },
+    { id: 'listen', label: "🎧 الاستماع للقرآن", className: "col-span-2 h-10", colorIndex: 0 },
+    { id: 'prayer-times', label: "⏱️ مواقيت الصلاة", className: "col-span-2 h-10", colorIndex: 0 },
+    { id: 'adia', label: "🤲 الأدعية", className: "h-10", colorIndex: 1 },
+    { id: 'sabah-masaa', label: "☀️ الأذكار", className: "h-10", colorIndex: 1 },
+    { id: 'tasbeeh', label: "📿 السبحة", className: "h-10", colorIndex: 1 },
+    { id: 'calendar', label: "📅 التقويم", className: "h-10", colorIndex: 0 },
+    { id: 'salah-adhkar', label: "🕌 أذكار الصلاة", className: "h-10", colorIndex: 1 },
+    { id: 'hisn-muslim', label: "🛡️ حصن المسلم", className: "h-10", colorIndex: 1 },
+    { id: 'qibla', label: "🧭 القبلة", className: "h-10", colorIndex: 0 },
+    { id: 'calculators', label: "🧮 الحاسبة الشرعية", className: "h-10", colorIndex: 1 },
+    { id: 'hajj-umrah', label: "🕋 الحج والعمرة", className: "h-10", colorIndex: 1 },
+    { id: 'nawawi', label: "📚 الأربعون النووية", className: "h-10", colorIndex: 1 },
 ];
 
 interface NavButtonProps {
@@ -64,7 +64,7 @@ const NavButton: React.FC<NavButtonProps & { isGlass?: boolean }> = ({ label, on
 
 function MainMenu({ onNavigate, onOpenThemes }) {
   const [currentVerse, setCurrentVerse] = useState(verses[0]);
-  const { theme } = useTheme();
+  const { theme, themeKey } = useTheme();
   const [visibleItems, setVisibleItems] = useState<string[]>([]);
   const [menuItems, setMenuItems] = useState(DEFAULT_MENU_ITEMS);
   const [isCustomizationOpen, setIsCustomizationOpen] = useState(false);
@@ -98,17 +98,10 @@ function MainMenu({ onNavigate, onOpenThemes }) {
             const parsed = JSON.parse(savedLayout);
             let changed = false;
             const updated = parsed.map((item: any) => {
-                if (item.id === 'calculators' && item.customColor !== '#10b981') {
-                    changed = true;
-                    return { ...item, customColor: '#10b981' };
-                }
-                if (item.id === 'calendar' && item.customColor !== '#8b5cf6') {
-                    changed = true;
-                    return { ...item, customColor: '#8b5cf6' };
-                }
-                if ((item.id === 'hisn-muslim' || item.id === 'calendar') && item.colorIndex === 1) {
-                    changed = true;
-                    return { ...item, colorIndex: 0 };
+                // Remove hardcoded custom colors to allow theme colors to take effect
+                if (item.id === 'calculators' || item.id === 'calendar') {
+                    const { customColor, ...rest } = item;
+                    return rest;
                 }
                 return item;
             });
@@ -353,7 +346,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                   <h1 className={`text-4xl font-black tracking-tight transition-transform ${isEditMode ? 'scale-110 text-yellow-400' : ''}`} style={{ color: isEditMode ? undefined : theme.textColor }}>
                       مُصْحَفُ أَحْمَدَ وَلَيْلَى
                   </h1>
-                  <p className="text-[16px] font-black mt-3" style={{ color: isEditMode ? theme.textColor : '#8b5cf6' }}>
+                  <p className="text-[16px] font-black mt-3" style={{ color: themeKey === 'default' ? '#8b5cf6' : theme.textColor }}>
                       {isEditMode ? 'اسحب الأزرار لترتيبها' : 'نرجوا الدعاء لهم بالرحمة والمغفرة'}
                   </p>
                   
@@ -400,7 +393,14 @@ function MainMenu({ onNavigate, onOpenThemes }) {
                             label={item.label} 
                             onClick={() => !isEditMode && onNavigate(item.id)} 
                             className="w-full h-full"
-                            color={item.customColor || theme.palette[item.colorIndex]} 
+                            color={
+                                (item.id === 'hisn-muslim' && themeKey === 'default') ? '#10b981' : 
+                                (item.id === 'salah-adhkar' && themeKey === 'default') ? '#10b981' : 
+                                (item.id === 'qibla' && themeKey === 'default') ? '#8b5cf6' : 
+                                (item.id === 'calculators' && themeKey === 'default') ? '#8b5cf6' : 
+                                (item.id === 'calendar' && themeKey === 'default') ? '#8b5cf6' : 
+                                (item.customColor || theme.palette[item.colorIndex])
+                            } 
                             border={theme.btnBorder} 
                             isEditMode={isEditMode}
                             onResize={(e) => handleResize(item.id, e)}
@@ -430,7 +430,7 @@ function MainMenu({ onNavigate, onOpenThemes }) {
               {/* Footer/Save Button */}
               {!isEditMode && (
                   <div className="themed-card p-2.5 rounded-2xl text-center w-full max-w-sm mx-auto mt-4 mb-4 relative">
-                      <p className="text-[14px] font-bold" style={{ color: '#10b981' }}>
+                      <p className="text-[14px] font-bold" style={{ color: themeKey === 'default' ? '#10b981' : theme.textColor }}>
                           اللهم ارحمهما واغفر لهما واجعل مثواهما الجنة
                       </p>
                   </div>

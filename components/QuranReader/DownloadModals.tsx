@@ -132,11 +132,6 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState('');
     const abortControllerRef = useRef<AbortController | null>(null);
-    const [openMenu, setOpenMenu] = useState<string | null>(null);
-
-    const toggleMenu = (menu: string) => {
-        setOpenMenu(openMenu === menu ? null : menu);
-    };
 
     const downloadSurahAudio = async () => {
         if (!selectedReader || !selectedSurah) return;
@@ -256,82 +251,29 @@ export const QuranDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qura
                     <div className="space-y-4">
                         <div className="text-right">
                             <label className="text-xs font-bold opacity-70 block mb-2">اختر القارئ</label>
-                            {isLandscape ? (
-                                <div className="flex flex-col gap-2">
-                                    <button onClick={() => toggleMenu('reader')} className="custom-select-display text-xs h-8 themed-card-bg flex items-center justify-between px-3 w-full">
-                                        <span>{READERS.find(r => r.id === selectedReader)?.name || "اختر القارئ"}</span>
-                                        <i className={`fa-solid fa-chevron-${openMenu === 'reader' ? 'up' : 'down'} text-[10px] opacity-50`}></i>
-                                    </button>
-                                    {openMenu === 'reader' && (
-                                        <div className={`flex overflow-x-auto gap-2 p-1 themed-card-bg rounded-lg no-scrollbar animate-fadeIn`}>
-                                            {READERS.map(r => (
-                                                <button 
-                                                    key={r.id} 
-                                                    onClick={() => { setSelectedReader(r.id); setOpenMenu(null); }}
-                                                    className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedReader === r.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                                    style={selectedReader !== r.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                                >
-                                                    {r.name}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="custom-select-wrapper">
-                                    <div className="custom-select-display text-sm h-8 themed-card-bg">{READERS.find(r => r.id === selectedReader)?.name || "اختر القارئ"}</div>
-                                    <select value={selectedReader} onChange={(e) => setSelectedReader(e.target.value)} className="custom-select-design">
-                                        <option value="">اختر القارئ</option>
-                                        {READERS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                    </select>
-                                </div>
-                            )}
+                            <div className="custom-select-wrapper">
+                                <div className="custom-select-display text-sm h-8 themed-card-bg">{READERS.find(r => r.id === selectedReader)?.name || "اختر القارئ"}</div>
+                                <select value={selectedReader} onChange={(e) => setSelectedReader(e.target.value)} className="custom-select-design">
+                                    <option value="">اختر القارئ</option>
+                                    {READERS.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                </select>
+                            </div>
                         </div>
 
                         <div className="text-right">
                             <label className="text-xs font-bold opacity-70 block mb-2">اختر السورة</label>
-                            {isLandscape ? (
-                                <div className="flex flex-col gap-2">
-                                    <button onClick={() => toggleMenu('surah')} className="custom-select-display text-xs h-8 themed-card-bg flex items-center justify-between px-3 w-full">
-                                        <span>{selectedSurah === 'all' ? "تحميل المصحف كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}</span>
-                                        <i className={`fa-solid fa-chevron-${openMenu === 'surah' ? 'up' : 'down'} text-[10px] opacity-50`}></i>
-                                    </button>
-                                    {openMenu === 'surah' && (
-                                        <div className={`flex overflow-x-auto gap-2 p-1 themed-card-bg rounded-lg no-scrollbar animate-fadeIn max-h-[30vh]`}>
-                                            <button 
-                                                onClick={() => { setSelectedSurah('all'); setOpenMenu(null); }}
-                                                className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedSurah === 'all' ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                                style={selectedSurah !== 'all' ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                            >
-                                                المصحف كاملاً
-                                            </button>
-                                            {quranData?.surahs.map((s: any) => (
-                                                <button 
-                                                    key={s.number} 
-                                                    onClick={() => { setSelectedSurah(String(s.number)); setOpenMenu(null); }}
-                                                    className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedSurah === String(s.number) ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                                    style={selectedSurah !== String(s.number) ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                                >
-                                                    {s.name.replace('سورة', '').trim()}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
+                            <div className="custom-select-wrapper">
+                                <div className="custom-select-display text-sm h-8 themed-card-bg">
+                                    {selectedSurah === 'all' ? "تحميل المصحف كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
                                 </div>
-                            ) : (
-                                <div className="custom-select-wrapper">
-                                    <div className="custom-select-display text-sm h-8 themed-card-bg">
-                                        {selectedSurah === 'all' ? "تحميل المصحف كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
-                                    </div>
-                                    <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
-                                        <option value="">اختر السورة</option>
-                                        <option value="all">تحميل المصحف كاملاً</option>
-                                        {quranData?.surahs.map((s: any) => (
-                                            <option key={s.number} value={s.number}>{s.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
+                                <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
+                                    <option value="">اختر السورة</option>
+                                    <option value="all">تحميل المصحف كاملاً</option>
+                                    {quranData?.surahs.map((s: any) => (
+                                        <option key={s.number} value={s.number}>{s.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                         
                         {!isDownloading ? (
@@ -362,11 +304,6 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
     const [progress, setProgress] = useState(0);
     const [status, setStatus] = useState('');
     const abortControllerRef = useRef<AbortController | null>(null);
-    const [openMenu, setOpenMenu] = useState<string | null>(null);
-
-    const toggleMenu = (menu: string) => {
-        setOpenMenu(openMenu === menu ? null : menu);
-    };
 
     const downloadTafsir = async () => {
         if (!selectedTafsir || !selectedSurah) return;
@@ -458,82 +395,29 @@ export const TafsirDownloadModal: React.FC<DownloadModalProps> = ({ onClose, qur
                     <div className="space-y-4">
                         <div className="text-right">
                             <label className="text-xs font-bold opacity-70 block mb-2">اختر التفسير</label>
-                            {isLandscape ? (
-                                <div className="flex flex-col gap-2">
-                                    <button onClick={() => toggleMenu('tafseer')} className="custom-select-display text-xs h-8 themed-card-bg flex items-center justify-between px-3 w-full">
-                                        <span>{TAFSEERS.find(t => t.id === selectedTafsir)?.name || "اختر التفسير"}</span>
-                                        <i className={`fa-solid fa-chevron-${openMenu === 'tafseer' ? 'up' : 'down'} text-[10px] opacity-50`}></i>
-                                    </button>
-                                    {openMenu === 'tafseer' && (
-                                        <div className={`flex overflow-x-auto gap-2 p-1 themed-card-bg rounded-lg no-scrollbar animate-fadeIn`}>
-                                            {TAFSEERS.filter(t => t.id !== 'ar.jalalayn').map(t => (
-                                                <button 
-                                                    key={t.id} 
-                                                    onClick={() => { setSelectedTafsir(t.id); setOpenMenu(null); }}
-                                                    className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedTafsir === t.id ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                                    style={selectedTafsir !== t.id ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                                >
-                                                    {t.name}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="custom-select-wrapper">
-                                    <div className="custom-select-display text-sm h-8 themed-card-bg">{TAFSEERS.find(t => t.id === selectedTafsir)?.name || "اختر التفسير"}</div>
-                                    <select value={selectedTafsir} onChange={(e) => setSelectedTafsir(e.target.value)} className="custom-select-design">
-                                        <option value="">اختر التفسير</option>
-                                        {TAFSEERS.filter(t => t.id !== 'ar.jalalayn').map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-                                    </select>
-                                </div>
-                            )}
+                            <div className="custom-select-wrapper">
+                                <div className="custom-select-display text-sm h-8 themed-card-bg">{TAFSEERS.find(t => t.id === selectedTafsir)?.name || "اختر التفسير"}</div>
+                                <select value={selectedTafsir} onChange={(e) => setSelectedTafsir(e.target.value)} className="custom-select-design">
+                                    <option value="">اختر التفسير</option>
+                                    {TAFSEERS.filter(t => t.id !== 'ar.jalalayn').map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                                </select>
+                            </div>
                         </div>
 
                         <div className="text-right">
                             <label className="text-xs font-bold opacity-70 block mb-2">اختر السورة</label>
-                            {isLandscape ? (
-                                <div className="flex flex-col gap-2">
-                                    <button onClick={() => toggleMenu('surah')} className="custom-select-display text-xs h-8 themed-card-bg flex items-center justify-between px-3 w-full">
-                                        <span>{selectedSurah === 'all' ? "تحميل التفاسير كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}</span>
-                                        <i className={`fa-solid fa-chevron-${openMenu === 'surah' ? 'up' : 'down'} text-[10px] opacity-50`}></i>
-                                    </button>
-                                    {openMenu === 'surah' && (
-                                        <div className={`flex overflow-x-auto gap-2 p-1 themed-card-bg rounded-lg no-scrollbar animate-fadeIn max-h-[30vh]`}>
-                                            <button 
-                                                onClick={() => { setSelectedSurah('all'); setOpenMenu(null); }}
-                                                className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedSurah === 'all' ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                                style={selectedSurah !== 'all' ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                            >
-                                                التفاسير كاملاً
-                                            </button>
-                                            {quranData?.surahs.map((s: any) => (
-                                                <button 
-                                                    key={s.number} 
-                                                    onClick={() => { setSelectedSurah(String(s.number)); setOpenMenu(null); }}
-                                                    className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all border-2 ${selectedSurah === String(s.number) ? 'theme-accent-btn' : 'border-transparent hover:bg-white/10'}`}
-                                                    style={selectedSurah !== String(s.number) ? { backgroundColor: 'var(--qr-card-bg)', color: 'var(--qr-card-text)', borderColor: 'var(--qr-card-border)' } : {}}
-                                                >
-                                                    {s.name.replace('سورة', '').trim()}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    )}
+                            <div className="custom-select-wrapper">
+                                <div className="custom-select-display text-sm h-8 themed-card-bg">
+                                    {selectedSurah === 'all' ? "تحميل التفاسير كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
                                 </div>
-                            ) : (
-                                <div className="custom-select-wrapper">
-                                    <div className="custom-select-display text-sm h-8 themed-card-bg">
-                                        {selectedSurah === 'all' ? "تحميل التفاسير كاملاً" : (quranData?.surahs.find((s: any) => s.number === parseInt(selectedSurah))?.name || "اختر السورة")}
-                                    </div>
-                                    <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
-                                        <option value="">اختر السورة</option>
-                                        <option value="all">تحميل التفاسير كاملاً</option>
-                                        {quranData?.surahs.map((s: any) => (
-                                            <option key={s.number} value={s.number}>{s.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            )}
+                                <select value={selectedSurah} onChange={(e) => setSelectedSurah(e.target.value)} className="custom-select-design">
+                                    <option value="">اختر السورة</option>
+                                    <option value="all">تحميل التفاسير كاملاً</option>
+                                    {quranData?.surahs.map((s: any) => (
+                                        <option key={s.number} value={s.number}>{s.name}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                         
                         {!isDownloading ? (
