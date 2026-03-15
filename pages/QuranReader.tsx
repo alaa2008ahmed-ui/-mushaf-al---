@@ -611,15 +611,20 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
 
     const handleAyahTextClick = useCallback((s: number, a: number) => {
         handleAyahClick(s, a);
-        if (isLandscapeRef.current) {
-            setIsLandscapeUIHidden(prev => !prev);
-        }
+        
         if (autoScrollStateRef.current.isActive) {
             const newPausedState = !autoScrollStateRef.current.isPaused;
             autoScrollPausedRef.current = newPausedState;
             const newState = { ...autoScrollStateRef.current, isPaused: newPausedState };
             autoScrollStateRef.current = newState;
             setAutoScrollState(newState);
+            
+            // If we are pausing and hideUI is enabled, ensure UI is visible
+            if (newPausedState && settingsRef.current.hideUIOnAutoScroll && isLandscapeRef.current) {
+                setIsLandscapeUIHidden(false);
+            }
+        } else if (isLandscapeRef.current) {
+            setIsLandscapeUIHidden(prev => !prev);
         }
     }, [handleAyahClick]);
 
@@ -1191,9 +1196,6 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         autoScrollStateRef.current = newState;
         setAutoScrollState(newState);
         
-        // Show UI immediately
-        setIsLandscapeUIHidden(false);
-        
         if (showTimer) setTimeout(() => setAutoScrollState(p => ({...p, elapsedTime: 0})), 3000);
         else setAutoScrollState(p => ({...p, elapsedTime: 0}));
     };
@@ -1206,11 +1208,6 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         const initialState = { isActive: true, isPaused: false, elapsedTime: 0 };
         autoScrollStateRef.current = initialState;
         setAutoScrollState(initialState);
-        
-        // Hide UI immediately if setting is on
-        if (settingsRef.current.hideUIOnAutoScroll) {
-            setIsLandscapeUIHidden(true);
-        }
         
         // Delay to let layout stabilize after UI might hide
         setTimeout(() => {
@@ -1274,15 +1271,19 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         else { startAutoScroll(); showToast('تم تفعيل التمرير التلقائي'); }
     };
     const handleScreenTap = () => {
-      if (isLandscape) {
-          setIsLandscapeUIHidden(prev => !prev);
-      }
       if (autoScrollStateRef.current.isActive) {
         const newPausedState = !autoScrollStateRef.current.isPaused;
         autoScrollPausedRef.current = newPausedState;
         const newState = { ...autoScrollStateRef.current, isPaused: newPausedState };
         autoScrollStateRef.current = newState;
         setAutoScrollState(newState);
+        
+        // If we are pausing and hideUI is enabled, ensure UI is visible
+        if (newPausedState && settingsRef.current.hideUIOnAutoScroll && isLandscape) {
+            setIsLandscapeUIHidden(false);
+        }
+      } else if (isLandscape) {
+          setIsLandscapeUIHidden(prev => !prev);
       }
     };
 

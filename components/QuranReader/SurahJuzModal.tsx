@@ -40,7 +40,7 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
     });
 
     return (
-        <div className={`fixed inset-0 z-[100] bg-black/30 flex justify-center ${isLandscape ? 'pt-0 px-0 items-start' : 'pt-10 px-4'} animate-fadeIn backdrop-blur-sm`} onClick={onClose}>
+        <div className={`fixed inset-0 z-[100] bg-black/30 flex justify-center items-start ${isLandscape ? 'pt-0 px-0' : 'pt-10 px-4'} animate-fadeIn backdrop-blur-sm`} onClick={onClose}>
             <div className={`modal-skinned w-full ${isLandscape ? 'max-w-6xl h-full rounded-none' : 'max-w-4xl rounded-t-2xl max-h-[90vh]'} flex flex-col`} onClick={e => e.stopPropagation()}>
                 <div className={`p-4 theme-header-bg flex flex-col gap-3 ${isLandscape ? 'rounded-none' : 'rounded-t-2xl'}`}>
                     <div className="flex justify-between items-center">
@@ -48,7 +48,7 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
                         <button onClick={onClose} className="text-2xl">&times;</button>
                     </div>
                     
-                    {type === 'surah' && !isLandscape && (
+                    {type === 'surah' && (
                         <div className="relative">
                             <input
                                 type="text"
@@ -61,40 +61,44 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
                         </div>
                     )}
                 </div>
-                <div className={`overflow-y-auto p-4 grid ${isLandscape ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'} gap-3 flex-1`}>
+                <div className={`overflow-y-auto p-4 flex flex-col gap-3 flex-1 content-start ${searchTerm ? 'items-center' : ''}`}>
                     {type === 'surah' ? (
-                        filteredSurahs?.length > 0 ? (
-                            filteredSurahs.map((s: any) => (
+                        <div className={`grid w-full gap-3 ${searchTerm ? 'grid-cols-1 max-w-md' : (isLandscape ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4')}`}>
+                            {filteredSurahs?.length > 0 ? (
+                                filteredSurahs.map((s: any) => (
+                                    <button 
+                                        key={s.number} 
+                                        onClick={() => onSelect(s.number, 1)} 
+                                        className="p-2.5 rounded-lg transition text-right font-bold border flex justify-between items-center group theme-btn-bg"
+                                    >
+                                        <span>
+                                            <span className="opacity-80">{toArabic(s.number)}.</span> 
+                                            <span style={{ fontFamily: 'var(--font-amiri)' }}> {s.name.replace('سورة', '').trim()}</span>
+                                        </span>
+                                        <span className="text-xs font-normal opacity-80">
+                                            {s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'} - {toArabic(s.ayahs.length)} آية
+                                        </span>
+                                    </button>
+                                ))
+                            ) : (
+                                <div className="col-span-full text-center py-10 opacity-60">لا توجد نتائج للبحث</div>
+                            )}
+                        </div>
+                    ) : (
+                        <div className={`grid w-full gap-3 ${isLandscape ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'}`}>
+                            {JUZ_MAP.map((j: any) => (
                                 <button 
-                                    key={s.number} 
-                                    onClick={() => onSelect(s.number, 1)} 
-                                    className="p-3 rounded-lg transition text-right font-bold border-2 flex justify-between items-center group theme-btn-bg"
+                                    key={j.j} 
+                                    onClick={() => onSelect(j.j)} 
+                                    className="p-2.5 rounded-lg transition font-bold border flex flex-col items-center justify-center text-center theme-btn-bg"
                                 >
-                                    <span>
-                                        <span className="opacity-80">{toArabic(s.number)}.</span> 
-                                        <span style={{ fontFamily: 'var(--font-amiri)' }}> {s.name.replace('سورة', '').trim()}</span>
-                                    </span>
-                                    <span className="text-xs font-normal opacity-80">
-                                        {s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'} - {toArabic(s.ayahs.length)} آية
+                                    <span className="text-lg mb-1">الجزء {toArabic(j.j)}</span>
+                                    <span className="text-xs font-normal opacity-80" style={{ fontFamily: 'var(--font-amiri)' }}>
+                                        {quranData?.surahs[j.s-1]?.name.replace('سورة','').trim()} آية {toArabic(j.a)} - صفحة {toArabic(quranData?.surahs[j.s-1]?.ayahs[j.a-1]?.page || '')}
                                     </span>
                                 </button>
-                            ))
-                        ) : (
-                            <div className="col-span-full text-center py-10 opacity-60">لا توجد نتائج للبحث</div>
-                        )
-                    ) : (
-                        JUZ_MAP.map((j: any) => (
-                            <button 
-                                key={j.j} 
-                                onClick={() => onSelect(j.j)} 
-                                className="p-3 rounded-lg transition font-bold border-2 flex flex-col items-center justify-center text-center theme-btn-bg"
-                            >
-                                <span className="text-lg mb-1">الجزء {toArabic(j.j)}</span>
-                                <span className="text-xs font-normal opacity-80" style={{ fontFamily: 'var(--font-amiri)' }}>
-                                    {quranData?.surahs[j.s-1]?.name.replace('سورة','').trim()} آية {toArabic(j.a)} - صفحة {toArabic(quranData?.surahs[j.s-1]?.ayahs[j.a-1]?.page || '')}
-                                </span>
-                            </button>
-                        ))
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
