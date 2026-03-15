@@ -7,23 +7,18 @@ interface SurahJuzModalProps {
     onSelect: (surahOrJuz: number, ayah?: number) => void;
     onClose: () => void;
     isLandscape?: boolean;
-    currentSurah?: number;
-    currentJuz?: number;
+    currentSelection?: number;
 }
 
-const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect, onClose, isLandscape, currentSurah, currentJuz }) => {
+const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect, onClose, isLandscape, currentSelection }) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const listRef = useRef<HTMLDivElement>(null);
+    const selectedRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        // Scroll to the active item when the modal opens
-        if (listRef.current) {
-            const activeElement = listRef.current.querySelector('.active-item');
-            if (activeElement) {
-                activeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+        if (selectedRef.current) {
+            selectedRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
-    }, [type, currentSurah, currentJuz]);
+    }, []);
 
     const removeDiacritics = (text: string) => {
         if (!text) return "";
@@ -74,49 +69,45 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
                         </div>
                     )}
                 </div>
-                <div ref={listRef} className={`overflow-y-auto p-4 flex flex-col gap-3 flex-1 content-start ${searchTerm ? 'items-center' : ''}`}>
+                <div className={`overflow-y-auto p-4 flex flex-col gap-3 flex-1 content-start ${searchTerm ? 'items-center' : ''}`}>
                     {type === 'surah' ? (
                         <div className={`grid w-full gap-3 ${searchTerm ? 'grid-cols-1 max-w-md' : (isLandscape ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4')}`}>
                             {filteredSurahs?.length > 0 ? (
-                                filteredSurahs.map((s: any) => {
-                                    const isActive = s.number === currentSurah;
-                                    return (
-                                        <button 
-                                            key={s.number} 
-                                            onClick={() => onSelect(s.number, 1)} 
-                                            className={`p-2.5 rounded-lg transition text-right font-bold border flex justify-between items-center group theme-btn-bg ${isActive ? 'active-item ring-2 ring-emerald-500 bg-emerald-500/10' : ''}`}
-                                        >
-                                            <span>
-                                                <span className="opacity-80">{toArabic(s.number)}.</span> 
-                                                <span style={{ fontFamily: 'var(--font-amiri)' }}> {s.name.replace('سورة', '').trim()}</span>
-                                            </span>
-                                            <span className="text-xs font-normal opacity-80">
-                                                {s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'} - {toArabic(s.ayahs.length)} آية
-                                            </span>
-                                        </button>
-                                    );
-                                })
+                                filteredSurahs.map((s: any) => (
+                                    <button 
+                                        key={s.number} 
+                                        ref={currentSelection === s.number ? selectedRef : null}
+                                        onClick={() => onSelect(s.number, 1)} 
+                                        className={`p-2.5 rounded-lg transition text-right font-bold border flex justify-between items-center group ${currentSelection === s.number ? 'theme-accent-btn' : 'theme-btn-bg'}`}
+                                    >
+                                        <span>
+                                            <span className="opacity-80">{toArabic(s.number)}.</span> 
+                                            <span style={{ fontFamily: 'var(--font-amiri)' }}> {s.name.replace('سورة', '').trim()}</span>
+                                        </span>
+                                        <span className="text-xs font-normal opacity-80">
+                                            {s.revelationType === 'Meccan' ? 'مكية' : 'مدنية'} - {toArabic(s.ayahs.length)} آية
+                                        </span>
+                                    </button>
+                                ))
                             ) : (
                                 <div className="col-span-full text-center py-10 opacity-60">لا توجد نتائج للبحث</div>
                             )}
                         </div>
                     ) : (
                         <div className={`grid w-full gap-3 ${isLandscape ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4'}`}>
-                            {JUZ_MAP.map((j: any) => {
-                                const isActive = j.j === currentJuz;
-                                return (
-                                    <button 
-                                        key={j.j} 
-                                        onClick={() => onSelect(j.j)} 
-                                        className={`p-2.5 rounded-lg transition font-bold border flex flex-col items-center justify-center text-center theme-btn-bg ${isActive ? 'active-item ring-2 ring-emerald-500 bg-emerald-500/10' : ''}`}
-                                    >
-                                        <span className="text-lg mb-1">الجزء {toArabic(j.j)}</span>
-                                        <span className="text-xs font-normal opacity-80" style={{ fontFamily: 'var(--font-amiri)' }}>
-                                            {quranData?.surahs[j.s-1]?.name.replace('سورة','').trim()} آية {toArabic(j.a)} - صفحة {toArabic(quranData?.surahs[j.s-1]?.ayahs[j.a-1]?.page || '')}
-                                        </span>
-                                    </button>
-                                );
-                            })}
+                            {JUZ_MAP.map((j: any) => (
+                                <button 
+                                    key={j.j} 
+                                    ref={currentSelection === j.j ? selectedRef : null}
+                                    onClick={() => onSelect(j.j)} 
+                                    className={`p-2.5 rounded-lg transition font-bold border flex flex-col items-center justify-center text-center ${currentSelection === j.j ? 'theme-accent-btn' : 'theme-btn-bg'}`}
+                                >
+                                    <span className="text-lg mb-1">الجزء {toArabic(j.j)}</span>
+                                    <span className="text-xs font-normal opacity-80" style={{ fontFamily: 'var(--font-amiri)' }}>
+                                        {quranData?.surahs[j.s-1]?.name.replace('سورة','').trim()} آية {toArabic(j.a)} - صفحة {toArabic(quranData?.surahs[j.s-1]?.ayahs[j.a-1]?.page || '')}
+                                    </span>
+                                </button>
+                            ))}
                         </div>
                     )}
                 </div>

@@ -66,8 +66,6 @@ export const READERS = [
     { id: 'Nasser_Alqatami_128kbps', name: 'ناصر القطامي' },
     { id: 'Hani_Rifai_192kbps', name: 'هاني الرفاعي' },
     { id: 'Yasser_Ad-Dussary_128kbps', name: 'ياسر الدوسري' },
-    { id: 'Bandaar_Baleela_128kbps', name: 'بندر بليلة' },
-    { id: 'Khalid_AlJalil_128kbps', name: 'خالد الجليل' },
     { id: 'Yaser_Salamah_128kbps', name: 'ياسر سلامة' }
 ];
 export const TAFSEERS = [{ id: 'ar.jalalayn', name: 'تفسير الجلالين' }, { id: 'ar.muyassar', name: 'التفسير الميسر' }, { id: 'ar.baghawi', name: 'تفسير البغوي' }, { id: 'ar.qurtubi', name: 'تفسير القرطبي' }, { id: 'ar.waseet', name: 'التفسير الوسيط' }];
