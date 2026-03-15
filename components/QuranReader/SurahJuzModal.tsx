@@ -48,7 +48,7 @@ const SurahJuzModal: React.FC<SurahJuzModalProps> = ({ type, quranData, onSelect
                         <button onClick={onClose} className="text-2xl">&times;</button>
                     </div>
                     
-                    {type === 'surah' && (
+                    {type === 'surah' && !isLandscape && (
                         <div className="relative">
                             <input
                                 type="text"

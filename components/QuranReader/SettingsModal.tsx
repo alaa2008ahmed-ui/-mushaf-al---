@@ -24,7 +24,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
             fontFamily: defaultTheme.font,
             textColor: defaultTheme.text,
             bgColor: defaultTheme.bg,
-            reader: 'Abu_Bakr_Ash-Shaatree_128kbps',
+            reader: 'Alafasy_128kbps',
             theme: 'default',
             scrollMinutes: 20,
             tafseer: 'ar.jalalayn',

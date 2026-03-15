@@ -26,7 +26,7 @@ const ExitConfirmModal: React.FC<ExitConfirmModalProps> = ({ isOpen, onClose, on
     }
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-80 z-[1000] flex items-center justify-center p-4 fade-in" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1000] flex items-center justify-center p-4 fade-in" onClick={onClose}>
             <div className="rounded-xl p-6 max-w-sm w-full shadow-2xl border" style={{ backgroundColor: modalBg, borderColor: theme.cardBorder || theme.palette[0] }} onClick={(e) => e.stopPropagation()}>
                 <h3 className="text-lg font-bold text-center mb-4" style={{ color: modalTextColor }}>تأكيد الخروج</h3>
                 <p className="text-center mb-6 font-semibold" style={{ color: modalTextColor, opacity: 0.9 }}>هل تريد الخروج من مصحف احمد وليلى؟</p>
