@@ -201,6 +201,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
 
     const [isAutoScrollSettingsOpen, setIsAutoScrollSettingsOpen] = useState(false);
     const autoScrollButtonTimerRef = useRef<number | null>(null);
+    const autoScrollFrameRef = useRef<number | null>(null);
+    const lastScrollTimeRef = useRef<number>(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isAudioLoading, setIsAudioLoading] = useState(false);
     const [playingAyah, setPlayingAyah] = useState<{s: number; a: number} | null>(null);
@@ -615,7 +617,9 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         if (autoScrollStateRef.current.isActive) {
             const newPausedState = !autoScrollStateRef.current.isPaused;
             autoScrollPausedRef.current = newPausedState;
-            setAutoScrollState(p => ({...p, isPaused: newPausedState }));
+            const newState = { ...autoScrollStateRef.current, isPaused: newPausedState };
+            autoScrollStateRef.current = newState;
+            setAutoScrollState(newState);
         }
     }, [handleAyahClick]);
 
@@ -727,14 +731,16 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         }
     };
 
-    const handleAutoScrollButtonPointerDown = () => {
+    const handleAutoScrollButtonPointerDown = (e: React.PointerEvent) => {
+        e.stopPropagation();
         autoScrollButtonTimerRef.current = window.setTimeout(() => {
             autoScrollButtonTimerRef.current = null;
             setIsAutoScrollSettingsOpen(true);
         }, 500);
     };
 
-    const handleAutoScrollButtonPointerUp = () => {
+    const handleAutoScrollButtonPointerUp = (e: React.PointerEvent) => {
+        e.stopPropagation();
         if (autoScrollButtonTimerRef.current) {
             clearTimeout(autoScrollButtonTimerRef.current);
             autoScrollButtonTimerRef.current = null;
@@ -742,7 +748,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         }
     };
 
-    const handleAutoScrollButtonPointerLeave = () => {
+    const handleAutoScrollButtonPointerLeave = (e: React.PointerEvent) => {
+        e.stopPropagation();
         if (autoScrollButtonTimerRef.current) {
             clearTimeout(autoScrollButtonTimerRef.current);
             autoScrollButtonTimerRef.current = null;
@@ -1174,12 +1181,16 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
     };
 
     const stopAutoScroll = (showTimer = true) => {
-        if (scrollIntervalRef.current) clearInterval(scrollIntervalRef.current);
+        if (autoScrollFrameRef.current) cancelAnimationFrame(autoScrollFrameRef.current);
         if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-        scrollIntervalRef.current = null;
+        autoScrollFrameRef.current = null;
         timerIntervalRef.current = null;
         autoScrollPausedRef.current = false;
-        setAutoScrollState(prev => ({ ...prev, isActive: false, isPaused: false }));
+        
+        const newState = { isActive: false, isPaused: false, elapsedTime: autoScrollStateRef.current.elapsedTime };
+        autoScrollStateRef.current = newState;
+        setAutoScrollState(newState);
+        
         if (showTimer) setTimeout(() => setAutoScrollState(p => ({...p, elapsedTime: 0})), 3000);
         else setAutoScrollState(p => ({...p, elapsedTime: 0}));
     };
@@ -1187,45 +1198,71 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
     const startAutoScroll = () => {
         if (!mushafContentRef.current) return;
         stopAutoScroll(false);
-        setAutoScrollState({ isActive: true, isPaused: false, elapsedTime: 0 });
-        scrollAccumulatorRef.current = 0;
-        autoScrollPausedRef.current = false;
+        
+        // Update state immediately so UI can react (hide bars)
+        const initialState = { isActive: true, isPaused: false, elapsedTime: 0 };
+        autoScrollStateRef.current = initialState;
+        setAutoScrollState(initialState);
+        
+        // Delay to let layout stabilize after UI might hide
+        setTimeout(() => {
+            if (!mushafContentRef.current) return;
+            
+            scrollAccumulatorRef.current = 0;
+            autoScrollPausedRef.current = false;
+            lastScrollTimeRef.current = performance.now();
+            
+            let cachedPageHeight = PAGE_HEIGHT_FALLBACK;
+            let lastHeightCalcTime = 0;
 
-        const minutesPerJuz = parseInt(String(settings.scrollMinutes), 10) || 20;
-        const tickRate = 20;
-        
-        const content = mushafContentRef.current;
-        const pages = content.querySelectorAll('.mushaf-page');
-        let totalHeight = 0; let count = 0;
-        pages.forEach((page: any) => { const h = page.offsetHeight; if (h) { totalHeight += h; count++; } });
-        const pageHeight = count ? (totalHeight / count) : (content.clientHeight || PAGE_HEIGHT_FALLBACK);
-        
-        const totalPixels = pageHeight * PAGES_PER_JUZ;
-        const totalTimeMs = minutesPerJuz * 60 * 1000;
-        
-        if (totalPixels <= 0 || totalTimeMs <= 0) return;
-        
-        scrollIntervalRef.current = window.setInterval(() => {
-            if (!mushafContentRef.current || autoScrollPausedRef.current) return;
-            const pixelsPerTick = (totalPixels / totalTimeMs) * tickRate;
-            scrollAccumulatorRef.current += pixelsPerTick;
-            if (scrollAccumulatorRef.current >= 1) {
-                const pixelsToMove = Math.floor(scrollAccumulatorRef.current);
-                mushafContentRef.current.scrollTop += pixelsToMove;
-                scrollAccumulatorRef.current -= pixelsToMove;
-                updateHeadersDuringAutoScroll();
-            }
-        }, tickRate);
+            const scrollStep = (timestamp: number) => {
+                if (!lastScrollTimeRef.current) lastScrollTimeRef.current = timestamp;
+                const deltaTime = timestamp - lastScrollTimeRef.current;
+                lastScrollTimeRef.current = timestamp;
 
-        timerIntervalRef.current = window.setInterval(() => {
-             if (!autoScrollPausedRef.current) {
-                 setAutoScrollState(prev => ({ ...prev, elapsedTime: prev.elapsedTime + 1 }));
-             }
-        }, 1000);
+                if (!autoScrollPausedRef.current && mushafContentRef.current) {
+                    const content = mushafContentRef.current;
+                    
+                    // Recalculate page height every 3 seconds or if it's the first time
+                    if (timestamp - lastHeightCalcTime > 3000 || lastHeightCalcTime === 0) {
+                        const pages = content.querySelectorAll('.mushaf-page');
+                        let totalHeight = 0; let count = 0;
+                        pages.forEach((page: any) => { const h = page.offsetHeight; if (h) { totalHeight += h; count++; } });
+                        cachedPageHeight = count ? (totalHeight / count) : (content.clientHeight || PAGE_HEIGHT_FALLBACK);
+                        lastHeightCalcTime = timestamp;
+                    }
+                    
+                    const minutesPerJuz = parseInt(String(settingsRef.current.scrollMinutes), 10) || 20;
+                    const totalPixels = cachedPageHeight * PAGES_PER_JUZ;
+                    const totalTimeMs = minutesPerJuz * 60 * 1000;
+                    
+                    if (totalPixels > 0 && totalTimeMs > 0) {
+                        const pixelsPerMs = totalPixels / totalTimeMs;
+                        scrollAccumulatorRef.current += pixelsPerMs * deltaTime;
+                        
+                        if (scrollAccumulatorRef.current >= 1) {
+                            const pixelsToMove = Math.floor(scrollAccumulatorRef.current);
+                            content.scrollTop += pixelsToMove;
+                            scrollAccumulatorRef.current -= pixelsToMove;
+                            updateHeadersDuringAutoScroll();
+                        }
+                    }
+                }
+                autoScrollFrameRef.current = requestAnimationFrame(scrollStep);
+            };
+
+            autoScrollFrameRef.current = requestAnimationFrame(scrollStep);
+
+            timerIntervalRef.current = window.setInterval(() => {
+                 if (!autoScrollPausedRef.current) {
+                     setAutoScrollState(prev => ({ ...prev, elapsedTime: prev.elapsedTime + 1 }));
+                 }
+            }, 1000);
+        }, 200);
     };
 
     const toggleAutoScroll = () => {
-        if (autoScrollState.isActive) stopAutoScroll();
+        if (autoScrollStateRef.current.isActive) stopAutoScroll();
         else { startAutoScroll(); showToast('تم تفعيل التمرير التلقائي'); }
     };
     const handleScreenTap = () => {
@@ -1235,7 +1272,9 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
       if (autoScrollStateRef.current.isActive) {
         const newPausedState = !autoScrollStateRef.current.isPaused;
         autoScrollPausedRef.current = newPausedState;
-        setAutoScrollState(p => ({...p, isPaused: newPausedState }));
+        const newState = { ...autoScrollStateRef.current, isPaused: newPausedState };
+        autoScrollStateRef.current = newState;
+        setAutoScrollState(newState);
       }
     };
 
