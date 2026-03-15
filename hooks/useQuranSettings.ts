@@ -18,7 +18,7 @@ export function useQuranSettings({ initialLandscape, isLandscapeRef, modeSuffix 
         const defaultTheme = THEMES['default'];
         return saved ? JSON.parse(saved) : {
             fontSize: 1.7, fontFamily: defaultTheme.font, textColor: defaultTheme.text, bgColor: defaultTheme.bg,
-            reader: 'Alafasy_128kbps', theme: 'default', scrollMinutes: 20, tafseer: 'ar.jalalayn',
+            reader: 'Abu_Bakr_Ash-Shaatree_128kbps', theme: 'default', scrollMinutes: 20, tafseer: 'ar.jalalayn',
             hideUIOnAutoScroll: false
         };
     });

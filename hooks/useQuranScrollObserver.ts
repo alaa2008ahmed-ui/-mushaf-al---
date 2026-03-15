@@ -9,6 +9,7 @@ interface UseQuranScrollObserverProps {
     visiblePages: number[];
     setVisiblePages: React.Dispatch<React.SetStateAction<number[]>>;
     autoScrollState: { isActive: boolean; isPaused: boolean; elapsedTime: number };
+    autoScrollStateRef: React.MutableRefObject<{ isActive: boolean; isPaused: boolean; elapsedTime: number }>;
     isJumpingRef: React.MutableRefObject<boolean>;
     currentAyahRef: React.MutableRefObject<{ s: number; a: number }>;
     setCurrentAyah: (ayah: { s: number; a: number }) => void;
@@ -26,6 +27,7 @@ export function useQuranScrollObserver({
     visiblePages,
     setVisiblePages,
     autoScrollState,
+    autoScrollStateRef,
     isJumpingRef,
     currentAyahRef,
     setCurrentAyah,
@@ -35,6 +37,15 @@ export function useQuranScrollObserver({
     handleSajdahVisible
 }: UseQuranScrollObserverProps) {
     const lastScrollUpdateTime = useRef(0);
+    const lastPauseTimeRef = useRef(0);
+    const prevIsPausedRef = useRef(autoScrollState.isPaused);
+
+    useEffect(() => {
+        if (autoScrollState.isPaused && !prevIsPausedRef.current) {
+            lastPauseTimeRef.current = Date.now();
+        }
+        prevIsPausedRef.current = autoScrollState.isPaused;
+    }, [autoScrollState.isPaused]);
 
     useEffect(() => {
         const contentEl = mushafContentRef.current;
@@ -44,7 +55,11 @@ export function useQuranScrollObserver({
             const { scrollTop, scrollHeight, clientHeight } = contentEl;
             
             if (isLandscapeRef.current && !isLandscapeUIHiddenRef.current) {
-                setIsLandscapeUIHidden(true);
+                if (autoScrollStateRef.current.isPaused && (Date.now() - lastPauseTimeRef.current < 500)) {
+                    // Ignore scroll events immediately after pausing to prevent hiding the UI
+                } else {
+                    setIsLandscapeUIHidden(true);
+                }
             }
 
             if (scrollTop < clientHeight) {
@@ -62,7 +77,7 @@ export function useQuranScrollObserver({
                 });
             }
     
-            if (autoScrollState.isActive || isJumpingRef.current) return;
+            if (autoScrollStateRef.current.isActive || isJumpingRef.current) return;
     
             const now = Date.now();
             if (now - lastScrollUpdateTime.current < 100) return;
@@ -129,5 +144,5 @@ export function useQuranScrollObserver({
         return () => {
             contentEl.removeEventListener('scroll', handleScroll);
         };
-    }, [visiblePages, autoScrollState.isActive, handleSajdahVisible, mushafContentRef, isLandscapeRef, isLandscapeUIHiddenRef, setIsLandscapeUIHidden, setVisiblePages, isJumpingRef, currentAyahRef, setCurrentAyah, lastNotifiedJuz, lastNotifiedQuarter, showMarkerNotification]);
+    }, [visiblePages, autoScrollState.isActive, handleSajdahVisible, mushafContentRef, isLandscapeRef, isLandscapeUIHiddenRef, setIsLandscapeUIHidden, setVisiblePages, isJumpingRef, currentAyahRef, setCurrentAyah, lastNotifiedJuz, lastNotifiedQuarter, showMarkerNotification, autoScrollStateRef]);
 }

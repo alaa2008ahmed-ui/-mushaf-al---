@@ -143,7 +143,10 @@ export function useAutoScroll({
         }, 200);
     }, [mushafContentRef, stopAutoScroll, updateHeadersDuringAutoScroll]);
 
+    const lastToggleTimeRef = useRef<number>(0);
+
     const toggleAutoScroll = useCallback(() => {
+        lastToggleTimeRef.current = Date.now();
         if (autoScrollStateRef.current.isActive) stopAutoScroll();
         else { startAutoScroll(); showToast('تم تفعيل التمرير التلقائي'); }
     }, [stopAutoScroll, startAutoScroll, showToast]);
@@ -174,6 +177,7 @@ export function useAutoScroll({
     };
 
     const handleScreenTap = useCallback(() => {
+        if (Date.now() - lastToggleTimeRef.current < 500) return; // Ignore ghost clicks immediately after toggling
         if (autoScrollStateRef.current.isActive) {
             const newPausedState = !autoScrollStateRef.current.isPaused;
             autoScrollPausedRef.current = newPausedState;
