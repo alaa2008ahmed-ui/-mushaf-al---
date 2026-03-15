@@ -1191,6 +1191,9 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         autoScrollStateRef.current = newState;
         setAutoScrollState(newState);
         
+        // Show UI immediately
+        setIsLandscapeUIHidden(false);
+        
         if (showTimer) setTimeout(() => setAutoScrollState(p => ({...p, elapsedTime: 0})), 3000);
         else setAutoScrollState(p => ({...p, elapsedTime: 0}));
     };
@@ -1203,6 +1206,11 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         const initialState = { isActive: true, isPaused: false, elapsedTime: 0 };
         autoScrollStateRef.current = initialState;
         setAutoScrollState(initialState);
+        
+        // Hide UI immediately if setting is on
+        if (settingsRef.current.hideUIOnAutoScroll) {
+            setIsLandscapeUIHidden(true);
+        }
         
         // Delay to let layout stabilize after UI might hide
         setTimeout(() => {
