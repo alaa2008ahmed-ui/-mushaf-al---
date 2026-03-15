@@ -24,6 +24,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
             fontFamily: defaultTheme.font,
             textColor: defaultTheme.text,
             bgColor: defaultTheme.bg,
+            highlightTextColor: defaultTheme.highlightText || defaultTheme.accent,
             reader: 'Alafasy_128kbps',
             theme: 'default',
             scrollMinutes: 20,
@@ -97,17 +98,23 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, onOpenModal, sho
                         <input type="range" min="0.5" max="4.5" step="0.1" value={settings.fontSize} onChange={(e) => updateSetting('fontSize', parseFloat(e.target.value))} className="w-full h-1.5 bg-gray-300 rounded-lg appearance-none cursor-pointer accent-emerald-500" />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 border-b pb-2 border-gray-200 dark:border-gray-700">
+                    <div className="grid grid-cols-3 gap-3 border-b pb-2 border-gray-200 dark:border-gray-700">
                         <div>
-                            <label className="text-xs font-bold block mb-1 opacity-80">لون النص</label>
+                            <label className="text-[10px] sm:text-xs font-bold block mb-1 opacity-80 truncate">لون النص</label>
                             <div className="h-8 w-full rounded border border-gray-300 relative overflow-hidden">
                                 <input type="color" value={settings.textColor} onChange={(e) => updateSetting('textColor', e.target.value)} className="absolute -top-2 -left-2 w-[150%] h-[150%] cursor-pointer p-0 border-0" />
                             </div>
                         </div>
                         <div>
-                            <label className="text-xs font-bold block mb-1 opacity-80">لون الخلفية</label>
+                            <label className="text-[10px] sm:text-xs font-bold block mb-1 opacity-80 truncate">لون الخلفية</label>
                             <div className="h-8 w-full rounded border border-gray-300 relative overflow-hidden">
                                 <input type="color" value={settings.bgColor} onChange={(e) => updateSetting('bgColor', e.target.value)} className="absolute -top-2 -left-2 w-[150%] h-[150%] cursor-pointer p-0 border-0" />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="text-[10px] sm:text-xs font-bold block mb-1 opacity-80 truncate">لون التحديد</label>
+                            <div className="h-8 w-full rounded border border-gray-300 relative overflow-hidden">
+                                <input type="color" value={settings.highlightTextColor || THEMES['default'].highlightText} onChange={(e) => updateSetting('highlightTextColor', e.target.value)} className="absolute -top-2 -left-2 w-[150%] h-[150%] cursor-pointer p-0 border-0" />
                             </div>
                         </div>
                     </div>

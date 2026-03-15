@@ -225,6 +225,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         const defaultTheme = THEMES['default'];
         return saved ? JSON.parse(saved) : {
             fontSize: 1.7, fontFamily: defaultTheme.font, textColor: defaultTheme.text, bgColor: defaultTheme.bg,
+            highlightTextColor: defaultTheme.highlightText || defaultTheme.accent,
             reader: 'Alafasy_128kbps', theme: 'default', scrollMinutes: 20, tafseer: 'ar.jalalayn',
             hideUIOnAutoScroll: false
         };
@@ -912,7 +913,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         root.style.setProperty('--qr-card-text', t.cardText);
         root.style.setProperty('--qr-card-border', t.cardBorder);
         root.style.setProperty('--qr-sajdah', t.sajdah);
-        root.style.setProperty('--qr-highlight-text', (t as any).highlightText || t.accent);
+        root.style.setProperty('--qr-highlight-text', settings.highlightTextColor || (t as any).highlightText || t.accent);
 
         root.style.setProperty('--color-sajdah', t.sajdah);
         root.style.setProperty('--search-result-bg', t.cardBg);
@@ -923,7 +924,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         const isDark = t.bg && darkBgs.includes(t.bg.toLowerCase());
         if (isDark) document.documentElement.classList.add('dark');
         else document.documentElement.classList.remove('dark');
-    }, [currentTheme]);
+    }, [currentTheme, settings.highlightTextColor]);
 
     const isBookmarksModalOpen = activeModals.includes('bookmarks-modal');
     useEffect(() => {

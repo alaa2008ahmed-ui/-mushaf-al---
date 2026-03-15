@@ -135,11 +135,11 @@ const HomeScreen = ({ setScreen, theme }) => (
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button onClick={() => setScreen('umrah')} className="themed-card rounded-2xl px-4 py-5 text-right flex flex-col gap-2">
-                <h2 className="text-lg md:text-xl font-bold mb-1">أداء العمرة</h2>
+                <h2 className="text-lg md:text-xl font-bold mb-1" style={{color: theme.palette[0]}}>أداء العمرة</h2>
                 <p className="text-sm themed-text-muted">خطوات عملية من الإحرام حتى الحلق أو التقصير مع الأركان والأدعية.</p>
             </button>
             <button onClick={() => setScreen('hajj')} className="themed-card rounded-2xl px-4 py-5 text-right flex flex-col gap-2">
-                <h2 className="text-lg md:text-xl font-bold mb-1">أداء الحج</h2>
+                <h2 className="text-lg md:text-xl font-bold mb-1" style={{color: theme.palette[0]}}>أداء الحج</h2>
                 <p className="text-sm themed-text-muted">تعرّف على أنواع الحج (التمتع، الإفراد، القران)، مع مخطط الأيام.</p>
             </button>
         </div>

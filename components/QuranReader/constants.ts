@@ -36,7 +36,6 @@ export const READERS = [
     { id: 'Husary_Mujawwad_64kbps', name: 'الحصري (مجود)' },
     { id: 'Minshawy_Teacher_128kbps', name: 'المنشاوي (معلم)' },
     { id: 'Ayman_Sowaid_64kbps', name: 'أيمن سويد' },
-    { id: 'Khalifa_Taniji_128kbps', name: 'خليفة الطنيجي' },
     { id: 'Ghamadi_40kbps', name: 'سعد الغامدي' },
     { id: 'Saood_ash-Shuraym_128kbps', name: 'سعود الشريم' },
     { id: 'Sahl_Yassin_128kbps', name: 'سهل ياسين' },
@@ -66,7 +65,10 @@ export const READERS = [
     { id: 'Mustafa_Ismail_48kbps', name: 'مصطفى إسماعيل' },
     { id: 'Nasser_Alqatami_128kbps', name: 'ناصر القطامي' },
     { id: 'Hani_Rifai_192kbps', name: 'هاني الرفاعي' },
-    { id: 'Yasser_Ad-Dussary_128kbps', name: 'ياسر الدوسري' }
+    { id: 'Yasser_Ad-Dussary_128kbps', name: 'ياسر الدوسري' },
+    { id: 'Bandaar_Baleela_128kbps', name: 'بندر بليلة' },
+    { id: 'Khalid_AlJalil_128kbps', name: 'خالد الجليل' },
+    { id: 'Yaser_Salamah_128kbps', name: 'ياسر سلامة' }
 ];
 export const TAFSEERS = [{ id: 'ar.jalalayn', name: 'تفسير الجلالين' }, { id: 'ar.muyassar', name: 'التفسير الميسر' }, { id: 'ar.baghawi', name: 'تفسير البغوي' }, { id: 'ar.qurtubi', name: 'تفسير القرطبي' }, { id: 'ar.waseet', name: 'التفسير الوسيط' }];
 
