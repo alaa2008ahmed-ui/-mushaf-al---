@@ -1232,8 +1232,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
       if (isLandscape) {
           setIsLandscapeUIHidden(prev => !prev);
       }
-      if (autoScrollState.isActive) {
-        const newPausedState = !autoScrollState.isPaused;
+      if (autoScrollStateRef.current.isActive) {
+        const newPausedState = !autoScrollStateRef.current.isPaused;
         autoScrollPausedRef.current = newPausedState;
         setAutoScrollState(p => ({...p, isPaused: newPausedState }));
       }
@@ -1437,7 +1437,6 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                      <button onClick={() => { openModal('search-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-purple w-full justify-between mb-2" style={getToolbarStyle('btn-search', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>البحث</span><i className="fa-solid fa-search"></i></button>
                  )}
                  <button onClick={() => { openModal('themes-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between mb-2" style={getToolbarStyle('btn-themes', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الثيمات</span><i className="fa-solid fa-palette"></i></button>
-                 <button onClick={() => { toggleAutoScroll(); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-purple w-full justify-between mb-2" style={getToolbarStyle('btn-autoscroll', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>{autoScrollState.isActive ? "إيقاف التمرير" : "بدء التمرير"}</span><i className={`fa-solid ${autoScrollState.isActive ? 'fa-pause' : 'fa-arrow-down'}`}></i></button>
                  <button onClick={() => { openModal('settings-modal'); setIsFloatingMenuOpen(false); }} className="bottom-bar-button btn-green w-full justify-between" style={getToolbarStyle('btn-settings', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg)}><span>الإعدادات</span><i className="fa-solid fa-cog"></i></button>
             </div>
             <footer id="bottom-bar" className={`footer-default flex-none border-t shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-10 flex justify-around items-center px-1 py-1 w-full ${autoScrollState.isActive && !autoScrollState.isPaused && settings.hideUIOnAutoScroll && !isAutoScrollSettingsOpen ? 'hidden' : ''}`} style={getToolbarStyle('bottom-toolbar', currentTheme.barBg, currentTheme.barText, currentTheme.barBorder)}>
@@ -1474,12 +1473,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                     setSettings(p => ({...p, scrollMinutes: minutes}));
                     localStorage.setItem('quran_settings' + modeSuffix, JSON.stringify({...settings, scrollMinutes: minutes}));
                 }}
-                onToggleBars={() => {
-                    setSettings(p => ({...p, hideUIOnAutoScroll: !p.hideUIOnAutoScroll}));
-                    localStorage.setItem('quran_settings' + modeSuffix, JSON.stringify({...settings, hideUIOnAutoScroll: !settings.hideUIOnAutoScroll}));
-                }}
                 currentMinutes={settings.scrollMinutes}
-                hideBars={settings.hideUIOnAutoScroll}
                 isLandscape={isLandscape}
             />
         )}

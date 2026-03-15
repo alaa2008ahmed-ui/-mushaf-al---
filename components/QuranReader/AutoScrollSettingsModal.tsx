@@ -4,11 +4,9 @@ const AutoScrollSettingsModal: FC<{
     isOpen: boolean,
     onClose: () => void,
     onSelectTime: (minutes: number) => void,
-    onToggleBars: () => void,
     currentMinutes: number,
-    hideBars: boolean,
     isLandscape?: boolean
-}> = ({ isOpen, onClose, onSelectTime, onToggleBars, currentMinutes, hideBars, isLandscape }) => {
+}> = ({ isOpen, onClose, onSelectTime, currentMinutes, isLandscape }) => {
     if (!isOpen) return null;
     const options = Array.from({length: 56}, (_, i) => i + 5);
     return (
@@ -18,14 +16,6 @@ const AutoScrollSettingsModal: FC<{
                     <h3 className="font-bold text-lg">إعدادات التمرير التلقائي</h3>
                 </div>
                 <div className="p-4 overflow-y-auto flex-1">
-                    <div className="mb-6">
-                        <button onClick={onToggleBars} className="w-full p-4 rounded-xl flex justify-between items-center themed-card-bg border">
-                            <span className="font-bold">إخفاء الأشرطة</span>
-                            <div className={`w-12 h-6 rounded-full p-1 transition-all ${hideBars ? 'bg-green-500' : 'bg-gray-300'}`}>
-                                <div className={`w-4 h-4 rounded-full bg-white transition-transform ${hideBars ? 'translate-x-6' : ''}`}></div>
-                            </div>
-                        </button>
-                    </div>
                     <div className="mb-2 font-bold text-center">وقت التمرير (بالدقائق)</div>
                     <div className={`grid ${isLandscape ? 'grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2' : 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2'}`}>
                         {options.map(m => (
