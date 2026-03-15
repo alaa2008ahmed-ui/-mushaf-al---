@@ -13,6 +13,12 @@ const internetTones = [
     { name: "أذان 4", path: "/assets/audio/azan4.mp3" },
     { name: "تكبيرة 1", path: "/assets/audio/takbeer1.mp3" },
     { name: "تكبيرة 2", path: "/assets/audio/takbeer2.mp3" },
+    { name: "تكبيرة 3", path: "/assets/audio/takbeer3.mp3" },
+    { name: "تكبيرة 4", path: "/assets/audio/takbeer4.mp3" },
+    { name: "تكبيرة 5", path: "/assets/audio/takbeer5.mp3" },
+    { name: "تكبيرة 6", path: "/assets/audio/takbeer6.mp3" },
+    { name: "الصلاة", path: "/assets/audio/Salah.mp3" },
+    { name: "الشهادة", path: "/assets/audio/shahadah.mp3" },
 ];
 
 // Helper Functions
@@ -247,9 +253,7 @@ function PrayerTimes({ onBack }) {
                 <div className="relative">
                     <select value={selectValue} onChange={handleToneSelection} className="w-full appearance-none themed-bg-alt border themed-card-border rounded-xl py-3 px-4 text-xs font-bold" style={{ color: primaryColor }}>
                         <option value="none">بدون تنبيه</option>
-                        <optgroup label="أصوات الأذان والتنبيهات">
-                            {internetTones.map(tone => <option key={tone.path} value={tone.path}>{tone.name}</option>)}
-                        </optgroup>
+                        {internetTones.map(tone => <option key={tone.path} value={tone.path}>{tone.name}</option>)}
                         <option value="custom">نغمة مخصصة...</option>
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3">
