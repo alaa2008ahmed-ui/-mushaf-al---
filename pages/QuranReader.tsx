@@ -405,7 +405,9 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
 
             if (wasAutoscrolling) {
                 autoScrollPausedRef.current = true;
-                setAutoScrollState(p => ({...p, isPaused: true }));
+                const newState = { ...autoScrollStateRef.current, isPaused: true };
+                autoScrollStateRef.current = newState;
+                setAutoScrollState(newState);
             }
             if (wasPlaying) {
                 stopAudio();
@@ -591,7 +593,9 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         let wasScrolling = false;
         if (autoScrollStateRef.current.isActive && !autoScrollStateRef.current.isPaused) {
             autoScrollPausedRef.current = true;
-            setAutoScrollState(p => ({ ...p, isPaused: true }));
+            const newState = { ...autoScrollStateRef.current, isPaused: true };
+            autoScrollStateRef.current = newState;
+            setAutoScrollState(newState);
             wasAutoscrollingBeforeModal.current = true;
             wasScrolling = true;
         }
@@ -619,8 +623,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             autoScrollStateRef.current = newState;
             setAutoScrollState(newState);
             
-            // If we are pausing and hideUI is enabled, ensure UI is visible
-            if (newPausedState && settingsRef.current.hideUIOnAutoScroll && isLandscapeRef.current) {
+            // If we are pausing, ensure UI is visible in landscape mode
+            if (newPausedState && isLandscapeRef.current) {
                 setIsLandscapeUIHidden(false);
             }
         } else if (isLandscapeRef.current) {
@@ -637,7 +641,12 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
             const wasAutoscrolling = autoScrollStateRef.current.isActive && !autoScrollStateRef.current.isPaused;
             if (wasAutoscrolling) {
                 autoScrollPausedRef.current = true;
-                setAutoScrollState(p => ({ ...p, isPaused: true }));
+                const newState = { ...autoScrollStateRef.current, isPaused: true };
+                autoScrollStateRef.current = newState;
+                setAutoScrollState(newState);
+                if (isLandscapeRef.current) {
+                    setIsLandscapeUIHidden(false);
+                }
             }
             setIsTafseerLoading(true);
             setTafseerInfo({ isOpen: true, s, a, text: '', surahName: surah.name, wasAutoscrolling });
@@ -1278,8 +1287,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         autoScrollStateRef.current = newState;
         setAutoScrollState(newState);
         
-        // If we are pausing and hideUI is enabled, ensure UI is visible
-        if (newPausedState && settingsRef.current.hideUIOnAutoScroll && isLandscape) {
+        // If we are pausing, ensure UI is visible in landscape mode
+        if (newPausedState && isLandscape) {
             setIsLandscapeUIHidden(false);
         }
       } else if (isLandscape) {
