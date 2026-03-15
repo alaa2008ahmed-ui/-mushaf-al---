@@ -151,31 +151,6 @@ export function useAutoScroll({
         else { startAutoScroll(); showToast('تم تفعيل التمرير التلقائي'); }
     }, [stopAutoScroll, startAutoScroll, showToast]);
 
-    const handleAutoScrollButtonPointerDown = (e: React.PointerEvent) => {
-        e.stopPropagation();
-        autoScrollButtonTimerRef.current = window.setTimeout(() => {
-            autoScrollButtonTimerRef.current = null;
-            setIsAutoScrollSettingsOpen(true);
-        }, 500);
-    };
-
-    const handleAutoScrollButtonPointerUp = (e: React.PointerEvent) => {
-        e.stopPropagation();
-        if (autoScrollButtonTimerRef.current) {
-            clearTimeout(autoScrollButtonTimerRef.current);
-            autoScrollButtonTimerRef.current = null;
-            toggleAutoScroll();
-        }
-    };
-
-    const handleAutoScrollButtonPointerLeave = (e: React.PointerEvent) => {
-        e.stopPropagation();
-        if (autoScrollButtonTimerRef.current) {
-            clearTimeout(autoScrollButtonTimerRef.current);
-            autoScrollButtonTimerRef.current = null;
-        }
-    };
-
     const handleScreenTap = useCallback(() => {
         if (Date.now() - lastToggleTimeRef.current < 500) return; // Ignore ghost clicks immediately after toggling
         if (autoScrollStateRef.current.isActive) {
@@ -203,9 +178,6 @@ export function useAutoScroll({
         startAutoScroll,
         stopAutoScroll,
         toggleAutoScroll,
-        handleAutoScrollButtonPointerDown,
-        handleAutoScrollButtonPointerUp,
-        handleAutoScrollButtonPointerLeave,
         handleScreenTap
     };
 }

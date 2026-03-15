@@ -11,9 +11,8 @@ interface QuranFooterProps {
     handleBookmarkButtonPointerDown: () => void;
     handleBookmarkButtonPointerUp: () => void;
     handleBookmarkButtonPointerLeave: () => void;
-    handleAutoScrollButtonPointerDown: (e: React.PointerEvent) => void;
-    handleAutoScrollButtonPointerUp: (e: React.PointerEvent) => void;
-    handleAutoScrollButtonPointerLeave: (e: React.PointerEvent) => void;
+    toggleAutoScroll: () => void;
+    setIsAutoScrollSettingsOpen: React.Dispatch<React.SetStateAction<boolean>>;
     onBack: () => void;
 }
 
@@ -28,9 +27,8 @@ const QuranFooter: React.FC<QuranFooterProps> = ({
     handleBookmarkButtonPointerDown,
     handleBookmarkButtonPointerUp,
     handleBookmarkButtonPointerLeave,
-    handleAutoScrollButtonPointerDown,
-    handleAutoScrollButtonPointerUp,
-    handleAutoScrollButtonPointerLeave,
+    toggleAutoScroll,
+    setIsAutoScrollSettingsOpen,
     onBack
 }) => {
     return (
@@ -49,9 +47,11 @@ const QuranFooter: React.FC<QuranFooterProps> = ({
             </button>
             <button 
                 id="btn-autoscroll" 
-                onPointerDown={handleAutoScrollButtonPointerDown}
-                onPointerUp={handleAutoScrollButtonPointerUp}
-                onPointerLeave={handleAutoScrollButtonPointerLeave}
+                onClick={toggleAutoScroll}
+                onContextMenu={(e) => {
+                    e.preventDefault();
+                    setIsAutoScrollSettingsOpen(true);
+                }}
                 className="bottom-bar-button btn-purple flex-1 mx-1" 
                 style={{...getToolbarStyle('btn-autoscroll', currentTheme.btnBg, currentTheme.btnText, currentTheme.btnBg), touchAction: 'none'}}
             >

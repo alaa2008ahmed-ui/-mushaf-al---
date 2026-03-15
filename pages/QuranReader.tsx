@@ -97,9 +97,6 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
         startAutoScroll,
         stopAutoScroll,
         toggleAutoScroll,
-        handleAutoScrollButtonPointerDown,
-        handleAutoScrollButtonPointerUp,
-        handleAutoScrollButtonPointerLeave,
         handleScreenTap
     } = useAutoScroll({
         mushafContentRef,
@@ -564,7 +561,7 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                 renderPlayButtonIcon={renderPlayButtonIcon}
                 reciterToast={reciterToast}
             />
-            <ReadingTimer isVisible={autoScrollState.isActive || autoScrollState.elapsedTime > 0} elapsedTime={autoScrollState.elapsedTime} isPaused={autoScrollState.isPaused} />
+            <ReadingTimer isVisible={autoScrollState.isPaused || (!autoScrollState.isActive && autoScrollState.elapsedTime > 0)} elapsedTime={autoScrollState.elapsedTime} isPaused={autoScrollState.isPaused} />
             <div id="mushaf-content" ref={mushafContentRef} onClick={handleScreenTap} onTouchStart={handleTouchStartPinch} onTouchMove={handleTouchMovePinch} onTouchEnd={handleTouchEndPinch} className="flex-grow overflow-y-auto w-full relative touch-pan-y" style={isTransparentMode ? { position: 'absolute', top: 0, bottom: 0, height: '100%', zIndex: 0, paddingTop: '80px', paddingBottom: '80px' } : {}}>
                 <div id="pages-container" className="full-mushaf-container">
                    {[...new Set(visiblePages)].sort((a: number, b: number) => a - b).map(pageNum => (<MushafPage key={pageNum} pageNum={pageNum} pageData={getPageData(pageNum)} highlightedAyahId={highlightedAyahId} onAyahClick={handleAyahTextClick} onVerseClick={handleVerseClick} onVerseLongPress={handleVerseLongPress} onInteractionStart={handleInteractionStart} onInteractionEnd={handleInteractionEnd} settings={settings} />))}
@@ -592,9 +589,8 @@ const QuranReader: FC<{ onBack: () => void, initialLandscape?: boolean }> = ({ o
                 handleBookmarkButtonPointerDown={handleBookmarkButtonPointerDown}
                 handleBookmarkButtonPointerUp={handleBookmarkButtonPointerUp}
                 handleBookmarkButtonPointerLeave={handleBookmarkButtonPointerLeave}
-                handleAutoScrollButtonPointerDown={handleAutoScrollButtonPointerDown}
-                handleAutoScrollButtonPointerUp={handleAutoScrollButtonPointerUp}
-                handleAutoScrollButtonPointerLeave={handleAutoScrollButtonPointerLeave}
+                toggleAutoScroll={toggleAutoScroll}
+                setIsAutoScrollSettingsOpen={setIsAutoScrollSettingsOpen}
                 onBack={onBack}
             />
             <QuranModalsContainer

@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 
 const ScrollSpeedModal: FC<{
     isOpen: boolean,
@@ -7,6 +7,8 @@ const ScrollSpeedModal: FC<{
     currentMinutes: number,
     isLandscape?: boolean
 }> = ({ isOpen, onClose, onSelect, currentMinutes, isLandscape }) => {
+    const [selectedMinutes, setSelectedMinutes] = useState(currentMinutes);
+
     if (!isOpen) return null;
     const options = Array.from({length: 56}, (_, i) => i + 5);
     return (
@@ -17,14 +19,15 @@ const ScrollSpeedModal: FC<{
                 </div>
                 <div className={`p-2 overflow-y-auto flex-1 grid ${isLandscape ? 'grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-2' : 'grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2'}`}>
                     {options.map(m => (
-                        <button key={m} onClick={() => { onSelect(m); onClose(); }} className={`p-2 rounded-lg text-center font-bold transition ${currentMinutes === m ? 'theme-accent-btn' : 'themed-card-bg border'}`}>
+                        <button key={m} onClick={() => setSelectedMinutes(m)} className={`p-2 rounded-lg text-center font-bold transition ${selectedMinutes === m ? 'theme-accent-btn' : 'themed-card-bg border'}`}>
                             <span className="text-sm">{m}</span>
                             <span className="text-[10px] block opacity-70">دقيقة</span>
                         </button>
                     ))}
                 </div>
-                <div className="p-3 border-t themed-card-bg rounded-b-2xl">
-                    <button onClick={onClose} className="w-full py-2 rounded-xl font-bold theme-btn-bg">إلغاء</button>
+                <div className="p-3 border-t themed-card-bg rounded-b-2xl flex gap-2">
+                    <button onClick={() => { onSelect(selectedMinutes); onClose(); }} className="flex-1 py-2 rounded-xl font-bold theme-btn-bg">حفظ</button>
+                    <button onClick={onClose} className="flex-1 py-2 rounded-xl font-bold border themed-card-bg opacity-80">إلغاء</button>
                 </div>
             </div>
         </div>
